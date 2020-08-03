@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">#E0FAFF</item>
+        <item name="colorPrimaryDark">#0D47EE</item>
+        <item name="windowNoTitle">false</item>
+    </style>
+
+    <style name="AppTheme.FullScreen" parent="@style/AppTheme">
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="RoundedCommunicationButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">@drawable/circle_btn</item>
+    </style>
+
+</resources>

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1"
+    tools:context=".ui.communication.say.SayActivity">
+
+
+    <EditText
+        android:id="@+id/editSayText"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.15"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="Введите текст"
+        android:inputType="textMultiLine" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.3"
+        android:weightSum="1"
+        android:gravity="end">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="0.8">
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:text="Частые фразы:"
+                android:layout_marginLeft="5sp"
+                android:textColor="#000"
+                android:textSize="20sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.7"
+                android:layout_marginLeft="5sp"
+                android:baselineAligned="false"
+                android:layout_marginRight="30sp">
+
+                <LinearLayout
+                    android:id="@+id/oftenWordLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+        <Button
+            android:id="@+id/btnSay"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:layout_gravity="end"
+            android:layout_weight="0.2"
+            android:text="Сказать"
+            android:layout_marginRight="50sp"
+            android:textAllCaps="false"
+            style="@style/RoundedCommunicationButton"
+            android:textSize="18sp"
+            android:layout_marginTop="10sp"
+            android:layout_marginBottom="20sp"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.55"
+        android:weightSum="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.35"
+            android:orientation="horizontal"
+            android:layout_marginLeft="5sp"
+            android:weightSum="1">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:weightSum="1"
+                android:layout_weight="0.22"
+                android:orientation="vertical"
+                android:layout_marginRight="20sp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Коллекции:"
+                    android:textSize="20sp"
+                    android:textColor="#000"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <Button
+                        android:id="@+id/btnAddSayCollection"
+                        android:layout_width="60sp"
+                        android:layout_height="wrap_content"
+                        android:background="#9F37D71B"
+                        android:text="+"
+                        android:textAllCaps="false"
+                        android:textSize="20sp"
+                        android:contentDescription="Добавить коллекцию"/>
+
+                    <Button
+                        android:id="@+id/btnDeleteSayCollection"
+                        android:layout_width="60sp"
+                        android:layout_height="wrap_content"
+                        android:background="#A3ED3A3A"
+                        android:text="-"
+                        android:textAllCaps="false"
+                        android:textSize="20sp"
+                        android:contentDescription="Удалить коллекцию"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="0.58">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_columnSpan="2"
+                    android:text="Фразы:"
+                    android:textSize="20sp"
+                    android:textColor="#000"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:weightSum="1">
+
+                <Button
+                    android:id="@+id/btnAddSayWord"
+                    android:layout_width="60sp"
+                    android:layout_height="wrap_content"
+                    android:background="#9F37D71B"
+                    android:text="+"
+                    android:textAllCaps="false"
+                    android:textSize="20sp"
+                    android:contentDescription="Добавить фразу в коллекцию"/>
+
+                <Button
+                    android:id="@+id/btnDeleteSayWord"
+                    android:layout_width="60sp"
+                    android:layout_height="wrap_content"
+                    android:background="#A3ED3A3A"
+                    android:text="-"
+                    android:textAllCaps="false"
+                    android:textSize="20sp"
+                    android:contentDescription="Удалить фразу из коллекции"/>
+            </LinearLayout>
+
+            </LinearLayout>
+            <Button
+                android:id="@+id/btnShow"
+                android:layout_width="0dp"
+                android:layout_height="65dp"
+                android:layout_gravity="end"
+                android:layout_weight="0.2"
+                android:text="Показать"
+                android:textAllCaps="false"
+                style="@style/RoundedCommunicationButton"
+                android:textSize="18sp"
+                android:layout_marginRight="50sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.65"
+            android:orientation="horizontal"
+            android:weightSum="1"
+
+            android:layout_marginLeft="5sp">
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.22">
+
+                <LinearLayout
+                    android:id="@+id/linearCollections"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+
+                </LinearLayout>
+            </ScrollView>
+
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.78">
+
+                <GridLayout
+                    android:id="@+id/gridWords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </GridLayout>
+            </ScrollView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:weightSum="3">
+
+    <Button
+        android:id="@+id/buttonToSee"
+        style="@style/RoundedCommunicationButton"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="30dp"
+        android:paddingTop="10dp"
+        android:drawableTop="@drawable/ic_eye"
+        android:text="Смотреть"
+        android:drawablePadding="-10dp"
+        android:textAllCaps="false"
+        android:textSize="25sp" />
+
+    <Button
+        android:id="@+id/buttonToListen"
+        style="@style/RoundedCommunicationButton"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="30dp"
+        android:paddingTop="10dp"
+        android:drawableTop="@drawable/ic_hearing_black_24dp"
+        android:text="Слушать"
+        android:drawablePadding="-10dp"
+        android:textAllCaps="false"
+        android:textSize="25sp" />
+
+    <Button
+        android:id="@+id/buttonToSay"
+        style="@style/RoundedCommunicationButton"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="30dp"
+        android:paddingTop="10dp"
+        android:drawableTop="@drawable/ic_audio"
+        android:text="Говорить"
+        android:drawablePadding="-10dp"
+        android:textAllCaps="false"
+        android:textSize="25sp" />
+</LinearLayout>

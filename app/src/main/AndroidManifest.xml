@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.parus">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:fullBackupContent="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme.FullScreen"
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:appComponentFactory"
+        tools:targetApi="p">
+        <activity android:name="com.example.parus.ui.home.map.MapActivity"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name="com.example.parus.ui.account.SettingsActivity"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name="com.example.parus.ui.home.reminder.RemindersActivity"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask"/>
+        <activity android:name="com.example.parus.ui.communication.listen.ListenActivity"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask"/>
+        <activity android:name="com.example.parus.ui.communication.say.SayShowActivity"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name="com.example.parus.ui.communication.see.SeeActivity"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask"/>
+
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="label" />
+
+        <meta-data
+            android:name="com.samsung.android.health.permission.read"
+            android:value="com.samsung.health.heart_rate" />
+        <activity
+            android:name="com.example.parus.ui.communication.say.SayActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustPan"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name="com.example.parus.MainActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name="com.example.parus.FirstRunActivity" />
+        <activity android:name="com.example.parus.LoginActivity" />
+        <activity android:name="com.example.parus.ResetPasswordActivity" />
+        <activity android:name="com.example.parus.StartActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name="com.example.parus.services.OnlineService" />
+        <service android:name="com.example.parus.services.WorkService" />
+        <service android:name="com.example.parus.services.GeoLocationService" />
+        <service
+            android:name="com.example.parus.services.HeartRateService"
+            android:process=":HeartBPMcheckService" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notifications_black_24dp" />
+
+        <service
+            android:name="com.example.parus.services.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+    </application>
+
+</manifest>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <Spinner
+        android:id="@+id/dialogReminderSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:contentDescription="Тип напоминания"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Название напоминания:"
+        android:layout_marginLeft="5sp"
+        android:textSize="18sp"
+        android:textColor="#000"/>
+    <EditText
+        android:id="@+id/reminderDialogName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ems="10"
+        android:contentDescription="Название напоминания"/>
+    <LinearLayout
+        android:id="@+id/dialogReminderType1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Добавить время напоминания:"
+                android:layout_marginLeft="5sp"
+                android:textSize="18sp"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/reminderDialogTime"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:contentDescription="Время напоминания"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/dialogDeleteReminder"
+                style="@style/RoundedCommunicationButton"
+                android:layout_marginRight="10dp"
+                android:textSize="30sp"
+                android:text="-"
+                android:contentDescription="Удалить последнее время из списка"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/dialogAddReminder"
+                style="@style/RoundedCommunicationButton"
+                android:layout_marginLeft="10dp"
+                android:textSize="30sp"
+                android:text="+"
+                android:contentDescription="Добавить время в список"/>
+        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Добавленное время:"
+            android:layout_marginLeft="5sp"
+            android:layout_marginTop="5dp"
+            android:textSize="18sp"
+            android:textColor="#000"/>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="Список времени для напоминания">
+            <LinearLayout
+                android:id="@+id/reminderDialogScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Время не добавлено"
+                    android:layout_marginLeft="5sp"
+                    android:layout_marginTop="5dp"
+                    android:textSize="18sp"
+                    android:textColor="#000"/>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/dialogReminderType2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Начать напоминать в:"
+                android:layout_marginLeft="5sp"
+                android:textSize="18sp"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/reminderDialogTimeStart"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:contentDescription="Время начала напоминаний"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Закончить напоминать в:"
+                android:layout_marginLeft="5sp"
+                android:textSize="18sp"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/reminderDialogTimeEnd"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:contentDescription="Время конца напоминаний"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Интервал:"
+                android:layout_marginLeft="5sp"
+                android:textSize="18sp"
+                android:textColor="#000"/>
+            <EditText
+                android:id="@+id/reminderDialogTimeInterval"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:contentDescription="Интервал между напоминаниями"/>
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Минимальный интервал: 15 минут"
+            android:layout_marginLeft="5sp"
+            android:textSize="13sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Максимальный интервал: 12 часов"
+            android:layout_marginLeft="5sp"
+            android:textSize="13sp"/>
+    </LinearLayout>
+</LinearLayout>

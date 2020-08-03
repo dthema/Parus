@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FirstRunActivity">
+
+    <TextView
+        android:id="@+id/firstText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Введите ваше имя"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        android:layout_marginTop="200dp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginRight="10sp"/>
+
+    <EditText
+        android:id="@+id/firstEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ваше имя"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/firstText"
+        android:layout_marginLeft="10sp"
+        android:layout_marginRight="10sp" />
+    <LinearLayout
+        android:id="@+id/firstLinear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:gravity="center"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/firstText"
+        android:layout_marginTop="30dp">
+        <Button
+            android:id="@+id/firstSupport"
+            android:layout_width="150dp"
+            android:layout_height="60dp"
+            android:text="Помощник"
+            android:textAllCaps="false"
+            android:textSize="19sp"
+            style="@style/RoundedCommunicationButton"
+            android:layout_marginRight="10dp" />
+        <Button
+            android:id="@+id/firstDisabled"
+            android:layout_width="150dp"
+            android:layout_height="60dp"
+            android:text="Человек с ОВЗ"
+            android:textAllCaps="false"
+            android:textSize="19sp"
+            style="@style/RoundedCommunicationButton"
+            android:layout_marginLeft="10dp"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/firstRunBtn"
+        android:layout_width="120sp"
+        android:textSize="19sp"
+        android:layout_height="50dp"
+        android:text="Продолжить"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:textAllCaps="false"
+        android:layout_marginBottom="40dp"
+        android:layout_marginRight="40dp"
+        style="@style/RoundedCommunicationButton"/>
+
+</RelativeLayout>

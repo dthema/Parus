@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.account.SettingsActivity"
+    android:orientation="vertical">
+    <Switch
+        android:id="@+id/checkHeart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="Отслеживать сердцебиение"
+        android:textSize="17sp"
+        android:layout_marginTop="15dp"
+        android:textColor="#000"/>
+    <Switch
+        android:id="@+id/checkGeo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="Отслеживать геоданные"
+        android:textSize="17sp"
+        android:textColor="#000"
+        android:layout_marginTop="15dp"/>
+    <Button
+        android:id="@+id/fastAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        android:text="Выбрать быстрое действие"
+        android:textAlignment="textStart"
+        android:textSize="17sp"
+        android:textAllCaps="false"/>
+    <Button
+        android:id="@+id/changeEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Сменить почту"
+        android:backgroundTint="@color/white"
+        android:textSize="17sp"
+        android:textAlignment="textStart"
+        android:textAllCaps="false" />
+    <Button
+        android:id="@+id/changePassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Сменить пароль"
+        android:backgroundTint="@color/white"
+        android:textSize="17sp"
+        android:textAlignment="textStart"
+        android:textAllCaps="false"/>
+    <Button
+        android:id="@+id/btnDeleteAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#C8F82424"
+        android:text="Удалить аккаунт"
+        android:textSize="17sp"
+        android:textAllCaps="false" />
+</LinearLayout>
