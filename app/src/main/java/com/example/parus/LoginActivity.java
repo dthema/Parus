@@ -138,7 +138,7 @@ public class LoginActivity extends AppCompatActivity {
                                     userData.put("userId", auth.getCurrentUser().getUid());
                                     userData.put("linkUserId", auth.getCurrentUser().getUid());
                                     userData.put("token", token);
-                                    userData.put("isSupport", false);
+                                    userData.put("support", false);
                                     userData.put("checkHeartBPM", false);
                                     userData.put("checkGeoPosition", false);
                                     userData.put("fastAction", "0");

@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.parus.R;
 import com.example.parus.viewmodels.ReminderModel;
-import com.example.parus.viewmodels.data.Reminder;
+import com.example.parus.viewmodels.data.models.Reminder;
 
 import java.util.ArrayList;
 import java.util.Calendar;

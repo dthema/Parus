@@ -40,7 +40,7 @@ public class FirstRunActivity extends AppCompatActivity {
             text.setText("Если ваш помощник уже зарегистрирован, введите его ID.\nИначе оставьте это поле пустым");
             linearLayout.setVisibility(View.GONE);
         });
-        support.setOnClickListener(l -> user.update("isSupport", true)
+        support.setOnClickListener(l -> user.update("support", true)
                 .addOnSuccessListener(c -> {
                     editText.setVisibility(View.VISIBLE);
                     btn.setVisibility(View.VISIBLE);

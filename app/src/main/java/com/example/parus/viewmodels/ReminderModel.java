@@ -1,22 +1,19 @@
 package com.example.parus.viewmodels;
 
-import android.app.Application;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 
-import com.example.parus.viewmodels.data.Reminder;
+import com.example.parus.viewmodels.data.models.Reminder;
 import com.example.parus.viewmodels.repositories.ReminderRepository;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class ReminderModel extends AndroidViewModel {
+public class ReminderModel extends ViewModel {
 
-    public ReminderModel(@NonNull Application application) {
-        super(application);
+    public ReminderModel() {
+        super();
     }
 
     ReminderRepository repository = new ReminderRepository();
@@ -29,7 +26,9 @@ public class ReminderModel extends AndroidViewModel {
     }
 
     public LiveData<List<Reminder>> getProductList() {
-        return repository.productListening();
+        remindersList = repository.productListening();
+        return remindersList;
+
     }
 
     public LiveData<List<Reminder>> getRemindersList() {

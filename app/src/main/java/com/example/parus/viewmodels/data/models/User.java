@@ -1,4 +1,4 @@
-package com.example.parus.viewmodels.data;
+package com.example.parus.viewmodels.data.models;
 
 import com.google.firebase.Timestamp;
 
@@ -11,7 +11,7 @@ public class User {
     private String token;
     private String name;
     private String fastAction;
-    private boolean isSupport;
+    private boolean support;
     private boolean checkGeoPosition;
     private boolean checkHeartBPM;
     private HashMap<String, Object> SaySettings;
@@ -21,13 +21,13 @@ public class User {
 
     public User(){}
 
-    public User(String userId, String linkUserId, String token, String name, String fastAction, boolean isSupport, boolean checkGeoPosition, boolean checkHeartBPM, HashMap<String, Object> saySettings, HashMap<String, Object> wordsOften, Timestamp lastOnline, Long pulse) {
+    public User(String userId, String linkUserId, String token, String name, String fastAction, boolean support, boolean checkGeoPosition, boolean checkHeartBPM, HashMap<String, Object> saySettings, HashMap<String, Object> wordsOften, Timestamp lastOnline, Long pulse) {
         this.userId = userId;
         this.linkUserId = linkUserId;
         this.token = token;
         this.name = name;
         this.fastAction = fastAction;
-        this.isSupport = isSupport;
+        this.support = support;
         this.checkGeoPosition = checkGeoPosition;
         this.checkHeartBPM = checkHeartBPM;
         SaySettings = saySettings;
@@ -77,11 +77,11 @@ public class User {
     }
 
     public boolean isSupport() {
-        return isSupport;
+        return support;
     }
 
     public void setSupport(boolean support) {
-        isSupport = support;
+        this.support = support;
     }
 
     public boolean isCheckGeoPosition() {

@@ -16,6 +16,8 @@
 
 package com.example.parus.viewmodels.data;
 
+import android.util.Log;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,20 +41,18 @@ public class SingleLiveEvent<T> extends MutableLiveData<T> {
 
     private static final String TAG = "SingleLiveEvent";
 
-    private final AtomicBoolean mPending = new AtomicBoolean(false);
-
     @MainThread
     public void observe(@NonNull LifecycleOwner owner, @NonNull final Observer<? super T> observer) {
 
         // Observe the internal MutableLiveData
-        super.observe(owner, observer);
-
-        removeObservers(owner);
+        super.observe(owner, t -> {
+                observer.onChanged(t);
+                removeObservers(owner);
+            });
     }
 
     @MainThread
     public void setValue(@Nullable T t) {
-        mPending.set(true);
         super.setValue(t);
     }
 

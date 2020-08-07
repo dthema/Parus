@@ -1,4 +1,4 @@
-package com.example.parus.viewmodels.data;
+package com.example.parus.viewmodels.data.models;
 
 import java.util.Date;
 import java.util.List;

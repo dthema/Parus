@@ -12,8 +12,8 @@ import com.example.parus.ui.account.AccountFragment;
 import com.example.parus.ui.chat.ChatFragment;
 import com.example.parus.ui.communication.CommunicationFragment;
 import com.example.parus.ui.home.HomeFragment;
+import com.example.parus.viewmodels.ServiceModel;
 import com.example.parus.viewmodels.UserModel;
-import com.example.parus.viewmodels.WorkModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int DELETE = 3;
     private MyFirebaseMessagingService firebaseMessagingService;
     private UserModel userModel;
-    private WorkModel workModel;
+    private ServiceModel serviceModel;
     private BottomNavigationView navView;
     private Fragment fragmentHome;
     private Fragment fragmentCommunication;
@@ -105,9 +105,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         userModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
                 .get(UserModel.class);
-        workModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
-                .get(WorkModel.class);
-        workModel.startService();
+        serviceModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                .get(ServiceModel.class);
+        serviceModel.startWorkService();
         firebaseMessagingService = new MyFirebaseMessagingService();
         new Thread(() -> FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(MainActivity.this, instanceIdResult -> {
             String deviceToken = instanceIdResult.getToken();
@@ -183,12 +183,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        userModel.startCheckOnline();
+        serviceModel.startOnlineService();
     }
 
     @Override
     protected void onPause() {
-        stopService(new Intent(this, OnlineService.class));
+        serviceModel.startOnlineService();
         super.onPause();
     }
 }

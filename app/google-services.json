@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:60384121571:android:664fa5cc0b021a3ebcebd6",
+        "mobilesdk_app_id": "1:60384121571:android:464d77a751c41ca6bcebd6",
         "android_client_info": {
-          "package_name": "com.android.parus"
+          "package_name": "com.example.parus"
         }
       },
       "oauth_client": [

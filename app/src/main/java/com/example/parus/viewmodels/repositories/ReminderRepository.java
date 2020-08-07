@@ -1,15 +1,23 @@
 package com.example.parus.viewmodels.repositories;
 
+import android.util.Pair;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
-import com.example.parus.viewmodels.data.Reminder;
+import com.example.parus.viewmodels.data.binding.HomeData;
+import com.example.parus.viewmodels.data.models.Reminder;
 import com.example.parus.viewmodels.data.ReminderData;
-import com.example.parus.viewmodels.data.User;
+import com.example.parus.viewmodels.data.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,12 +29,16 @@ public class ReminderRepository {
         this.userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
+    ReminderData reminderData;
+
     public LiveData<List<Reminder>> productListening(String userId, String linkUserId, boolean isSupport) {
-        return new ReminderData(userId, linkUserId, isSupport);
+        reminderData = new ReminderData(userId, linkUserId, isSupport);
+        return reminderData;
     }
 
     public LiveData<List<Reminder>> productListening() {
-        return new ReminderData(userId);
+        reminderData = new ReminderData(userId);
+        return reminderData;
     }
 
     private MutableLiveData<Boolean> delete = new MutableLiveData<>();
@@ -97,4 +109,7 @@ public class ReminderRepository {
                 });
         return change;
     }
+
 }
+
+

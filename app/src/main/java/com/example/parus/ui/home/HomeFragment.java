@@ -2,46 +2,44 @@ package com.example.parus.ui.home;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.R;
-import com.example.parus.data.User;
+import com.example.parus.databinding.FragmentHomeBinding;
 import com.example.parus.services.HeartRateService;
 import com.example.parus.ui.communication.listen.ListenActivity;
 import com.example.parus.ui.communication.say.SayShowActivity;
 import com.example.parus.ui.communication.see.SeeActivity;
 import com.example.parus.ui.home.map.MapActivity;
 import com.example.parus.ui.home.reminder.RemindersActivity;
+import com.example.parus.viewmodels.HealthModel;
+import com.example.parus.viewmodels.HomeViewModel;
 import com.example.parus.viewmodels.NetworkModel;
 import com.example.parus.viewmodels.ReminderModel;
 import com.example.parus.viewmodels.UserModel;
-import com.example.parus.viewmodels.data.Reminder;
+import com.example.parus.viewmodels.data.binding.HomeData;
+import com.example.parus.viewmodels.data.models.Reminder;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
@@ -50,9 +48,7 @@ import com.samsung.android.sdk.healthdata.HealthDataStore;
 import com.samsung.android.sdk.healthdata.HealthPermissionManager;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,78 +56,45 @@ import java.util.Objects;
 
 public class HomeFragment extends Fragment {
 
-    private Button pulse;
-    private GoogleSignInAccount account;
-    private Button toReminders;
-    private User user;
-    private TextView lastOnline;
-    private Button fastAction;
-    private ImageButton callSupport;
     private List<Reminder> reminders;
     private static final String TAG = "HomeFragment";
-    private boolean isCheckThreadActive = false;
-    final private static int CHECK_INTERVAL = 30000;
+    private static final int NO_PERMISSION = 0;
+    private static final int NO_GOOGLE_ACCOUNT = 1;
+    private static final int SAMSUNG_NO_CONNECT = 3;
     private UserModel userModel;
-    private UserModel linkUserModel;
     private ReminderModel reminderModel;
     private NetworkModel networkModel;
-    private Double speed = 1.;
-    private Double pitch = 1.;
+    private HealthModel healthModel;
+    private HomeViewModel homeViewModel;
     private HealthDataStore mStore;
     private HealthConnectionErrorResult mConnError;
-    private TextToSpeech tts;
+    private HomeData homeData;
+    private FragmentHomeBinding homeBinding;
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (hidden) {
-            stopCheckReminders();
+            homeViewModel.stopSpeech();
+            if (mStore != null)
+                mStore.disconnectService();
             if (networkModel != null)
                 stopCheckInternetConnection();
         } else {
-            if (checkReminders != null)
-                if (!checkReminders.isAlive())
-                    startCheckReminders();
             if (networkModel != null)
                 startCheckInternetConnection();
         }
     }
 
     private void InternetOff() {
-        lastOnline.setText("Нет подключения к сети");
+        homeData.setLinkUserOnline("Нет подключения к сети");
     }
 
     @SuppressLint("SetTextI18n")
     private void InternetOn() {
         userModel.getUploadLinkUser().observe(getViewLifecycleOwner(), linkUser -> {
             if (linkUser != null) {
-                String userId = linkUser.getUserId();
-                String linkUserId = linkUser.getLinkUserId();
-                String name = linkUser.getName();
-                boolean isSupport = linkUser.isSupport();
-                Timestamp lastOnline = linkUser.getLastOnline();
-                if (userId != null && linkUserId != null) {
-                    if (userId.equals(linkUserId)) {
-                        if (isSupport)
-                            this.lastOnline.setText("Нет связи с подопечным");
-                        else
-                            this.lastOnline.setText("Нет связи с помощником");
-                    } else {
-                        if (lastOnline != null) {
-                            Date date = lastOnline.toDate();
-                            Calendar c = Calendar.getInstance();
-                            Calendar d = Calendar.getInstance();
-                            d.setTime(date);
-                            if (c.getTimeInMillis() - d.getTimeInMillis() < 120000)
-                                this.lastOnline.setText(name + " онлайн");
-                            else
-                                this.lastOnline.setText(name + " был(-a) в сети " +
-                                        convertDate(d.get(Calendar.DAY_OF_MONTH)) + "." + convertDate(d.get(Calendar.MONTH)) +
-                                        " в " + convertDate(d.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(d.get(Calendar.MINUTE)));
-                        } else
-                            this.lastOnline.setText("Неизвестно о последней активности " + name);
-                    }
-                }
+                homeViewModel.setLastOnline(linkUser);
             }
         });
     }
@@ -144,56 +107,27 @@ public class HomeFragment extends Fragment {
         requireActivity().runOnUiThread(this::InternetOff);
     }
 
-    private Thread checkReminders;
-
-    private void startCheckReminders() {
-        if (!isCheckThreadActive) {
-            isCheckThreadActive = true;
-            checkReminders = new Thread(() -> {
-                while (isCheckThreadActive) {
-                    if (isVisible()) {
-                        Log.d(TAG, "start");
-                        requireActivity().runOnUiThread(this::sortReminders);
-                        try {
-                            Thread.sleep(CHECK_INTERVAL);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
-            checkReminders.setName("Check Thread");
-            checkReminders.start();
-        }
-    }
-
-    private void stopCheckReminders() {
-        isCheckThreadActive = false;
-        if (checkReminders != null)
-            if (!checkReminders.isInterrupted())
-                checkReminders.interrupt();
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        startCheckReminders();
         startCheckInternetConnection();
     }
 
     private void initModels() {
-        userModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(UserModel.class);
-        linkUserModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(UserModel.class);
-        reminderModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(ReminderModel.class);
-        networkModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+        userModel = new ViewModelProvider(this).get(UserModel.class);
+        reminderModel = new ViewModelProvider(this).get(ReminderModel.class);
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        networkModel = new ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(NetworkModel.class);
+        healthModel = new ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(HealthModel.class);
     }
 
     private void initObservers() {
         userModel.getUserData().observe(getViewLifecycleOwner(), user -> {
+            homeViewModel.setUserUI(user);
             String userId = user.getUserId();
             String linkUserId = user.getLinkUserId();
             String fastAction = user.getFastAction();
@@ -203,37 +137,63 @@ public class HomeFragment extends Fragment {
                 return;
             observeReminders(userId, linkUserId, isSupport);
             if (SaySettings.get("TTS_Speed") != null)
-                speed = (Double) SaySettings.get("TTS_Speed");
+                homeViewModel.setSpeed((Double) SaySettings.get("TTS_Speed"));
             if (SaySettings.get("TTS_Pitch") != null)
-                pitch = (Double) SaySettings.get("TTS_Pitch");
+                homeViewModel.setPitch((Double) SaySettings.get("TTS_Pitch"));
             // быстрое действие
             if (fastAction != null)
                 setFastAction(fastAction);
             if (!isSupport) {
                 if (!userId.equals(linkUserId)) {
-                    callSupport.setVisibility(View.VISIBLE);
-                    callSupport.setOnClickListener(l -> userModel.callSupport());
+                    homeBinding.homeCallSupport.setVisibility(View.VISIBLE);
+                    homeBinding.homeCallSupport.setOnClickListener(l -> userModel.callSupport().observe(getViewLifecycleOwner(),
+                            send -> Toast.makeText(getContext(), "Уведомление отправлено помощнику", Toast.LENGTH_LONG).show()));
                 } else {
-                    callSupport.setVisibility(View.GONE);
-                    lastOnline.setText("Нет связи с помощником");
+                    homeBinding.homeCallSupport.setVisibility(View.GONE);
                 }
                 // отображение пульса
-                startCheckHeartBPM();
+                healthModel.get().observe(getViewLifecycleOwner(), result -> {
+                    switch (result) {
+                        case NO_PERMISSION:
+                            homeBinding.homePulse.setClickable(true);
+                            homeData.setHeartRate("Пульс: Нет прав");
+                            break;
+                        case NO_GOOGLE_ACCOUNT:
+                            homeBinding.homePulse.setClickable(true);
+                            homeData.setHeartRate("Пульс: Google Аккаунт не подключён");
+                            break;
+                        case SAMSUNG_NO_CONNECT:
+                            homeBinding.homePulse.setClickable(true);
+                            homeData.setHeartRate("Пульс: Samsung Health не подключён");
+                            break;
+                        default:
+                            homeBinding.homePulse.setClickable(false);
+                            if (user.isCheckHeartBPM()) {
+                                homeData.setHeartRate("Пульс: Данные не обнаружены");
+                                Long BPM = user.getPulse();
+                                if (BPM != 0)
+                                    homeData.setHeartRate("Пульс: " + BPM + " у/м");
+                            } else
+                                homeData.setHeartRate("Пульс: Отслеживание отключено");
+                            break;
+                    }
+                });
             } else {
-                callSupport.setVisibility(View.GONE);
-                pulse.setClickable(false);
+                homeBinding.homeCallSupport.setVisibility(View.GONE);
+                homeBinding.homePulse.setClickable(false);
                 if (linkUserId.equals(userId)) {
-                    toReminders.setClickable(false);
-                    pulse.setText("Нет связи\nс подопечным");
-                    pulse.setTextSize(17);
+                    homeData.setHeartRate("Нет связи\nс подопечным");
+                    homeBinding.reminderButton.setClickable(false);
                     reminders.clear();
-                    sortReminders();
-                    lastOnline.setText("Нет связи с подопечным");
-                    if (userModel.getLinkUserData() != null)
+                    if (reminderLiveData != null) {
+                        reminderModel.removeObserver(getViewLifecycleOwner());
+                        reminderLiveData = null;
+                    }
+                    if (userModel.getUserDataById() != null)
                         userModel.removeLinkObserver(getViewLifecycleOwner());
                 } else {
-                    toReminders.setClickable(true);
-                    if (userModel.getLinkUserData() == null)
+                    homeBinding.reminderButton.setClickable(true);
+                    if (userModel.getUserDataById() == null)
                         observeLinkUser(linkUserId);
                 }
             }
@@ -242,16 +202,16 @@ public class HomeFragment extends Fragment {
 
     private void startCheckInternetConnection() {
         MutableLiveData<Boolean> liveData = networkModel.getInternetConnection();
-        if (liveData != null)
+        if (liveData != null) {
             liveData.observe(getViewLifecycleOwner(), isInternetConnected -> {
                 if (isInternetConnected != null) {
-                    Log.d("InternetLiveData", isInternetConnected.toString());
                     if (isInternetConnected)
                         InternetOnUI();
                     else
                         InternetOffUI();
                 }
             });
+        }
     }
 
     private void stopCheckInternetConnection() {
@@ -261,176 +221,90 @@ public class HomeFragment extends Fragment {
     @SuppressLint("SetTextI18n")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
-        tts = new TextToSpeech(getContext(), status -> {
-        });
-        pulse = root.findViewById(R.id.homePulse);
-        Button map = root.findViewById(R.id.homeMap);
-        map.setOnClickListener(c -> startActivity(new Intent(getActivity(), MapActivity.class)));
-        user = new User();
-        lastOnline = root.findViewById(R.id.homeLastOnline);
-        lastOnline.setClickable(false);
-        reminders = new ArrayList<>();
-        toReminders = root.findViewById(R.id.reminderButton);
-        toReminders.setOnClickListener(l -> startActivity(new Intent(getContext(), RemindersActivity.class)));
-        toReminders.setText("Напоминаний нет");
-        fastAction = root.findViewById(R.id.homeFast);
-        callSupport = root.findViewById(R.id.homeCallSupport);
+        homeData = new HomeData();
+        homeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
+        homeBinding.setViewmodel(homeViewModel);
+        homeBinding.setData(homeData);
+        homeBinding.setLifecycleOwner(getViewLifecycleOwner());
+        homeBinding.setFragment(this);
+        homeBinding.reminderButton.setOnClickListener(view ->
+                userModel.getSingleUserData().observe(getViewLifecycleOwner(), pair -> {
+                    if (pair.first == null)
+                        return;
+                    String userId = pair.first.first;
+                    String linkUserId = pair.first.second;
+                    Boolean isSupport = pair.second;
+                    if (!userId.equals(linkUserId) || !isSupport) {
+                        requireActivity().startActivity(new Intent(requireContext(), RemindersActivity.class));
+                    }
+                }));
+        homeBinding.homeMap.setOnClickListener(c -> startActivity(new Intent(getActivity(), MapActivity.class)));
         initModels();
+        homeViewModel.setData(homeData);
         initObservers();
         if (Build.VERSION.SDK_INT >= 23) {
             mStore = new HealthDataStore(requireActivity(), mConnectionListener);
         }
-        return root;
+        reminders = new ArrayList<>();
+        homeViewModel.setTTS(new TextToSpeech(requireContext(), status -> {}));
+        return homeBinding.getRoot();
     }
 
     @SuppressLint("SetTextI18n")
     private void observeLinkUser(String linkUserId) {
-        linkUserModel.getLinkUserData(linkUserId).observe(getViewLifecycleOwner(), user -> {
+        userModel.getUserDataById(linkUserId).observe(getViewLifecycleOwner(), user -> {
             if (user == null)
                 return;
             Long BPM = user.getPulse();
             boolean check = user.isCheckHeartBPM();
             if (check) {
-                pulse.setText("Пульс: Данные не обнаружены");
-                pulse.setTextSize(17);
+                homeData.setHeartRate("Пульс: Данные не обнаружены");
                 if (BPM != null)
-                    if (BPM != 0) {
-                        pulse.setText("Пульс:\n" + BPM + " у/м");
-                        pulse.setTextSize(30);
-                    }
-            } else {
-                pulse.setText("Пульс: У подопечного отключено отслеживание");
-                pulse.setTextSize(17);
-            }
+                    if (BPM != 0)
+                        homeData.setHeartRate("Пульс:\n" + BPM + " у/м");
+            } else
+                homeData.setHeartRate("Пульс: У подопечного отключено отслеживание");
         });
     }
+
+    private LiveData<List<Reminder>> reminderLiveData;
 
     private void observeReminders(String userId, String linkUserId, boolean isSupport) {
-        reminderModel.getProductList(userId, linkUserId, isSupport).observe(getViewLifecycleOwner(), reminder -> {
+        if (reminderLiveData != null)
+            return;
+        reminderLiveData = reminderModel.getProductList(userId, linkUserId, isSupport);
+        reminderLiveData.observe(getViewLifecycleOwner(), reminder -> {
             if (isSupport && userId.equals(linkUserId)) {
                 reminders.clear();
-                sortReminders();
                 reminderModel.removeObserver(getViewLifecycleOwner());
-                return;
-            }
-            reminders = reminder;
-            sortReminders();
+            } else
+                reminders = reminder;
+            homeViewModel.showCurrentReminder(reminder);
         });
-    }
-
-    // вывод ближайшего следущего напоминаний
-    @SuppressLint("SetTextI18n")
-    private void sortReminders() {
-        if (reminders.size() > 0) {
-            List<Pair<Pair<String, String>, Date>> pairs = new ArrayList<>();
-            for (Reminder reminder : reminders) {
-                if (reminder.getType() == 0) {
-                    Date start = reminder.getTimeStart();
-                    Calendar s = Calendar.getInstance();
-                    s.setTime(start);
-                    Date end = reminder.getTimeEnd();
-                    Calendar e1 = Calendar.getInstance();
-                    e1.setTime(end);
-                    Date interval = reminder.getTimeInterval();
-                    Calendar i = Calendar.getInstance();
-                    i.setTime(interval);
-                    pairs.add(Pair.create(Pair.create(reminder.getId(), reminder.getName()), start));
-                    while (s.getTime().compareTo(e1.getTime()) <= 0) {
-                        int h = s.get(Calendar.HOUR_OF_DAY) + i.get(Calendar.HOUR_OF_DAY);
-                        int m = s.get(Calendar.MINUTE) + i.get(Calendar.MINUTE);
-                        if (m >= 60) {
-                            m -= 60;
-                            h++;
-                        }
-                        s.set(Calendar.HOUR_OF_DAY, h);
-                        s.set(Calendar.MINUTE, m);
-                        if (s.getTime().compareTo(e1.getTime()) <= 0) {
-                            Date date = s.getTime();
-                            pairs.add(Pair.create(Pair.create(reminder.getId(), reminder.getName()), date));
-                        }
-                    }
-                } else if (reminder.getType() == 1) {
-                    for (Date date : reminder.getTimers()) {
-                        pairs.add(Pair.create(Pair.create(reminder.getId(), reminder.getName()), date));
-                    }
-                }
-            }
-            Collections.sort(pairs, (r1, r2) -> r1.second.compareTo(r2.second));
-            Calendar c = Calendar.getInstance();
-            for (int i = 0; i < pairs.size(); i++) {
-                Date date = pairs.get(i).second;
-                Calendar d = Calendar.getInstance();
-                d.setTime(date);
-                d.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DATE), d.get(Calendar.HOUR_OF_DAY), d.get(Calendar.MINUTE), c.get(Calendar.SECOND));
-                if ((c.get(Calendar.HOUR_OF_DAY) == d.get(Calendar.HOUR_OF_DAY) && c.get(Calendar.MINUTE) < d.get(Calendar.MINUTE)) || c.get(Calendar.HOUR_OF_DAY) < d.get(Calendar.HOUR_OF_DAY)) {
-                    toReminders.setText("Следующее напоминание:\n" + pairs.get(i).first.second + " в " + convertDate(d.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(d.get(Calendar.MINUTE)));
-                    return;
-                }
-            }
-            Date date = pairs.get(0).second;
-            Calendar d = Calendar.getInstance();
-            d.setTime(date);
-            toReminders.setText("Следующее напоминание:\n" + pairs.get(0).first.second + " в " + convertDate(d.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(d.get(Calendar.MINUTE)));
-        } else
-            toReminders.setText("Напоминаний нет");
-    }
-
-
-    private String convertDate(int input) {
-        if (input >= 10) {
-            return String.valueOf(input);
-        } else {
-            return "0" + input;
-        }
     }
 
     @SuppressLint("SetTextI18n")
     private void setFastAction(String action) {
         switch (action) {
             case "0":
-                fastAction.setText("Быстрое действие не выбрано");
-                fastAction.setOnClickListener(l -> {
-                    DialogChooseFastAction dialogChooseFastAction = new DialogChooseFastAction();
-                    dialogChooseFastAction.show(requireActivity().getSupportFragmentManager(), "DialogFastAction");
-                });
+                homeData.setFastAction("Быстрое действие не выбрано");
+                homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "1":
-                fastAction.setText("Распознать текст");
-                fastAction.setOnClickListener(l -> {
-                    Intent intent = new Intent(getActivity(), SeeActivity.class);
-                    intent.putExtra("fastAction", 1);
-                    startActivity(intent);
-                });
+                homeData.setFastAction("Распознать текст");
+                homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "2":
-                fastAction.setText("Распознать объект");
-                fastAction.setOnClickListener(l -> {
-                    Intent intent = new Intent(getActivity(), SeeActivity.class);
-                    intent.putExtra("fastAction", 2);
-                    startActivity(intent);
-                });
+                homeData.setFastAction("Распознать объект");
+                homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "3":
-                fastAction.setText("Начать слушать");
-                fastAction.setOnClickListener(l -> {
-                    Intent intent = new Intent(getActivity(), ListenActivity.class);
-                    intent.putExtra("fastAction", true);
-                    startActivity(intent);
-                });
+                homeData.setFastAction("Начать слушать");
+                homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             default:
-                fastAction.setText("Сказать/Показать " + action);
-                tts.setSpeechRate(Float.parseFloat(String.valueOf(speed)));
-                tts.setPitch(Float.parseFloat(String.valueOf(pitch)));
-                fastAction.setOnClickListener(l -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        tts.speak(action, TextToSpeech.QUEUE_FLUSH, null, null);
-                    } else {
-                        tts.speak(action, TextToSpeech.QUEUE_FLUSH, null);
-                    }
-                });
-                fastAction.setOnLongClickListener(l -> {
+                homeData.setFastAction("Сказать/Показать: " + action);
+                homeBinding.homeFast.setOnLongClickListener(l -> {
                     Intent intent = new Intent(getActivity(), SayShowActivity.class);
                     intent.putExtra("word", action);
                     startActivity(intent);
@@ -440,68 +314,12 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private void startCheckHeartBPM() {
-        if (Build.VERSION.SDK_INT < 23) {
-            FitnessOptions fitnessOptions = FitnessOptions.builder()
-                    .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-                    .build();
-            account = GoogleSignIn.getAccountForExtension(requireActivity(), fitnessOptions);
-            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.BODY_SENSORS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                pulse.setText("Пульс: Нет прав");
-                pulse.setTextSize(17);
-                pulse.setClickable(true);
-            } else if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-                pulse.setText("Пульс: Google аккаунт не подключён");
-                pulse.setTextSize(17);
-                pulse.setClickable(true);
-            } else {
-                pulse.setTextSize(17);
-                pulse.setClickable(false);
-                checkPulse();
-            }
-            pulse.setOnClickListener(c -> {
-                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BODY_SENSORS)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 100);
-                } else if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-                    GoogleSignIn.requestPermissions(
-                            this,
-                            1000,
-                            account,
-                            fitnessOptions);
-                }
-            });
-        } else {
-            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.BODY_SENSORS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                pulse.setText("Пульс: Нет прав");
-                pulse.setTextSize(17);
-                pulse.setClickable(true);
-                pulse.setOnClickListener(l -> requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 100));
-            } else {
-                checkPulse();
-                mStore.connectService();
-            }
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mStore != null)
-            mStore.disconnectService();
-        super.onDestroy();
-    }
-
     @Override
     public void onPause() {
-        stopCheckReminders();
+        homeViewModel.stopSpeech();
         stopCheckInternetConnection();
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
+        if (mStore != null)
+            mStore.disconnectService();
         super.onPause();
     }
 
@@ -511,22 +329,48 @@ public class HomeFragment extends Fragment {
         @Override
         public void onConnected() {
             Log.d(TAG, "Health data service is connected.");
-            if (!isPermissionAcquired()) {
-                pulse.setText("Пульс: Samsung Health не подключён");
-                pulse.setTextSize(17);
-                pulse.setClickable(true);
-                pulse.setOnClickListener(l -> requestPermission());
+            if (healthModel.isPermissionAcquired(mStore)) {
+                homeData.setHeartRate("Пульс: Samsung Health не подключён");
+                requestPermission();
             } else {
-                pulse.setTextSize(17);
-                pulse.setClickable(false);
-                checkPulse();
+                homeData.setHeartRate("Данные не обнаружены");
+                mStore.disconnectService();
+                homeBinding.homePulse.setClickable(false);
             }
         }
 
         @Override
         public void onConnectionFailed(HealthConnectionErrorResult error) {
             Log.d(TAG, "Health data service is not available.");
-            showConnectionFailureDialog(error);
+            AlertDialog.Builder alert = new AlertDialog.Builder(requireContext());
+            String message = "Не удалось подключиться к Samsung Health";
+            if (error.hasResolution()) {
+                switch (error.getErrorCode()) {
+                    case HealthConnectionErrorResult.PLATFORM_NOT_INSTALLED:
+                        message = "Установите Samsung Health";
+                        break;
+                    case HealthConnectionErrorResult.OLD_VERSION_PLATFORM:
+                        message = "Обновите Samsung Health";
+                        break;
+                    case HealthConnectionErrorResult.PLATFORM_DISABLED:
+                        message = "Включите Samsung Health";
+                        break;
+                    case HealthConnectionErrorResult.USER_AGREEMENT_NEEDED:
+                        message = "Пожалуйста, согласитесь с политикой Samsung Health";
+                        break;
+                }
+            }
+            alert.setMessage(message);
+            alert.setPositiveButton("OK", (dialog, id) -> {
+                if (error.hasResolution()) {
+                    error.resolve(requireActivity());
+                }
+            });
+            if (error.hasResolution()) {
+                alert.setNegativeButton("Cancel", null);
+            }
+            alert.show();
+            mStore.disconnectService();
         }
 
         @Override
@@ -534,27 +378,6 @@ public class HomeFragment extends Fragment {
             Log.d(TAG, "Health data service is disconnected.");
         }
     };
-
-    @SuppressLint("SetTextI18n")
-    private void checkPulse() {
-        user.getDatabase().collection("users").document(user.getUser().getUid()).get()
-                .addOnSuccessListener(l -> {
-                    Boolean check = l.getBoolean("checkHeartBPM");
-                    if (check != null)
-                        if (check) {
-                            pulse.setText("Пульс: Данные не обнаружены");
-                            pulse.setTextSize(17);
-                            if (l.getLong("pulse") != null)
-                                if (l.getLong("pulse") != 0) {
-                                    pulse.setText("Пульс:\n" + l.getLong("pulse") + " у/м");
-                                    pulse.setTextSize(30);
-                                }
-                        } else {
-                            pulse.setText("Пульс: Отслеживание отключено");
-                            pulse.setTextSize(17);
-                        }
-                });
-    }
 
     private void showPermissionAlarmDialog() {
         AlertDialog.Builder alert = new AlertDialog.Builder(requireActivity());
@@ -565,18 +388,6 @@ public class HomeFragment extends Fragment {
                         "Чтобы его включить перейдите во вкладку 'О Samsung Health' в настройках приложения и несколько раз нажите на версию приложения")
                 .setPositiveButton("Ok", null)
                 .show();
-    }
-
-    private boolean isPermissionAcquired() {
-        HealthPermissionManager.PermissionKey permKey = new HealthPermissionManager.PermissionKey(HealthConstants.HeartRate.HEALTH_DATA_TYPE, HealthPermissionManager.PermissionType.READ);
-        HealthPermissionManager pmsManager = new HealthPermissionManager(mStore);
-        try {
-            Map<HealthPermissionManager.PermissionKey, Boolean> resultMap = pmsManager.isPermissionAcquired(Collections.singleton(permKey));
-            return resultMap.get(permKey);
-        } catch (Exception e) {
-            Log.e(TAG, "Permission request fails.", e);
-        }
-        return false;
     }
 
     private void requestPermission() {
@@ -590,82 +401,100 @@ public class HomeFragment extends Fragment {
                         if (resultMap.containsValue(Boolean.FALSE)) {
                             showPermissionAlarmDialog();
                         } else {
-                            pulse.setText("Пульс: Данные не обнаружены");
-                            pulse.setTextSize(17);
-                            pulse.setClickable(false);
+                            homeData.setHeartRate("Пульс: Данные не обнаружены");
+                            homeBinding.homePulse.setClickable(false);
                             requireActivity().startService(new Intent(getActivity(), HeartRateService.class).setAction("action"));
                             FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).update("checkHeartBPM", true);
                         }
+                        mStore.disconnectService();
                     });
         } catch (Exception e) {
             Log.e(TAG, "Permission setting fails.", e);
+            mStore.disconnectService();
         }
     }
 
-    private void showConnectionFailureDialog(HealthConnectionErrorResult error) {
 
-        AlertDialog.Builder alert = new AlertDialog.Builder(requireActivity());
-        mConnError = error;
-        String message = "Не удалось подключиться к Samsung Health";
-        if (mConnError.hasResolution()) {
-            switch (error.getErrorCode()) {
-                case HealthConnectionErrorResult.PLATFORM_NOT_INSTALLED:
-                    message = "Установите Samsung Health";
+    public void onHealthClick() {
+        healthModel.get().observe(getViewLifecycleOwner(), result -> {
+            switch (result) {
+                case 0:
+                    requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 100);
                     break;
-                case HealthConnectionErrorResult.OLD_VERSION_PLATFORM:
-                    message = "Обновите Samsung Health";
+                case 1:
+                    FitnessOptions fitnessOptions = FitnessOptions.builder()
+                            .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+                            .build();
+                    GoogleSignInAccount account = GoogleSignIn.getAccountForExtension(requireActivity(), fitnessOptions);
+                    GoogleSignIn.requestPermissions(
+                            this,
+                            1000,
+                            account,
+                            fitnessOptions);
                     break;
-                case HealthConnectionErrorResult.PLATFORM_DISABLED:
-                    message = "Включите Samsung Health";
+                case 3:
+                    mStore.connectService();
                     break;
-                case HealthConnectionErrorResult.USER_AGREEMENT_NEEDED:
-                    message = "Пожалуйста, согласитесь с политикой Samsung Health";
-                    break;
-            }
-        }
-
-        alert.setMessage(message);
-
-        alert.setPositiveButton("OK", (dialog, id) -> {
-            if (mConnError.hasResolution()) {
-                mConnError.resolve(requireActivity());
             }
         });
-
-        if (error.hasResolution()) {
-            alert.setNegativeButton("Cancel", null);
-        }
-
-        alert.show();
     }
 
+    public void onFastActionClick() {
+        switch (homeData.getFastAction()) {
+            case "Быстрое действие не выбрано":
+                DialogChooseFastAction dialogChooseFastAction = new DialogChooseFastAction();
+                dialogChooseFastAction.show(requireActivity().getSupportFragmentManager(), "DialogFastAction");
+                break;
+            case "Распознать текст":
+                Intent intent1 = new Intent(getActivity(), SeeActivity.class);
+                intent1.putExtra("fastAction", 1);
+                startActivity(intent1);
+                break;
+            case "Распознать объект":
+                Intent intent2 = new Intent(getActivity(), SeeActivity.class);
+                intent2.putExtra("fastAction", 2);
+                startActivity(intent2);
+                break;
+            case "Начать слушать":
+                Intent intent3 = new Intent(getActivity(), ListenActivity.class);
+                intent3.putExtra("fastAction", true);
+                startActivity(intent3);
+                break;
+            default:
+                homeViewModel.speak();
+                break;
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 100) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                pulse.setText("Аккаунт\nне подключён");
-                pulse.setTextSize(17);
-                FitnessOptions fitnessOptions = FitnessOptions.builder()
-                        .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-                        .build();
-                if (GoogleSignIn.hasPermissions(account, fitnessOptions))
-                    pulse.setText("Данные не\nобнаружены");
+        healthModel.onRequestPermissionsResult(requestCode, permissions, grantResults).observe(getViewLifecycleOwner(), result -> {
+            switch (result) {
+                case NO_PERMISSION:
+                    homeData.setHeartRate("Пульс: Нет прав");
+                    homeBinding.homePulse.setClickable(true);
+                    break;
+                case NO_GOOGLE_ACCOUNT:
+                    homeData.setHeartRate("Пульс: Google Аккаунт не подключён");
+                    homeBinding.homePulse.setClickable(true);
+                    break;
+                case SAMSUNG_NO_CONNECT:
+                    homeData.setHeartRate("Пульс: Samsung Health не подключён");
+                    homeBinding.homePulse.setClickable(true);
+                    break;
+                default:
+                    homeData.setHeartRate("Пульс: Данные не обнаружены");
+                    homeBinding.homePulse.setClickable(false);
+                    break;
             }
-        }
+        });
         Log.d(TAG + "_request", String.valueOf(requestCode));
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1000) {
-            if (resultCode == Activity.RESULT_OK) {
-                requireActivity().startService(new Intent(getActivity(), HeartRateService.class).setAction("action"));
-            }
-            Log.d(TAG + "_acResult", String.valueOf(resultCode));
-        }
-        Log.d(TAG + "_acRequest", String.valueOf(requestCode));
+        healthModel.onActivityResult(requestCode, resultCode, data);
     }
 }

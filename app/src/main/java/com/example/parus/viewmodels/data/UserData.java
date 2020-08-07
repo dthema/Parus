@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
+import com.example.parus.viewmodels.data.models.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -34,7 +35,7 @@ public class UserData extends LiveData<User> {
             if (documentSnapshot != null) {
                 user = documentSnapshot.toObject(User.class);
                 if (user != null) {
-                    Log.d("TAGAA", "+");
+//                    user.setSupport();
                     setValue(user);
                 }
             }

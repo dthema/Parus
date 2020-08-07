@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
+import com.example.parus.viewmodels.data.models.Reminder;
+import com.example.parus.viewmodels.data.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
