@@ -239,6 +239,7 @@ public class HomeFragment extends Fragment {
                     }
                 }));
         homeBinding.homeMap.setOnClickListener(c -> startActivity(new Intent(getActivity(), MapActivity.class)));
+        homeBinding.homeLastOnline.setClickable(false);
         initModels();
         homeViewModel.setData(homeData);
         initObservers();
