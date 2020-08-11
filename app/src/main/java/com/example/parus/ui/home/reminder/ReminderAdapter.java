@@ -1,21 +1,23 @@
 package com.example.parus.ui.home.reminder;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncDifferConfig;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.parus.R;
+import com.example.parus.databinding.ReminderItemBinding;
 import com.example.parus.viewmodels.ReminderModel;
 import com.example.parus.viewmodels.data.models.Reminder;
 
@@ -24,165 +26,172 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHolder> {
+public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewHolder> {
 
-    private List<Reminder> reminders;
     private boolean delete;
     private List<Reminder> deletingReminders;
-    private AppCompatActivity mContext;
-    private final ClickInterface listener;
+    private OnItemClickInterface onItemClickInterface;
     private ReminderModel reminderModel;
 
-    ReminderAdapter(List<Reminder> reminders, AppCompatActivity mContext, ClickInterface listener) {
-        this.reminders = reminders;
-        this.listener = listener;
-        this.delete = false;
-        this.mContext = mContext;
+    ReminderAdapter(@NonNull ReminderDiffCallback diffCallback, OnItemClickInterface onItemClickInterface, ReminderModel reminderModel) {
+        super(diffCallback);
         deletingReminders = new ArrayList<>();
-        reminderModel = new ViewModelProvider(mContext, ViewModelProvider.AndroidViewModelFactory.getInstance(mContext.getApplication())).get(ReminderModel.class);
+        this.onItemClickInterface = onItemClickInterface;
+        this.reminderModel = reminderModel;
     }
 
-    ReminderAdapter(List<Reminder> reminders, boolean delete, AppCompatActivity mContext, ClickInterface listener) {
-        this.reminders = reminders;
-        this.delete = delete;
-        this.mContext = mContext;
-        this.listener = listener;
-        deletingReminders = new ArrayList<>();
-        reminderModel = new ViewModelProvider(mContext, ViewModelProvider.AndroidViewModelFactory.getInstance(mContext.getApplication())).get(ReminderModel.class);
+    private ReminderAdapter(@NonNull AsyncDifferConfig<Reminder> config) {
+        super(config);
     }
+
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.reminder_item, parent, false);
-        return new ViewHolder(view);
+        return ViewHolder.from(parent);
     }
+
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Reminder reminder = reminders.get(position);
-        holder.checkBox.setVisibility(View.GONE);
-        holder.checkBox.setClickable(false);
-        holder.name.setText(reminder.getName());
-        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                deletingReminders.add(reminder);
-                holder.checkBox.setVisibility(View.VISIBLE);
-                holder.background.setBackground(ContextCompat.getDrawable(mContext, R.drawable.reminder_background));
-            } else {
-                deletingReminders.remove(reminder);
-                holder.checkBox.setVisibility(View.GONE);
-                holder.background.setBackground(ContextCompat.getDrawable(mContext, R.drawable.btn_link_location));
-            }
-        });
-        holder.background.setOnClickListener(l -> {
-            if (!delete) {
-                DialogChangeReminder dialogChangeReminder;
-                if (reminder.getType() == 0) {
-                    Calendar c = Calendar.getInstance();
-                    c.setTime(reminder.getTimeStart());
-                    StringBuilder start = new StringBuilder();
-                    start.append(convertDate(c.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(c.get(Calendar.MINUTE)));
-                    c.setTime(reminder.getTimeEnd());
-                    StringBuilder end = new StringBuilder();
-                    end.append(convertDate(c.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(c.get(Calendar.MINUTE)));
-                    c.setTime(reminder.getTimeInterval());
-                    StringBuilder interval = new StringBuilder();
-                    interval.append(convertDate(c.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(c.get(Calendar.MINUTE)));
-                    new DialogChangeReminder();
-                    dialogChangeReminder = DialogChangeReminder.newInstance(reminder.getId(), reminder.getName(), start.toString(), end.toString(), interval.toString());
-                    dialogChangeReminder.show(mContext.getSupportFragmentManager(), "dialogChangeReminder");
-                } else {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (Date date : reminder.getTimers()) {
-                        Calendar d = Calendar.getInstance();
-                        d.setTime(date);
-                        stringBuilder.append(convertDate(d.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(d.get(Calendar.MINUTE))).append(" ");
-                    }
-                    new DialogChangeReminder();
-                    dialogChangeReminder = DialogChangeReminder.newInstance(reminder.getId(), reminder.getName(), stringBuilder.toString().split(" "));
-                    dialogChangeReminder.show(mContext.getSupportFragmentManager(), "dialogChangeReminder");
-                }
-            } else {
-                holder.checkBox.setChecked(!holder.checkBox.isChecked());
-                if (holder.checkBox.isChecked()) {
-                    listener.recyclerviewOnClick(1);
-                    holder.background.setContentDescription("Напоминание " + holder.name.getText().toString() + " выбрано для удаления");
-                    Log.d("ABCD", "+");
-                } else {
-                    listener.recyclerviewOnClick(-1);
-                    holder.background.setContentDescription("Напоминание " + holder.name.getText().toString() + " не выбрано для удаления");
-                    Log.d("ABCD", "-");
-                }
-            }
-        });
-        if (reminder.getType() == 1) {
-            for (Date d : reminder.getTimers()) {
-                Calendar c = Calendar.getInstance();
-                c.setTime(d);
-                String t = convertDate(c.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(c.get(Calendar.MINUTE));
-                holder.time.setText(holder.time.getText() + t + ", ");
-            }
-            holder.time.setText(holder.time.getText().toString().substring(0, holder.time.getText().toString().length() - 2));
-        } else if (reminder.getType() == 0) {
-            Calendar s = Calendar.getInstance();
-            s.setTime(reminder.getTimeStart());
-            Calendar e = Calendar.getInstance();
-            e.setTime(reminder.getTimeEnd());
-            Calendar i = Calendar.getInstance();
-            i.setTime(reminder.getTimeInterval());
-            holder.time.setText("С " + convertDate(s.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(s.get(Calendar.MINUTE)) +
-                    " по " + convertDate(e.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(e.get(Calendar.MINUTE)) + "\n");
-            if (i.get(Calendar.HOUR_OF_DAY) == 0)
-                holder.time.setText(holder.time.getText().toString() + "Каждые " + i.get(Calendar.MINUTE) + " минут(-ы)");
-            else
-                holder.time.setText(holder.time.getText().toString() + "Каждые " + convertDate(i.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(i.get(Calendar.MINUTE)) + " час(-ов)");
-        }
-        if (delete) {
-            holder.background.setContentDescription("Напоминание " + holder.name.getText().toString() + " не выбрано для удаления");
-        } else {
-            holder.background.setContentDescription("Напоминание " + holder.name.getText().toString() + ", " + holder.time.getText().toString());
-        }
+        Reminder reminder = getItem(position);
+        holder.bind(reminder);
+        holder.setListeners(reminder, delete, onItemClickInterface, deletingReminders);
     }
 
-    void delete() {
-        if (deletingReminders.size() > 0)
-            reminderModel.deleteReminders(deletingReminders);
-        else
-            Toast.makeText(mContext, "Напоминания не выбраны", Toast.LENGTH_LONG).show();
+    LiveData<Integer> delete() {
+        return reminderModel.deleteReminders(new ArrayList<>(deletingReminders));
     }
 
-
-    @Override
-    public int getItemCount() {
-        if (reminders == null)
-            return 0;
-        else
-            return reminders.size();
+    void setDeleting() {
+        delete = true;
     }
 
-    private String convertDate(int input) {
-        if (input >= 10) {
-            return String.valueOf(input);
-        } else {
-            return "0" + input;
-        }
+    void setNoDeleting() {
+        delete = false;
+        deletingReminders.clear();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView background;
-        TextView name;
-        TextView time;
-        CheckBox checkBox;
+        private TextView background;
+        private TextView name;
+        private TextView time;
+        private CheckBox checkBox;
+        private Context context;
 
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            background = itemView.findViewById(R.id.reminderBackgroung);
-            name = itemView.findViewById(R.id.reminderName);
-            time = itemView.findViewById(R.id.reminderTime);
-            checkBox = itemView.findViewById(R.id.reminderCheck);
+        private ViewHolder(ReminderItemBinding binding) {
+            super(binding.getRoot());
+            context = binding.getRoot().getContext();
+            background = binding.reminderBackgroung;
+            name = binding.reminderName;
+            time = binding.reminderTime;
+            checkBox = binding.reminderCheck;
+        }
+
+        private static ViewHolder from(@NonNull ViewGroup parent) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            ReminderItemBinding binding = ReminderItemBinding.inflate(inflater, parent, false);
+            return new ViewHolder(binding);
+        }
+
+        @SuppressLint("SetTextI18n")
+        private void bind(Reminder reminder) {
+            this.checkBox.setVisibility(View.GONE);
+            this.checkBox.setClickable(false);
+            this.name.setText(reminder.getName());
+            if (reminder.getType() == 1) {
+                for (Date d : reminder.getTimers()) {
+                    Calendar c = Calendar.getInstance();
+                    c.setTime(d);
+                    String t = convertDate(c.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(c.get(Calendar.MINUTE));
+                    this.time.setText(this.time.getText() + t + ", ");
+                }
+                this.time.setText(this.time.getText().toString().substring(0, this.time.getText().toString().length() - 2));
+            } else if (reminder.getType() == 0) {
+                Calendar s = Calendar.getInstance();
+                s.setTime(reminder.getTimeStart());
+                Calendar e = Calendar.getInstance();
+                e.setTime(reminder.getTimeEnd());
+                Calendar i = Calendar.getInstance();
+                i.setTime(reminder.getTimeInterval());
+                this.time.setText("С " + convertDate(s.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(s.get(Calendar.MINUTE)) +
+                        " по " + convertDate(e.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(e.get(Calendar.MINUTE)) + "\n");
+                if (i.get(Calendar.HOUR_OF_DAY) == 0)
+                    this.time.setText(this.time.getText().toString() + "Каждые " + i.get(Calendar.MINUTE) + " минут(-ы)");
+                else
+                    this.time.setText(this.time.getText().toString() + "Каждые " + convertDate(i.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(i.get(Calendar.MINUTE)) + " час(-ов)");
+            }
+        }
+
+        private void setListeners(Reminder reminder, boolean delete, OnItemClickInterface onItemClickInterface, List<Reminder> deletingReminders){
+            this.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    deletingReminders.add(reminder);
+                    for (Reminder rem : deletingReminders)
+                        Log.d("TAGAA", "added DEL - " + rem.getName());
+                    this.checkBox.setVisibility(View.VISIBLE);
+                    this.background.setBackground(ContextCompat.getDrawable(context, R.drawable.reminder_background));
+                } else {
+                    deletingReminders.remove(reminder);
+                    for (Reminder rem : deletingReminders)
+                        Log.d("TAGAA", "removed DEL - " + rem.getName());
+                    this.checkBox.setVisibility(View.GONE);
+                    this.background.setBackground(ContextCompat.getDrawable(context, R.drawable.btn_link_location));
+                }
+            });
+            this.background.setOnClickListener(l -> {
+                if (!delete) {
+                    DialogChangeReminder dialogChangeReminder;
+                    if (reminder.getType() == 0) {
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(reminder.getTimeStart());
+                        StringBuilder start = new StringBuilder();
+                        start.append(convertDate(c.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(c.get(Calendar.MINUTE)));
+                        c.setTime(reminder.getTimeEnd());
+                        StringBuilder end = new StringBuilder();
+                        end.append(convertDate(c.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(c.get(Calendar.MINUTE)));
+                        c.setTime(reminder.getTimeInterval());
+                        StringBuilder interval = new StringBuilder();
+                        interval.append(convertDate(c.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(c.get(Calendar.MINUTE)));
+                        dialogChangeReminder = DialogChangeReminder.newInstance(reminder.getId(), reminder.getName(), start.toString(), end.toString(), interval.toString());
+                        onItemClickInterface.onDialogClick(dialogChangeReminder);
+                    } else {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (Date date : reminder.getTimers()) {
+                            Calendar d = Calendar.getInstance();
+                            d.setTime(date);
+                            stringBuilder.append(convertDate(d.get(Calendar.HOUR_OF_DAY))).append(":").append(convertDate(d.get(Calendar.MINUTE))).append(" ");
+                        }
+                        new DialogChangeReminder();
+                        dialogChangeReminder = DialogChangeReminder.newInstance(reminder.getId(), reminder.getName(), stringBuilder.toString().split(" "));
+                        onItemClickInterface.onDialogClick(dialogChangeReminder);
+                    }
+                } else {
+                    this.checkBox.setChecked(!this.checkBox.isChecked());
+                    if (this.checkBox.isChecked()) {
+                        onItemClickInterface.onItemClick(1);
+                        this.background.setContentDescription("Напоминание " + this.name.getText().toString() + " выбрано для удаления");
+                    } else {
+                        onItemClickInterface.onItemClick(-1);
+                        this.background.setContentDescription("Напоминание " + this.name.getText().toString() + " не выбрано для удаления");
+                    }
+                }
+            });
+            if (delete) {
+                this.background.setContentDescription("Напоминание " + this.name.getText().toString() + " не выбрано для удаления");
+            } else {
+                this.background.setContentDescription("Напоминание " + this.name.getText().toString() + ", " + this.time.getText().toString());
+            }
+        }
+
+        private static String convertDate(int input) {
+            if (input >= 10) {
+                return String.valueOf(input);
+            } else {
+                return "0" + input;
+            }
         }
     }
 }

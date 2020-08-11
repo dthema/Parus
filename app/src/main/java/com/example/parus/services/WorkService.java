@@ -58,7 +58,7 @@ public class WorkService extends LifecycleService {
         if (intent != null) {
             isServiceRunning = true;
             Log.d(TAG, "start");
-            userModel.getShortLinkUserData().observe(this, pair -> {
+            userModel.getShortUserData().observe(this, pair -> {
                 if (pair == null)
                     return;
                 else if (pair.first == null)
@@ -72,6 +72,7 @@ public class WorkService extends LifecycleService {
                     if (isSupport && userId.equals(linkUserId)){
                         registration.remove();
                         registration = null;
+                        WorkManager.getInstance(getApplicationContext()).cancelAllWork();
                     }
                 } else {
                     if (!isSupport){

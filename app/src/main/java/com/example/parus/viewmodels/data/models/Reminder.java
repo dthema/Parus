@@ -1,5 +1,7 @@
 package com.example.parus.viewmodels.data.models;
 
+import androidx.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -90,5 +92,21 @@ public class Reminder {
 
     public void setTimeInterval(Date timeInterval) {
         this.timeInterval = timeInterval;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (!obj.getClass().equals(this.getClass())) return false;
+        Reminder that = (Reminder) obj;
+        return this.getId().equals(that.getId()) &&
+                this.getName().equals(that.getName()) &&
+                this.getType().equals(that.getType()) &&
+                this.getTimers() == that.getTimers() &&
+                this.getTimeCreate() == that.getTimeCreate() &&
+                this.getTimeStart() == that.getTimeStart() &&
+                this.getTimeInterval() == that.getTimeInterval() &&
+                this.getTimeEnd() == that.getTimeEnd();
     }
 }

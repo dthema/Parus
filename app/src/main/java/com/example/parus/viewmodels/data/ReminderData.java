@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ReminderData extends LiveData<List<Reminder>> {
 
-    private static final String TAG = "user data";
+    private static final String TAG = "reminder data";
 
     private ListenerRegistration registration;
 
@@ -115,8 +115,8 @@ public class ReminderData extends LiveData<List<Reminder>> {
                             }
                             break;
                     }
+                    setValue(reminders);
                 }
-            setValue(reminders);
         };
     }
 

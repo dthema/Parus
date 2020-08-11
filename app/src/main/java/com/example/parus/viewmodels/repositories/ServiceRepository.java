@@ -11,7 +11,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ServiceRepository {
 
-    public ServiceRepository() {}
+    private static ServiceRepository repository;
+
+    private ServiceRepository() {}
+
+    public synchronized static ServiceRepository getInstance(){
+        if (repository == null) repository = new ServiceRepository();
+        return repository;
+    }
 
     public void startWorkService(Context context) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null)

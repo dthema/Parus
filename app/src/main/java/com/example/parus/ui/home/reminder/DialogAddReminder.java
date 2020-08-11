@@ -49,21 +49,13 @@ public class DialogAddReminder extends AppCompatDialogFragment {
     private List<TextView> timers;
     private ReminderModel reminderModel;
 
-    static DialogAddReminder newInstance(User user) {
-        DialogAddReminder fragment = new DialogAddReminder();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("user", user);
-        fragment.setArguments(bundle);
-        return fragment;
-    }
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         @SuppressLint("InflateParams") View dialogView = inflater.inflate(R.layout.dialog_add_reminder, null);
-        reminderModel = new ViewModelProvider(requireActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).get(ReminderModel.class);
+        reminderModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).get(ReminderModel.class);
         type1 = dialogView.findViewById(R.id.dialogReminderType1);
         type2 = dialogView.findViewById(R.id.dialogReminderType2);
         time = dialogView.findViewById(R.id.reminderDialogTime);

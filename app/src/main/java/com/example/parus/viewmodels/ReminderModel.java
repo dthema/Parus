@@ -1,5 +1,7 @@
 package com.example.parus.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
@@ -16,27 +18,23 @@ public class ReminderModel extends ViewModel {
         super();
     }
 
-    ReminderRepository repository = new ReminderRepository();
+    ReminderRepository repository = ReminderRepository.getInstance();
 
     private LiveData<List<Reminder>> remindersList;
 
-    public LiveData<List<Reminder>> getProductList(String userId, String linkUserId, boolean isSupport) {
-        remindersList = repository.productListening(userId, linkUserId, isSupport);
+    public LiveData<List<Reminder>> getReminderData(String userId, String linkUserId, boolean isSupport) {
+        remindersList = repository. reminderListening(userId, linkUserId, isSupport, true);
         return remindersList;
     }
 
-    public LiveData<List<Reminder>> getProductList() {
-        remindersList = repository.productListening();
+    public LiveData<List<Reminder>> getReminderData(boolean recreateData) {
+        remindersList = repository.reminderListening(recreateData);
         return remindersList;
 
     }
 
-    public LiveData<List<Reminder>> getRemindersList() {
-        return remindersList;
-    }
-
-    public void deleteReminders(List<Reminder> deletingReminders) {
-        repository.deleteReminders(deletingReminders);
+    public LiveData<Integer> deleteReminders(List<Reminder> deletingReminders) {
+        return repository.deleteReminders(deletingReminders);
     }
 
     public void addReminder(HashMap<String, Object> hashMap) {
@@ -51,6 +49,29 @@ public class ReminderModel extends ViewModel {
         if (remindersList != null)
             if (remindersList.hasObservers())
                 remindersList.removeObservers(owner);
+        repository.stopListening();
+    }
 
+    public LiveData<String> startCheckReminders() {
+        return repository.reminderListener();
+    }
+
+    public void stopCheckReminders() {
+        repository.stopCheckReminders();
+    }
+
+    public void setReminders(List<Reminder> reminders) {
+        repository.setReminders(reminders);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        if (!repository.reminderListening(false).hasObservers()) {
+            Log.d("TAGAA", "reminder clear");
+            repository.stopListening();
+            repository.stopCheckReminders();
+            repository.destroy();
+        }
     }
 }

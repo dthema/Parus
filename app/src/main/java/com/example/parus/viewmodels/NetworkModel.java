@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.parus.viewmodels.repositories.NetworkRepository;
@@ -14,9 +15,9 @@ public class NetworkModel extends AndroidViewModel {
         super(application);
     }
 
-    NetworkRepository repository = new NetworkRepository();
+    NetworkRepository repository = NetworkRepository.getInstance();
 
-    public MutableLiveData<Boolean> getInternetConnection(){
+    public LiveData<Boolean> getInternetConnection(){
         return repository.connectionListener(getApplication());
     }
 

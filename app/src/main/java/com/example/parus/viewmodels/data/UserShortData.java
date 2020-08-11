@@ -13,7 +13,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
-public class UserLinkData extends LiveData<Pair<Pair<String,String>, Boolean>> {
+public class UserShortData extends LiveData<Pair<Pair<String,String>, Boolean>> {
 
     private static final String TAG = "user data";
 
@@ -22,7 +22,7 @@ public class UserLinkData extends LiveData<Pair<Pair<String,String>, Boolean>> {
     private DocumentReference docRef;
     private User user;
 
-    public UserLinkData(DocumentReference docRef) {
+    public UserShortData(DocumentReference docRef) {
         this.docRef = docRef;
     }
 

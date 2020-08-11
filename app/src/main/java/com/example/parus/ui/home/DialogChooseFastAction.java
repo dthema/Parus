@@ -3,6 +3,7 @@ package com.example.parus.ui.home;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.UserManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,24 +15,25 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.R;
 import com.example.parus.data.User;
+import com.example.parus.viewmodels.UserModel;
 
 public class DialogChooseFastAction extends AppCompatDialogFragment {
 
     private EditText text;
     private Spinner spinner;
     private String[] spinnerData = {"Отключить быстрое действие", "Распознать текст", "Распознать объект", "Начать слушать", "Сказать/Показать"};
-    private User user;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        user = new User();
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         @SuppressLint("InflateParams") View dialogView = inflater.inflate(R.layout.dialog_choose_fast_action, null);
+        UserModel userModel = new ViewModelProvider(this).get(UserModel.class);
         text = dialogView.findViewById(R.id.fastDialogText);
         spinner = dialogView.findViewById(R.id.fastDialogSpinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.simple_spinner_item3, spinnerData);
@@ -53,16 +55,11 @@ public class DialogChooseFastAction extends AppCompatDialogFragment {
         });
         builder.setView(dialogView);
         builder.setPositiveButton("Сохранить", (dialog, id) -> {
-            if (spinner.getSelectedItemPosition() <= 3) {
-                user.getDatabase().collection("users").document(user.getUser().getUid()).update("fastAction", String.valueOf(spinner.getSelectedItemPosition()));
-                dialog.dismiss();
-            } else
-                if (text.length() > 0) {
-                    user.getDatabase().collection("users").document(user.getUser().getUid()).update("fastAction", text.getText().toString());
-                    dialog.dismiss();
-                } else {
+            userModel.setFastAction(spinner.getSelectedItemPosition(), text.getText().toString()).observe(this, failed -> {
+                if (failed)
                     Toast.makeText(dialogView.getContext(), "Вы не ввели фразу", Toast.LENGTH_LONG).show();
-                }
+                dismiss();
+            });
         });
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
         return builder.create();

@@ -5,20 +5,27 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 public class NetworkRepository {
 
+    private static NetworkRepository repository;
     private boolean isThreadActive;
 
     public NetworkRepository() {
     }
 
+    public static NetworkRepository getInstance(){
+        if (repository == null) repository = new NetworkRepository();
+        return repository;
+    }
+
     private MutableLiveData<Boolean> internetConnected = new MutableLiveData<>();
 
-    public MutableLiveData<Boolean> connectionListener(Context context) {
+    public LiveData<Boolean> connectionListener(Context context) {
         if (isThreadActive)
             return null;
         isThreadActive = true;

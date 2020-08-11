@@ -1,11 +1,12 @@
 package com.example.parus.viewmodels;
 
+import android.util.Log;
+
 import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.parus.viewmodels.data.SingleLiveEvent;
 import com.example.parus.viewmodels.data.models.User;
 import com.example.parus.viewmodels.repositories.UserRepository;
 
@@ -15,47 +16,60 @@ public class UserModel extends ViewModel {
         super();
     }
 
-    UserRepository repository = new UserRepository();
+    UserRepository repository = UserRepository.getInstance();
 
     public LiveData<User> getUserData() {
         return repository.userListening();
     }
 
-    LiveData<User> linkUserData;
-
-    public LiveData<User> getUserDataById(String userId) {
-        linkUserData = repository.userListening(userId);
-        return linkUserData;
+    public LiveData<User> getUserDataById(String userId, boolean recreateData) {
+        return repository.otherUserListening(userId, recreateData);
     }
 
     public LiveData<User> getUserDataById() {
-        return linkUserData;
+        return repository.otherUserListening(null, false);
     }
 
     public void removeLinkObserver(LifecycleOwner owner){
-        if (linkUserData != null){
-            if (linkUserData.hasObservers()){
-                linkUserData.removeObservers(owner);
+        if (repository.otherUserListening(null, false) != null){
+            if (repository.otherUserListening(null, false).hasObservers()){
+                repository.otherUserListening(null, false).removeObservers(owner);
+                repository.stopListeningOtherUser();
             }
         }
     }
 
-    public SingleLiveEvent<Boolean> callSupport(){
+    public LiveData<Boolean> callSupport(){
          return repository.callSupport();
     }
 
-    public LiveData<Pair<Pair<String, String>, Boolean>> getShortLinkUserData() {
-        return repository.userLinkListening();
+    public LiveData<Pair<Pair<String, String>, Boolean>> getShortUserData() {
+        return repository.userShortListening();
     }
 
-    public SingleLiveEvent<Pair<Pair<String, String>, Boolean>> getSingleUserData() {
+    public LiveData<Pair<Pair<String, String>, Boolean>> getSingleUserData() {
         return repository.userShortData();
     }
 
 
-    public SingleLiveEvent<User> getUploadLinkUser() {
-        return repository.getUploadUser();
+    public LiveData<User> getSingleLinkUserData() {
+        return repository.linkUserSingleData();
     }
 
+    public LiveData<Boolean> setFastAction(int action, String text){
+        return repository.setFastAction(action, text);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        if (!repository.userListening().hasObservers()) {
+            Log.d("TAGAA", "user clear");
+            repository.stopListeningLinkUser();
+            repository.stopListeningOtherUser();
+            repository.stopListeningUser();
+            repository.destroy();
+        }
+    }
 }
 

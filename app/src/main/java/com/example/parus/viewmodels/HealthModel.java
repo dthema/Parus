@@ -45,7 +45,7 @@ public class HealthModel extends AndroidViewModel {
     private static final int SAMSUNG_CONNECT = 4;
     private HealthDataStore mStore;
 
-    private ServiceRepository serviceRepository = new ServiceRepository();
+    private ServiceRepository serviceRepository = ServiceRepository.getInstance();
 
     public HealthModel(@NonNull Application application) {
         super(application);

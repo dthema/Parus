@@ -1,12 +1,14 @@
 package com.example.parus.viewmodels.repositories;
 
+import android.util.Log;
+
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 
 import com.example.parus.viewmodels.data.SingleLiveEvent;
 import com.example.parus.viewmodels.data.models.User;
 import com.example.parus.viewmodels.data.UserData;
-import com.example.parus.viewmodels.data.UserLinkData;
+import com.example.parus.viewmodels.data.UserShortData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -14,20 +16,63 @@ import java.util.HashMap;
 
 public class UserRepository {
 
-    public UserRepository() { }
+    private static UserRepository repository;
+    private String userId;
+
+    private UserRepository() {
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    public synchronized static UserRepository getInstance(){
+        if (repository == null) repository = new UserRepository();
+        return repository;
+    }
+
+    private LiveData<User> userLiveData;
 
     public LiveData<User> userListening() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        return new UserData(FirebaseFirestore.getInstance().collection("users").document(userId));
+        if (userLiveData == null) {
+            userLiveData = new UserData(FirebaseFirestore.getInstance().collection("users").document(userId));
+            Log.d("TAGAA", userId);
+        }
+        return userLiveData;
     }
 
-    public LiveData<User> userListening(String userId) {
-        return new UserData(FirebaseFirestore.getInstance().collection("users").document(userId));
+    public void stopListeningUser(){
+        userLiveData = null;
     }
 
-    public SingleLiveEvent<Boolean> callSupport() {
+    private LiveData<User> otherUserLiveData;
+
+    public LiveData<User> otherUserListening(String userId, boolean recreateData) {
+        if (otherUserLiveData == null && recreateData)
+            otherUserLiveData = new UserData(FirebaseFirestore.getInstance().collection("users").document(userId));;
+        return otherUserLiveData;
+    }
+
+    public void stopListeningOtherUser(){
+        otherUserLiveData = null;
+    }
+
+    private LiveData<Pair<Pair<String, String>, Boolean>> shortLiveData;
+
+    public LiveData<Pair<Pair<String, String>, Boolean>> userShortListening() {
+        if (shortLiveData == null)
+            shortLiveData = new UserShortData(FirebaseFirestore.getInstance().collection("users").document(userId));
+        return shortLiveData;
+    }
+
+    public void stopListeningLinkUser(){
+        shortLiveData = null;
+    }
+
+    public void destroy(){
+        if (shortLiveData == null && userLiveData == null && otherUserLiveData == null)
+            repository = null;
+    }
+
+    public LiveData<Boolean> callSupport() {
         SingleLiveEvent<Boolean> callSupport = new SingleLiveEvent<>();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(s -> {
                     if (s != null) {
@@ -45,14 +90,9 @@ public class UserRepository {
         return callSupport;
     }
 
-    public LiveData<Pair<Pair<String, String>, Boolean>> userLinkListening() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        return new UserLinkData(FirebaseFirestore.getInstance().collection("users").document(userId));
-    }
 
-    public SingleLiveEvent<User> getUploadUser() {
+    public LiveData<User> linkUserSingleData() {
         SingleLiveEvent<User> userSingleLiveEvent = new SingleLiveEvent<>();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(s -> {
                     User currentUser = s.toObject(User.class);
@@ -71,9 +111,8 @@ public class UserRepository {
         return userSingleLiveEvent;
     }
 
-    public SingleLiveEvent<Pair<Pair<String, String>, Boolean>> userShortData() {
+    public LiveData<Pair<Pair<String, String>, Boolean>> userShortData() {
         SingleLiveEvent<Pair<Pair<String, String>, Boolean>> userSingleLiveEvent = new SingleLiveEvent<>();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(s -> {
                     User currentUser = s.toObject(User.class);
@@ -82,6 +121,25 @@ public class UserRepository {
                     userSingleLiveEvent.setValue(Pair.create(Pair.create(currentUser.getUserId(),
                             currentUser.getLinkUserId()), currentUser.isSupport()));
                 });
+        return userSingleLiveEvent;
+    }
+
+    public LiveData<Boolean> setFastAction(int action, String text){
+        SingleLiveEvent<Boolean> userSingleLiveEvent = new SingleLiveEvent<>();
+        if (action <= 3) {
+            FirebaseFirestore.getInstance().collection("users").document(userId)
+                    .update("fastAction", String.valueOf(action))
+            .addOnSuccessListener(s -> userSingleLiveEvent.setValue(true));
+//            dialog.dismiss();
+        } else if (text.length() > 0) {
+            FirebaseFirestore.getInstance().collection("users").document(userId)
+                    .update("fastAction", text)
+                    .addOnSuccessListener(s -> userSingleLiveEvent.setValue(true));
+//            dialog.dismiss();
+        } else {
+            userSingleLiveEvent.setValue(false);
+            //            Toast.makeText(dialogView.getContext(), "Вы не ввели фразу", Toast.LENGTH_LONG).show();
+        }
         return userSingleLiveEvent;
     }
 }

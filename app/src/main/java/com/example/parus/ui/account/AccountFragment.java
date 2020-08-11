@@ -27,6 +27,8 @@ import com.example.parus.services.GeoLocationService;
 import com.example.parus.services.OnlineService;
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.io.File;
+
 public class AccountFragment extends Fragment {
 
     private TextView name;

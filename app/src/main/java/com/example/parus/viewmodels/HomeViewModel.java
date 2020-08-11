@@ -2,6 +2,7 @@ package com.example.parus.viewmodels;
 
 import android.annotation.SuppressLint;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.databinding.ObservableField;
@@ -26,14 +27,7 @@ public class HomeViewModel extends ViewModel {
         super();
     }
 
-    ReminderRepository repository = new ReminderRepository();
-
-    public ObservableField<String> currentReminder = new ObservableField<>();
-
-    public HomeData homeData = new HomeData();
-
-    public void startCheckReminder(){
-    }
+    private HomeData homeData = new HomeData();
 
     public void setData(HomeData homeData) {
         this.homeData = homeData;
@@ -46,59 +40,87 @@ public class HomeViewModel extends ViewModel {
     // вывод ближайшего следущего напоминаний
     @SuppressLint("SetTextI18n")
     private void sortReminders(List<Reminder> reminders) {
-        if (reminders.size() > 0) {
-            List<Pair<Pair<String, String>, Date>> pairs = new ArrayList<>();
-            for (Reminder reminder : reminders) {
-                if (reminder.getType() == 0) {
-                    Date start = reminder.getTimeStart();
-                    Calendar s = Calendar.getInstance();
-                    s.setTime(start);
-                    Date end = reminder.getTimeEnd();
-                    Calendar e1 = Calendar.getInstance();
-                    e1.setTime(end);
-                    Date interval = reminder.getTimeInterval();
-                    Calendar i = Calendar.getInstance();
-                    i.setTime(interval);
-                    pairs.add(Pair.create(Pair.create(reminder.getId(), reminder.getName()), start));
-                    while (s.getTime().compareTo(e1.getTime()) <= 0) {
-                        int h = s.get(Calendar.HOUR_OF_DAY) + i.get(Calendar.HOUR_OF_DAY);
-                        int m = s.get(Calendar.MINUTE) + i.get(Calendar.MINUTE);
-                        if (m >= 60) {
-                            m -= 60;
-                            h++;
+        if (reminders != null) {
+            Reminder nextReminder = null;
+            Calendar currentTime = Calendar.getInstance();
+            currentTime.set(Calendar.SECOND, 0);
+            Calendar nextReminderTime = Calendar.getInstance();
+            nextReminderTime.set(Calendar.SECOND, 59);
+            nextReminderTime.set(Calendar.MINUTE, 23);
+            nextReminderTime.set(Calendar.HOUR_OF_DAY, 59);
+            nextReminderTime.set(Calendar.DATE, nextReminderTime.get(Calendar.DATE) + 1);
+            if (reminders.size() == 0)
+                homeData.setCurrentReminder("Напоминаний нет");
+            else
+                for (Reminder reminder : reminders) {
+                    if (reminder == null)
+                        continue;
+                    Calendar end = Calendar.getInstance();
+                    if (reminder.getType() == 0) {
+                        end.setTime(reminder.getTimeEnd());
+                        end.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                                currentTime.get(Calendar.DATE), end.get(Calendar.HOUR_OF_DAY), end.get(Calendar.MINUTE), 0);
+                        Calendar start = Calendar.getInstance();
+                        start.setTime(reminder.getTimeStart());
+                        start.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                                currentTime.get(Calendar.DATE) + 1, start.get(Calendar.HOUR_OF_DAY), start.get(Calendar.MINUTE), 0);
+                        if (currentTime.getTimeInMillis() > end.getTimeInMillis()) {
+                            if (nextReminderTime.getTimeInMillis() - 15 > start.getTimeInMillis() &&
+                                    currentTime.getTimeInMillis() < start.getTimeInMillis()) {
+                                nextReminder = reminder;
+                                nextReminderTime = start;
+                                nextReminderTime.set(Calendar.SECOND, 0);
+                            }
+                        } else if (currentTime.getTimeInMillis() <= end.getTimeInMillis()) {
+                            Calendar previousReminder = Calendar.getInstance();
+                            previousReminder.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                                    currentTime.get(Calendar.DATE), start.get(Calendar.HOUR_OF_DAY), start.get(Calendar.MINUTE), 0);
+                            Calendar interval = Calendar.getInstance();
+                            interval.setTime(reminder.getTimeInterval());
+                            int hour = interval.get(Calendar.HOUR_OF_DAY);
+                            int minute = interval.get(Calendar.MINUTE);
+                            while (previousReminder.getTimeInMillis() - 15 <= currentTime.getTimeInMillis()) {
+                                previousReminder.set(Calendar.HOUR_OF_DAY, previousReminder.get(Calendar.HOUR_OF_DAY) + hour);
+                                previousReminder.set(Calendar.MINUTE, previousReminder.get(Calendar.MINUTE) + minute);
+                            }
+                            if (nextReminderTime.getTimeInMillis() > previousReminder.getTimeInMillis()) {
+                                nextReminder = reminder;
+                                nextReminderTime = previousReminder;
+                                nextReminderTime.set(Calendar.SECOND, 0);
+                            }
                         }
-                        s.set(Calendar.HOUR_OF_DAY, h);
-                        s.set(Calendar.MINUTE, m);
-                        if (s.getTime().compareTo(e1.getTime()) <= 0) {
-                            Date date = s.getTime();
-                            pairs.add(Pair.create(Pair.create(reminder.getId(), reminder.getName()), date));
+                    } else {
+                        for (int i = reminder.getTimers().size() - 1; i >= 0; i--) {
+                            Date date = reminder.getTimers().get(i);
+                            Calendar dateTime = Calendar.getInstance();
+                            dateTime.setTime(date);
+                            dateTime.setTimeZone(currentTime.getTimeZone());
+                            dateTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                                    currentTime.get(Calendar.DATE), dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE));
+                            if (currentTime.getTimeInMillis() >= dateTime.getTimeInMillis()) {
+                                if (i == reminder.getTimers().size() - 1) {
+                                    dateTime.setTime(reminder.getTimers().get(0));
+                                    dateTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                                            currentTime.get(Calendar.DATE), dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE));
+                                    if (nextReminderTime.getTimeInMillis() > dateTime.getTimeInMillis()) {
+                                        nextReminder = reminder;
+                                        nextReminderTime = dateTime;
+                                    }
+                                }
+                                break;
+                            }
+                            nextReminder = reminder;
+                            nextReminderTime = dateTime;
+                            nextReminderTime.set(Calendar.SECOND, 0);
                         }
                     }
-                } else if (reminder.getType() == 1) {
-                    for (Date date : reminder.getTimers()) {
-                        pairs.add(Pair.create(Pair.create(reminder.getId(), reminder.getName()), date));
-                    }
                 }
+            if (nextReminder != null) {
+                homeData.setCurrentReminder("Следующее напоминание:\n" + nextReminder.getName() +
+                        " в " + convertDate(nextReminderTime.get(Calendar.HOUR_OF_DAY)) + ":" +
+                        convertDate(nextReminderTime.get(Calendar.MINUTE)));
             }
-            Collections.sort(pairs, (r1, r2) -> r1.second.compareTo(r2.second));
-            Calendar c = Calendar.getInstance();
-            for (int i = 0; i < pairs.size(); i++) {
-                Date date = pairs.get(i).second;
-                Calendar d = Calendar.getInstance();
-                d.setTime(date);
-                d.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DATE), d.get(Calendar.HOUR_OF_DAY), d.get(Calendar.MINUTE), c.get(Calendar.SECOND));
-                if ((c.get(Calendar.HOUR_OF_DAY) == d.get(Calendar.HOUR_OF_DAY) && c.get(Calendar.MINUTE) < d.get(Calendar.MINUTE)) || c.get(Calendar.HOUR_OF_DAY) < d.get(Calendar.HOUR_OF_DAY)) {
-                    homeData.setCurrentReminder("Следующее напоминание:\n" + pairs.get(i).first.second + " в " + convertDate(d.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(d.get(Calendar.MINUTE)));
-                    return;
-                }
-            }
-            Date date = pairs.get(0).second;
-            Calendar d = Calendar.getInstance();
-            d.setTime(date);
-            homeData.setCurrentReminder("Следующее напоминание:\n" + pairs.get(0).first.second + " в " + convertDate(d.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(d.get(Calendar.MINUTE)));
         }
-        else
-            homeData.setCurrentReminder("Напоминаний нет");
     }
 
     private String convertDate(int input) {

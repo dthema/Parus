@@ -15,13 +15,11 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.parus.R;
 import com.example.parus.databinding.FragmentHomeBinding;
 import com.example.parus.services.HeartRateService;
 import com.example.parus.ui.communication.listen.ListenActivity;
@@ -78,11 +76,11 @@ public class HomeFragment extends Fragment {
             homeViewModel.stopSpeech();
             if (mStore != null)
                 mStore.disconnectService();
-            if (networkModel != null)
-                stopCheckInternetConnection();
+            stopCheckInternetConnection();
+            stopCheckReminders();
         } else {
-            if (networkModel != null)
-                startCheckInternetConnection();
+            startCheckInternetConnection();
+            startCheckReminders();
         }
     }
 
@@ -92,7 +90,7 @@ public class HomeFragment extends Fragment {
 
     @SuppressLint("SetTextI18n")
     private void InternetOn() {
-        userModel.getUploadLinkUser().observe(getViewLifecycleOwner(), linkUser -> {
+        userModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), linkUser -> {
             if (linkUser != null) {
                 homeViewModel.setLastOnline(linkUser);
             }
@@ -111,6 +109,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startCheckInternetConnection();
+        startCheckReminders();
     }
 
     private void initModels() {
@@ -127,7 +126,6 @@ public class HomeFragment extends Fragment {
 
     private void initObservers() {
         userModel.getUserData().observe(getViewLifecycleOwner(), user -> {
-            homeViewModel.setUserUI(user);
             String userId = user.getUserId();
             String linkUserId = user.getLinkUserId();
             String fastAction = user.getFastAction();
@@ -135,7 +133,9 @@ public class HomeFragment extends Fragment {
             boolean isSupport = user.isSupport();
             if (linkUserId == null || userId == null)
                 return;
-            observeReminders(userId, linkUserId, isSupport);
+            if ((!isSupport || !userId.equals(linkUserId)) && reminderModel.getReminderData(false) == null) {
+                observeReminders(userId, linkUserId, isSupport);
+            }
             if (SaySettings.get("TTS_Speed") != null)
                 homeViewModel.setSpeed((Double) SaySettings.get("TTS_Speed"));
             if (SaySettings.get("TTS_Pitch") != null)
@@ -182,26 +182,28 @@ public class HomeFragment extends Fragment {
                 homeBinding.homeCallSupport.setVisibility(View.GONE);
                 homeBinding.homePulse.setClickable(false);
                 if (linkUserId.equals(userId)) {
+                    stopCheckReminders();
+                    homeData.setCurrentReminder("Напоминаний нет");
                     homeData.setHeartRate("Нет связи\nс подопечным");
                     homeBinding.reminderButton.setClickable(false);
                     reminders.clear();
-                    if (reminderLiveData != null) {
+                    if (reminderModel.getReminderData(false) != null)
                         reminderModel.removeObserver(getViewLifecycleOwner());
-                        reminderLiveData = null;
-                    }
                     if (userModel.getUserDataById() != null)
                         userModel.removeLinkObserver(getViewLifecycleOwner());
                 } else {
+                    startCheckReminders();
                     homeBinding.reminderButton.setClickable(true);
                     if (userModel.getUserDataById() == null)
-                        observeLinkUser(linkUserId);
+                        observeLinkUserPulse(linkUserId);
                 }
             }
         });
+        reminderModel.setReminders(new ArrayList<>());
     }
 
     private void startCheckInternetConnection() {
-        MutableLiveData<Boolean> liveData = networkModel.getInternetConnection();
+        LiveData<Boolean> liveData = networkModel.getInternetConnection();
         if (liveData != null) {
             liveData.observe(getViewLifecycleOwner(), isInternetConnected -> {
                 if (isInternetConnected != null) {
@@ -218,11 +220,26 @@ public class HomeFragment extends Fragment {
         networkModel.stopCheckInternetConnection();
     }
 
+    private void startCheckReminders() {
+        LiveData<String> liveData = reminderModel.startCheckReminders();
+        if (liveData != null){
+            userModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
+                if (!user.isSupport() || !user.getLinkUserId().equals(user.getUserId())) {
+                    liveData.observe(getViewLifecycleOwner(), s -> homeData.setCurrentReminder(s));
+                }
+            });
+        }
+    }
+
+    private void stopCheckReminders() {
+        reminderModel.stopCheckReminders();
+    }
+
     @SuppressLint("SetTextI18n")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeData = new HomeData();
-        homeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
+        homeBinding = FragmentHomeBinding.inflate(inflater, container, false);
         homeBinding.setViewmodel(homeViewModel);
         homeBinding.setData(homeData);
         homeBinding.setLifecycleOwner(getViewLifecycleOwner());
@@ -247,13 +264,15 @@ public class HomeFragment extends Fragment {
             mStore = new HealthDataStore(requireActivity(), mConnectionListener);
         }
         reminders = new ArrayList<>();
-        homeViewModel.setTTS(new TextToSpeech(requireContext(), status -> {}));
+        homeViewModel.setTTS(new TextToSpeech(requireContext(), status -> {
+        }));
         return homeBinding.getRoot();
     }
 
+
     @SuppressLint("SetTextI18n")
-    private void observeLinkUser(String linkUserId) {
-        userModel.getUserDataById(linkUserId).observe(getViewLifecycleOwner(), user -> {
+    private void observeLinkUserPulse(String linkUserId) {
+        userModel.getUserDataById(linkUserId, true).observe(getViewLifecycleOwner(), user -> {
             if (user == null)
                 return;
             Long BPM = user.getPulse();
@@ -268,19 +287,13 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private LiveData<List<Reminder>> reminderLiveData;
-
     private void observeReminders(String userId, String linkUserId, boolean isSupport) {
-        if (reminderLiveData != null)
+        if (reminderModel.getReminderData(false) != null || isSupport && userId.equals(linkUserId))
             return;
-        reminderLiveData = reminderModel.getProductList(userId, linkUserId, isSupport);
-        reminderLiveData.observe(getViewLifecycleOwner(), reminder -> {
-            if (isSupport && userId.equals(linkUserId)) {
-                reminders.clear();
-                reminderModel.removeObserver(getViewLifecycleOwner());
-            } else
-                reminders = reminder;
-            homeViewModel.showCurrentReminder(reminder);
+        reminderModel.getReminderData(userId, linkUserId, isSupport).observe(getViewLifecycleOwner(), reminder -> {
+            reminders = reminder;
+            reminderModel.setReminders(reminders);
+            homeViewModel.showCurrentReminder(reminders);
         });
     }
 
@@ -319,6 +332,7 @@ public class HomeFragment extends Fragment {
     public void onPause() {
         homeViewModel.stopSpeech();
         stopCheckInternetConnection();
+        stopCheckReminders();
         if (mStore != null)
             mStore.disconnectService();
         super.onPause();
