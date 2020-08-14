@@ -1,6 +1,7 @@
 package com.example.parus.viewmodels.data;
 
 import android.util.Log;
+
 import androidx.core.util.Pair;
 
 import androidx.annotation.Nullable;
@@ -13,7 +14,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
-public class UserShortData extends LiveData<Pair<Pair<String,String>, Boolean>> {
+public class UserShortData extends LiveData<Pair<Pair<String, String>, Boolean>> {
 
     private static final String TAG = "user data";
 
@@ -21,6 +22,7 @@ public class UserShortData extends LiveData<Pair<Pair<String,String>, Boolean>> 
 
     private DocumentReference docRef;
     private User user;
+    private Pair<Pair<String, String>, Boolean> pair;
 
     public UserShortData(DocumentReference docRef) {
         this.docRef = docRef;
@@ -36,7 +38,21 @@ public class UserShortData extends LiveData<Pair<Pair<String,String>, Boolean>> 
             if (documentSnapshot != null) {
                 user = documentSnapshot.toObject(User.class);
                 if (user != null)
-                    setValue(Pair.create(Pair.create(user.getUserId(), user.getLinkUserId()), user.isSupport()));
+                    if (pair == null) {
+                        pair = Pair.create(Pair.create(user.getUserId(), user.getLinkUserId()), user.isSupport());
+                        setValue(pair);
+                        Log.d("TAGAAA", String.valueOf(pair.first.first));
+                        Log.d("TAGAAA", String.valueOf(pair.first.second));
+                        Log.d("TAGAAA", String.valueOf(pair.second));
+                        Log.d("TAGAAA", "-----------------------");
+                    } else if (!pair.equals(Pair.create(Pair.create(user.getUserId(), user.getLinkUserId()), user.isSupport()))) {
+                        pair = Pair.create(Pair.create(user.getUserId(), user.getLinkUserId()), user.isSupport());
+                        Log.d("TAGAAA", String.valueOf(pair.first.first));
+                        Log.d("TAGAAA", String.valueOf(pair.first.second));
+                        Log.d("TAGAAA", String.valueOf(pair.second));
+                        Log.d("TAGAAA", "-----------------------");
+                        setValue(pair);
+                    }
             }
         }
     };

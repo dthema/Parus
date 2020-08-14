@@ -23,7 +23,7 @@ public class ReminderModel extends ViewModel {
     private LiveData<List<Reminder>> remindersList;
 
     public LiveData<List<Reminder>> getReminderData(String userId, String linkUserId, boolean isSupport) {
-        remindersList = repository. reminderListening(userId, linkUserId, isSupport, true);
+        remindersList = repository.reminderListening(userId, linkUserId, isSupport, true);
         return remindersList;
     }
 
@@ -67,11 +67,12 @@ public class ReminderModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        if (!repository.reminderListening(false).hasObservers()) {
-            Log.d("TAGAA", "reminder clear");
-            repository.stopListening();
-            repository.stopCheckReminders();
-            repository.destroy();
-        }
+        if (repository.reminderListening(false) != null)
+            if (!repository.reminderListening(false).hasObservers()) {
+                Log.d("TAGAA", "reminder clear");
+                repository.stopListening();
+                repository.stopCheckReminders();
+                repository.destroy();
+            }
     }
 }

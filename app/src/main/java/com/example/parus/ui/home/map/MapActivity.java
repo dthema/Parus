@@ -8,15 +8,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.parus.R;
-import com.example.parus.data.User;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.ListenerRegistration;
+import com.example.parus.databinding.ActivityMapBinding;
+import com.example.parus.viewmodels.MapViewModel;
+import com.example.parus.viewmodels.UserModel;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -31,7 +29,6 @@ import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
-import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
@@ -47,6 +44,9 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
+
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
 
 public class MapActivity extends AppCompatActivity implements
@@ -56,32 +56,30 @@ public class MapActivity extends AppCompatActivity implements
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private static final String TAG = "MapActivityDebug";
     private MapboxMap mapboxMap;
-    private MapView mapView;
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
-    private ImageButton myLoc;
     private Location userLocation;
     private Location linkUserLocation;
-    private User user;
-    private DocumentReference ref;
     private SymbolManager symbolManager;
-    private ImageButton linkLoc;
+    private UserModel userModel;
+    private MapViewModel mapViewModel;
+    private ActivityMapBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, "pk.eyJ1IjoiZHRoZW1hIiwiYSI6ImNrYW1kcGphMjEzMDQydHA2aDdxbGg1MTcifQ.zZZ1fAHOUWJ9OCuz6fVBZg");
-        user = new User();
-        setContentView(R.layout.activity_map);
-        myLoc = findViewById(R.id.myLocation);
-        myLoc.setOnClickListener(l -> {
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_map);
+        userModel = new ViewModelProvider(this).get(UserModel.class);
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
+        binding.myLocation.setOnClickListener(l -> {
             if (PermissionsManager.areLocationPermissionsGranted(this) && userLocation != null) {
                 LatLng latLng = new LatLng(userLocation);
                 mapboxMap.setCameraPosition(new CameraPosition.Builder()
                         .target(latLng)
-                        .zoom(16)
+                        .zoom(15)
                         .build()
                 );
             } else {
@@ -89,12 +87,10 @@ public class MapActivity extends AppCompatActivity implements
                 permissionsManager.requestLocationPermissions(this);
             }
         });
-        myLoc.setVisibility(View.GONE);
-        linkLoc = findViewById(R.id.linkLocation);
-        linkLoc.setVisibility(View.GONE);
-        mapView = findViewById(R.id.mapView);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+        binding.myLocation.setVisibility(View.GONE);
+        binding.linkLocation.setVisibility(View.GONE);
+        binding.mapView.onCreate(savedInstanceState);
+        binding.mapView.getMapAsync(this);
     }
 
     private static final String ID_ICON_1 = "com.mapbox.annotationplugin.icon.1";
@@ -118,8 +114,6 @@ public class MapActivity extends AppCompatActivity implements
         }
     }
 
-    private ListenerRegistration listenerRegistration = null;
-
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
@@ -129,124 +123,136 @@ public class MapActivity extends AppCompatActivity implements
                         // установка картинки для метки на местоположение связанного пользователя
                         .withImage(ID_ICON_1, generateBitmap(), true)
                 , style -> {
-                    myLoc.setVisibility(View.VISIBLE);
-                    linkLoc.setVisibility(View.VISIBLE);
+                    binding.myLocation.setVisibility(View.VISIBLE);
+                    binding.linkLocation.setVisibility(View.VISIBLE);
                     enableLocationComponent(style);
-                    symbolManager = new SymbolManager(mapView, mapboxMap, style);
+                    symbolManager = new SymbolManager(binding.mapView, mapboxMap, style);
                     PropertyValue<String> prop_ru = textField("{name_ru}");
-                    List<String> idArr = Arrays.asList("country-label", "state-label", "settlement-major-label", "settlement-minor-label", "settlement-subdivision-label", "airport-label", "natural-point-label", "natural-line-label", "waterway-label", "path-pedestrian-label",
-                            "tunnel-oneway-arrows-blue-minor",
-                            "tunnel-oneway-arrows-blue-major",
-                            "tunnel-oneway-arrows-white",
-                            "tunnel-oneway-arrows-white",
-                            "turning-features-outline",
-                            "road-oneway-arrows-blue-minor",
-                            "road-oneway-arrows-blue-major",
-                            "level-crossings",
-                            "road-oneway-arrows-white",
-                            "turning-features",
-                            "bridge-oneway-arrows-blue-minor",
-                            "bridge-oneway-arrows-blue-major",
-                            "bridge-oneway-arrows-white",
-                            "road-label-small",
-                            "road-label-medium",
-                            "road-label-large",
-                            "road-shields-black",
-                            "road-shields-white",
-                            "motorway-junction",
-                            "waterway-label",
-                            "rail-label",
-                            "water-label-sm",
-                            "place-residential",
-                            "airport-label",
-                            "place-islet-archipelago-aboriginal",
-                            "place-neighbourhood",
-                            "place-suburb",
-                            "place-hamlet",
-                            "place-village",
-                            "place-town",
-                            "place-island",
-                            "place-city-sm",
-                            "place-city-md-s",
-                            "place-city-md-n",
-                            "place-city-lg-s",
-                            "place-city-lg-n",
-                            "marine-label-sm-ln",
-                            "marine-label-sm-pt",
-                            "marine-label-md-ln",
-                            "marine-label-md-pt",
-                            "marine-label-lg-ln",
-                            "marine-label-lg-pt",
-                            "state-label-sm",
-                            "state-label-md",
-                            "state-label-lg",
-                            "country-label-sm",
-                            "country-label-md",
-                            "country-label-lg");
+                    List<String> idArr = getParamsList();
                     // перевод всех заголовков на русский язык
                     for (String id : idArr) {
                         Layer settlementLabelLayer = style.getLayer(id);
                         if (settlementLabelLayer != null)
                             settlementLabelLayer.setProperties(prop_ru);
                     }
-                    user.updateIsSupport().addOnSuccessListener(s -> user.updateLinkUser().addOnSuccessListener(l -> {
-                        if (user.getUser().getUid().equals(user.getLinkUserId())) {
-                            if (user.isSupport())
-                                linkLoc.setOnClickListener(c -> Toast.makeText(MapActivity.this, "Нет связи с подопечным", Toast.LENGTH_LONG).show());
+                    userModel.getShortUserData().observe(this, pair -> {
+                        if (pair.first == null)
+                            return;
+                        String userId = pair.first.first;
+                        String linkUserId = pair.first.second;
+                        Boolean isSupport = pair.second;
+                        if (userId == null || linkUserId == null || isSupport == null)
+                            return;
+                        if (userId.equals(linkUserId)) {
+                            if (linkUserLocation != null){
+                                symbolManager.deleteAll();
+                                linkUserLocation = null;
+                            }
+                            if (isSupport)
+                                binding.linkLocation.setOnClickListener(c ->
+                                        Toast.makeText(MapActivity.this, R.string.no_support_link, Toast.LENGTH_LONG).show());
                             else
-                                linkLoc.setOnClickListener(c -> Toast.makeText(MapActivity.this, "Нет связи с помощником", Toast.LENGTH_LONG).show());
+                                binding.linkLocation.setOnClickListener(c ->
+                                        Toast.makeText(MapActivity.this, R.string.no_disabled_link, Toast.LENGTH_LONG).show());
                         } else {
-                            user.getDatabase().collection("users").document(user.getLinkUserId()).get()
-                                    .addOnSuccessListener(t ->{
-                                        if (!t.getBoolean("checkGeoPosition"))
-                                            if (user.isSupport())
-                                                Toast.makeText(MapActivity.this, "У подопечного отключено отслеживание геопозиции", Toast.LENGTH_LONG).show();
-                                            else
-                                                Toast.makeText(MapActivity.this, "У помощника отключено отслеживание геопозиции", Toast.LENGTH_LONG).show();
-                                    });
-                            linkLoc.setOnClickListener(c -> {
+                            userModel.getSingleLinkUserData().observe(this, user -> {
+                                if (!user.isCheckGeoPosition())
+                                    if (isSupport)
+                                        Toast.makeText(MapActivity.this, R.string.off_disabled_geoposition, Toast.LENGTH_LONG).show();
+                                    else
+                                        Toast.makeText(MapActivity.this, R.string.off_support_geoposition, Toast.LENGTH_LONG).show();
+                            });
+                            binding.linkLocation.setOnClickListener(c -> {
                                 if (linkUserLocation != null) {
                                     LatLng latLng = new LatLng(linkUserLocation);
                                     mapboxMap.setCameraPosition(new CameraPosition.Builder()
                                             .target(latLng)
-                                            .zoom(16)
+                                            .zoom(15)
                                             .build());
                                 } else {
-                                    if (user.isSupport())
-                                        Toast.makeText(MapActivity.this, "Подопечный не найден", Toast.LENGTH_LONG).show();
+                                    if (isSupport)
+                                        Toast.makeText(MapActivity.this, R.string.desabled_not_find, Toast.LENGTH_LONG).show();
                                     else
-                                        Toast.makeText(MapActivity.this, "Помощник не найден", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(MapActivity.this, R.string.support_not_find, Toast.LENGTH_LONG).show();
                                 }
-
                             });
-                            ref = user.getDatabase().collection("users").document(user.getLinkUserId()).collection("GeoPosition").document("Location");
-                            // обновление местоположения связанного пользователя
-                            listenerRegistration = ref.addSnapshotListener((documentSnapshot, e) -> {
-                                if (e != null) {
-                                    Log.d(TAG, e.getMessage());
+                            mapViewModel.getLocationData(linkUserId).observe(this, location -> {
+                                if (location == null)
                                     return;
-                                }
-                                if (documentSnapshot != null) {
-                                    Double latitude = documentSnapshot.getDouble("Latitude");
-                                    Double longitude = documentSnapshot.getDouble("Longitude");
-                                    if (latitude != null && longitude != null) {
-                                        linkUserLocation = new Location("");
-                                        linkUserLocation.setLongitude(longitude);
-                                        linkUserLocation.setLatitude(latitude);
-                                        // добавление метки на местоположение связанного пользователя
-                                        symbolManager.deleteAll();
-                                        symbolManager.setIconAllowOverlap(true);
-                                        symbolManager.setTextAllowOverlap(true);
-                                        SymbolOptions SymbolOptions = new SymbolOptions()
-                                                .withLatLng(new LatLng(latitude, longitude))
-                                                .withIconImage(ID_ICON_1);
-                                        Symbol symbol = symbolManager.create(SymbolOptions);
-                                    }
+                                Double latitude = location.first;
+                                Double longitude = location.second;
+                                if (latitude == null || longitude == null)
+                                    return;
+                                if (linkUserLocation == null)
+                                    linkUserLocation = new Location("");
+                                linkUserLocation.setLongitude(longitude);
+                                linkUserLocation.setLatitude(latitude);
+                                // добавление метки на местоположение связанного пользователя
+                                if (symbolManager != null) {
+                                    symbolManager.deleteAll();
+                                    symbolManager.setIconAllowOverlap(true);
+                                    symbolManager.setTextAllowOverlap(true);
+                                    SymbolOptions SymbolOptions = new SymbolOptions()
+                                            .withLatLng(new LatLng(latitude, longitude))
+                                            .withIconImage(ID_ICON_1);
+                                    Symbol symbol = symbolManager.create(SymbolOptions);
                                 }
                             });
                         }
-                    }));
+                    });
                 });
+    }
+
+    private List<String> getParamsList() {
+        return Arrays.asList("country-label", "state-label", "settlement-major-label", "settlement-minor-label", "settlement-subdivision-label", "airport-label", "natural-point-label", "natural-line-label", "waterway-label", "path-pedestrian-label",
+                "tunnel-oneway-arrows-blue-minor",
+                "tunnel-oneway-arrows-blue-major",
+                "tunnel-oneway-arrows-white",
+                "tunnel-oneway-arrows-white",
+                "turning-features-outline",
+                "road-oneway-arrows-blue-minor",
+                "road-oneway-arrows-blue-major",
+                "level-crossings",
+                "road-oneway-arrows-white",
+                "turning-features",
+                "bridge-oneway-arrows-blue-minor",
+                "bridge-oneway-arrows-blue-major",
+                "bridge-oneway-arrows-white",
+                "road-label-small",
+                "road-label-medium",
+                "road-label-large",
+                "road-shields-black",
+                "road-shields-white",
+                "motorway-junction",
+                "waterway-label",
+                "rail-label",
+                "water-label-sm",
+                "place-residential",
+                "airport-label",
+                "place-islet-archipelago-aboriginal",
+                "place-neighbourhood",
+                "place-suburb",
+                "place-hamlet",
+                "place-village",
+                "place-town",
+                "place-island",
+                "place-city-sm",
+                "place-city-md-s",
+                "place-city-md-n",
+                "place-city-lg-s",
+                "place-city-lg-n",
+                "marine-label-sm-ln",
+                "marine-label-sm-pt",
+                "marine-label-md-ln",
+                "marine-label-md-pt",
+                "marine-label-lg-ln",
+                "marine-label-lg-pt",
+                "state-label-sm",
+                "state-label-md",
+                "state-label-lg",
+                "country-label-sm",
+                "country-label-md",
+                "country-label-lg");
     }
 
     @Override
@@ -365,47 +371,45 @@ public class MapActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        mapView.onStart();
+        binding.mapView.onStart();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mapView.onResume();
+        binding.mapView.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mapView.onPause();
+        binding.mapView.onPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mapView.onStop();
+        binding.mapView.onStop();
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
+        binding.mapView.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (listenerRegistration != null)
-            listenerRegistration.remove();
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
         }
-        mapView.onDestroy();
+        binding.mapView.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mapView.onLowMemory();
+        binding.mapView.onLowMemory();
     }
 }

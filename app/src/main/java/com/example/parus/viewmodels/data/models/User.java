@@ -1,5 +1,7 @@
 package com.example.parus.viewmodels.data.models;
 
+import android.util.Log;
+
 import com.google.firebase.Timestamp;
 
 import java.util.HashMap;

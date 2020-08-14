@@ -17,9 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.parus.R;
 import com.example.parus.databinding.FragmentHomeBinding;
 import com.example.parus.services.HeartRateService;
 import com.example.parus.ui.communication.listen.ListenActivity;
@@ -54,7 +54,6 @@ import java.util.Objects;
 
 public class HomeFragment extends Fragment {
 
-    private List<Reminder> reminders;
     private static final String TAG = "HomeFragment";
     private static final int NO_PERMISSION = 0;
     private static final int NO_GOOGLE_ACCOUNT = 1;
@@ -65,7 +64,6 @@ public class HomeFragment extends Fragment {
     private HealthModel healthModel;
     private HomeViewModel homeViewModel;
     private HealthDataStore mStore;
-    private HealthConnectionErrorResult mConnError;
     private HomeData homeData;
     private FragmentHomeBinding homeBinding;
 
@@ -85,7 +83,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void InternetOff() {
-        homeData.setLinkUserOnline("Нет подключения к сети");
+        homeData.setLinkUserOnline(getString(R.string.not_internet));
     }
 
     @SuppressLint("SetTextI18n")
@@ -147,7 +145,7 @@ public class HomeFragment extends Fragment {
                 if (!userId.equals(linkUserId)) {
                     homeBinding.homeCallSupport.setVisibility(View.VISIBLE);
                     homeBinding.homeCallSupport.setOnClickListener(l -> userModel.callSupport().observe(getViewLifecycleOwner(),
-                            send -> Toast.makeText(getContext(), "Уведомление отправлено помощнику", Toast.LENGTH_LONG).show()));
+                            send -> Toast.makeText(getContext(), R.string.notification_send, Toast.LENGTH_LONG).show()));
                 } else {
                     homeBinding.homeCallSupport.setVisibility(View.GONE);
                 }
@@ -156,25 +154,25 @@ public class HomeFragment extends Fragment {
                     switch (result) {
                         case NO_PERMISSION:
                             homeBinding.homePulse.setClickable(true);
-                            homeData.setHeartRate("Пульс: Нет прав");
+                            homeData.setHeartRate(getString(R.string.no_pulse_rights));
                             break;
                         case NO_GOOGLE_ACCOUNT:
                             homeBinding.homePulse.setClickable(true);
-                            homeData.setHeartRate("Пульс: Google Аккаунт не подключён");
+                            homeData.setHeartRate(getString(R.string.google_account_not_connected));
                             break;
                         case SAMSUNG_NO_CONNECT:
                             homeBinding.homePulse.setClickable(true);
-                            homeData.setHeartRate("Пульс: Samsung Health не подключён");
+                            homeData.setHeartRate(getString(R.string.samsung_not_connected));
                             break;
                         default:
                             homeBinding.homePulse.setClickable(false);
                             if (user.isCheckHeartBPM()) {
-                                homeData.setHeartRate("Пульс: Данные не обнаружены");
+                                homeData.setHeartRate(getString(R.string.no_pulse_data));
                                 Long BPM = user.getPulse();
                                 if (BPM != 0)
                                     homeData.setHeartRate("Пульс: " + BPM + " у/м");
                             } else
-                                homeData.setHeartRate("Пульс: Отслеживание отключено");
+                                homeData.setHeartRate(getString(R.string.no_pulse_checked));
                             break;
                     }
                 });
@@ -183,12 +181,13 @@ public class HomeFragment extends Fragment {
                 homeBinding.homePulse.setClickable(false);
                 if (linkUserId.equals(userId)) {
                     stopCheckReminders();
-                    homeData.setCurrentReminder("Напоминаний нет");
-                    homeData.setHeartRate("Нет связи\nс подопечным");
+                    homeData.setCurrentReminder(getString(R.string.no_reminders));
+                    homeData.setHeartRate(getString(R.string.no_support_link));
                     homeBinding.reminderButton.setClickable(false);
-                    reminders.clear();
-                    if (reminderModel.getReminderData(false) != null)
+                    if (reminderModel.getReminderData(false) != null) {
                         reminderModel.removeObserver(getViewLifecycleOwner());
+                        reminderModel.setReminders(null);
+                    }
                     if (userModel.getUserDataById() != null)
                         userModel.removeLinkObserver(getViewLifecycleOwner());
                 } else {
@@ -222,7 +221,7 @@ public class HomeFragment extends Fragment {
 
     private void startCheckReminders() {
         LiveData<String> liveData = reminderModel.startCheckReminders();
-        if (liveData != null){
+        if (liveData != null) {
             userModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
                 if (!user.isSupport() || !user.getLinkUserId().equals(user.getUserId())) {
                     liveData.observe(getViewLifecycleOwner(), s -> homeData.setCurrentReminder(s));
@@ -251,6 +250,8 @@ public class HomeFragment extends Fragment {
                     String userId = pair.first.first;
                     String linkUserId = pair.first.second;
                     Boolean isSupport = pair.second;
+                    if (userId == null || linkUserId == null || isSupport == null)
+                        return;
                     if (!userId.equals(linkUserId) || !isSupport) {
                         requireActivity().startActivity(new Intent(requireContext(), RemindersActivity.class));
                     }
@@ -263,7 +264,6 @@ public class HomeFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= 23) {
             mStore = new HealthDataStore(requireActivity(), mConnectionListener);
         }
-        reminders = new ArrayList<>();
         homeViewModel.setTTS(new TextToSpeech(requireContext(), status -> {
         }));
         return homeBinding.getRoot();
@@ -278,20 +278,19 @@ public class HomeFragment extends Fragment {
             Long BPM = user.getPulse();
             boolean check = user.isCheckHeartBPM();
             if (check) {
-                homeData.setHeartRate("Пульс: Данные не обнаружены");
+                homeData.setHeartRate(getString(R.string.no_pulse_data));
                 if (BPM != null)
                     if (BPM != 0)
                         homeData.setHeartRate("Пульс:\n" + BPM + " у/м");
             } else
-                homeData.setHeartRate("Пульс: У подопечного отключено отслеживание");
+                homeData.setHeartRate(getString(R.string.no_link_pulse_checked));
         });
     }
 
     private void observeReminders(String userId, String linkUserId, boolean isSupport) {
         if (reminderModel.getReminderData(false) != null || isSupport && userId.equals(linkUserId))
             return;
-        reminderModel.getReminderData(userId, linkUserId, isSupport).observe(getViewLifecycleOwner(), reminder -> {
-            reminders = reminder;
+        reminderModel.getReminderData(userId, linkUserId, isSupport).observe(getViewLifecycleOwner(), reminders -> {
             reminderModel.setReminders(reminders);
             homeViewModel.showCurrentReminder(reminders);
         });
@@ -301,23 +300,23 @@ public class HomeFragment extends Fragment {
     private void setFastAction(String action) {
         switch (action) {
             case "0":
-                homeData.setFastAction("Быстрое действие не выбрано");
+                homeData.setFastAction(getString(R.string.fast_action_no_choose));
                 homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "1":
-                homeData.setFastAction("Распознать текст");
+                homeData.setFastAction(getString(R.string.detect_text));
                 homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "2":
-                homeData.setFastAction("Распознать объект");
+                homeData.setFastAction(getString(R.string.detect_object));
                 homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "3":
-                homeData.setFastAction("Начать слушать");
+                homeData.setFastAction(getString(R.string.start_listen));
                 homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             default:
-                homeData.setFastAction("Сказать/Показать: " + action);
+                homeData.setFastAction(getString(R.string.say_and_show) + action);
                 homeBinding.homeFast.setOnLongClickListener(l -> {
                     Intent intent = new Intent(getActivity(), SayShowActivity.class);
                     intent.putExtra("word", action);
@@ -345,10 +344,10 @@ public class HomeFragment extends Fragment {
         public void onConnected() {
             Log.d(TAG, "Health data service is connected.");
             if (healthModel.isPermissionAcquired(mStore)) {
-                homeData.setHeartRate("Пульс: Samsung Health не подключён");
+                homeData.setHeartRate(getString(R.string.samsung_not_connected));
                 requestPermission();
             } else {
-                homeData.setHeartRate("Данные не обнаружены");
+                homeData.setHeartRate(getString(R.string.no_pulse_data));
                 mStore.disconnectService();
                 homeBinding.homePulse.setClickable(false);
             }
@@ -358,20 +357,20 @@ public class HomeFragment extends Fragment {
         public void onConnectionFailed(HealthConnectionErrorResult error) {
             Log.d(TAG, "Health data service is not available.");
             AlertDialog.Builder alert = new AlertDialog.Builder(requireContext());
-            String message = "Не удалось подключиться к Samsung Health";
+            String message = getString(R.string.cannot_connect_to_shealth);
             if (error.hasResolution()) {
                 switch (error.getErrorCode()) {
                     case HealthConnectionErrorResult.PLATFORM_NOT_INSTALLED:
-                        message = "Установите Samsung Health";
+                        message = getString(R.string.download_shealth);
                         break;
                     case HealthConnectionErrorResult.OLD_VERSION_PLATFORM:
-                        message = "Обновите Samsung Health";
+                        message = getString(R.string.update_shealth);
                         break;
                     case HealthConnectionErrorResult.PLATFORM_DISABLED:
-                        message = "Включите Samsung Health";
+                        message = getString(R.string.enable_shealth);
                         break;
                     case HealthConnectionErrorResult.USER_AGREEMENT_NEEDED:
-                        message = "Пожалуйста, согласитесь с политикой Samsung Health";
+                        message = getString(R.string.agree_with_shealth_policy);
                         break;
                 }
             }
@@ -396,11 +395,8 @@ public class HomeFragment extends Fragment {
 
     private void showPermissionAlarmDialog() {
         AlertDialog.Builder alert = new AlertDialog.Builder(requireActivity());
-        alert.setTitle("Не удалось подключиться к Samsung Health")
-                .setMessage("Для отслеживания пульса из Samsung Health необходимо выдать нужные разрешения\n" +
-                        "На данный момент приложение не является партнёром Samsung Health, " +
-                        "поэтому включите режим разработчика в Samsung Health, чтобы приложение могло считывать данные о пульсе\n" +
-                        "Чтобы его включить перейдите во вкладку 'О Samsung Health' в настройках приложения и несколько раз нажите на версию приложения")
+        alert.setTitle(R.string.cannot_connect_to_shealth)
+                .setMessage(R.string.shealth_dialog_message)
                 .setPositiveButton("Ok", null)
                 .show();
     }
@@ -416,7 +412,7 @@ public class HomeFragment extends Fragment {
                         if (resultMap.containsValue(Boolean.FALSE)) {
                             showPermissionAlarmDialog();
                         } else {
-                            homeData.setHeartRate("Пульс: Данные не обнаружены");
+                            homeData.setHeartRate(getString(R.string.no_pulse_data));
                             homeBinding.homePulse.setClickable(false);
                             requireActivity().startService(new Intent(getActivity(), HeartRateService.class).setAction("action"));
                             FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).update("checkHeartBPM", true);
@@ -455,29 +451,23 @@ public class HomeFragment extends Fragment {
     }
 
     public void onFastActionClick() {
-        switch (homeData.getFastAction()) {
-            case "Быстрое действие не выбрано":
-                DialogChooseFastAction dialogChooseFastAction = new DialogChooseFastAction();
-                dialogChooseFastAction.show(requireActivity().getSupportFragmentManager(), "DialogFastAction");
-                break;
-            case "Распознать текст":
-                Intent intent1 = new Intent(getActivity(), SeeActivity.class);
-                intent1.putExtra("fastAction", 1);
-                startActivity(intent1);
-                break;
-            case "Распознать объект":
-                Intent intent2 = new Intent(getActivity(), SeeActivity.class);
-                intent2.putExtra("fastAction", 2);
-                startActivity(intent2);
-                break;
-            case "Начать слушать":
-                Intent intent3 = new Intent(getActivity(), ListenActivity.class);
-                intent3.putExtra("fastAction", true);
-                startActivity(intent3);
-                break;
-            default:
-                homeViewModel.speak();
-                break;
+        if (homeData.getFastAction().equals(getString(R.string.fast_action_no_choose))) {
+            DialogChooseFastAction dialogChooseFastAction = new DialogChooseFastAction();
+            dialogChooseFastAction.show(requireActivity().getSupportFragmentManager(), "DialogFastAction");
+        } else if (homeData.getFastAction().equals(getString(R.string.detect_text))) {
+            Intent intent1 = new Intent(getActivity(), SeeActivity.class);
+            intent1.putExtra("fastAction", 1);
+            startActivity(intent1);
+        } else if (homeData.getFastAction().equals(getString(R.string.detect_object))) {
+            Intent intent2 = new Intent(getActivity(), SeeActivity.class);
+            intent2.putExtra("fastAction", 2);
+            startActivity(intent2);
+        } else if (homeData.getFastAction().equals(getString(R.string.start_listen))) {
+            Intent intent3 = new Intent(getActivity(), ListenActivity.class);
+            intent3.putExtra("fastAction", true);
+            startActivity(intent3);
+        } else {
+            homeViewModel.speak();
         }
     }
 
@@ -487,19 +477,19 @@ public class HomeFragment extends Fragment {
         healthModel.onRequestPermissionsResult(requestCode, permissions, grantResults).observe(getViewLifecycleOwner(), result -> {
             switch (result) {
                 case NO_PERMISSION:
-                    homeData.setHeartRate("Пульс: Нет прав");
+                    homeData.setHeartRate(getString(R.string.no_pulse_rights));
                     homeBinding.homePulse.setClickable(true);
                     break;
                 case NO_GOOGLE_ACCOUNT:
-                    homeData.setHeartRate("Пульс: Google Аккаунт не подключён");
+                    homeData.setHeartRate(getString(R.string.google_account_not_connected));
                     homeBinding.homePulse.setClickable(true);
                     break;
                 case SAMSUNG_NO_CONNECT:
-                    homeData.setHeartRate("Пульс: Samsung Health не подключён");
+                    homeData.setHeartRate(getString(R.string.samsung_not_connected));
                     homeBinding.homePulse.setClickable(true);
                     break;
                 default:
-                    homeData.setHeartRate("Пульс: Данные не обнаружены");
+                    homeData.setHeartRate(getString(R.string.no_pulse_data));
                     homeBinding.homePulse.setClickable(false);
                     break;
             }

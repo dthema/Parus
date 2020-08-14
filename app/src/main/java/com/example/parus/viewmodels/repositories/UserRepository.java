@@ -31,10 +31,8 @@ public class UserRepository {
     private LiveData<User> userLiveData;
 
     public LiveData<User> userListening() {
-        if (userLiveData == null) {
+        if (userLiveData == null)
             userLiveData = new UserData(FirebaseFirestore.getInstance().collection("users").document(userId));
-            Log.d("TAGAA", userId);
-        }
         return userLiveData;
     }
 
