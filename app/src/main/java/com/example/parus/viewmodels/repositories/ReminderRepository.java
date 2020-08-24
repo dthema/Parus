@@ -32,7 +32,7 @@ public class ReminderRepository {
         return repository;
     }
 
-    ReminderData reminderData;
+    private ReminderData reminderData;
 
     public LiveData<List<Reminder>> reminderListening(String userId, String linkUserId, boolean isSupport, boolean recreateData) {
         if (reminderData == null && recreateData)

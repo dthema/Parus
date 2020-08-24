@@ -3,6 +3,7 @@ package com.example.parus;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -13,6 +14,7 @@ import com.example.parus.ui.chat.ChatFragment;
 import com.example.parus.ui.communication.CommunicationFragment;
 import com.example.parus.ui.home.HomeFragment;
 import com.example.parus.viewmodels.ServiceModel;
+import com.example.parus.viewmodels.TTSViewModel;
 import com.example.parus.viewmodels.UserModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private MyFirebaseMessagingService firebaseMessagingService;
     private UserModel userModel;
     private ServiceModel serviceModel;
+    private TTSViewModel TTS;
     private BottomNavigationView navView;
     private Fragment fragmentHome;
     private Fragment fragmentCommunication;
@@ -103,10 +106,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        userModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
-                .get(UserModel.class);
+        userModel = new ViewModelProvider(this).get(UserModel.class);
         serviceModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
                 .get(ServiceModel.class);
+        TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                .get(TTSViewModel.class);
         serviceModel.startWorkService();
         firebaseMessagingService = new MyFirebaseMessagingService();
         new Thread(() -> FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(MainActivity.this, instanceIdResult -> {
@@ -190,5 +194,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         serviceModel.startOnlineService();
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        TTS.destroy();
+        super.onDestroy();
     }
 }

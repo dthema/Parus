@@ -7,8 +7,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.data.User;
+import com.example.parus.viewmodels.SayViewModel;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,21 +18,12 @@ import java.util.List;
 
 public class DialogSayDeleteCollection extends AppCompatDialogFragment {
 
-    static DialogSayDeleteCollection newInstance(String[] msg) {
-        DialogSayDeleteCollection fragment = new DialogSayDeleteCollection();
-        Bundle bundle = new Bundle();
-        bundle.putStringArray("msg", msg);
-        fragment.setArguments(bundle);
-        return fragment;
-    }
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        User user = new User();
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        assert getArguments() != null;
-        final String[] collectionsNames = getArguments().getStringArray("msg");
+        SayViewModel sayViewModel = new ViewModelProvider(this).get(SayViewModel.class);
+        final String[] collectionsNames = sayViewModel.getCollectionsString();
         assert collectionsNames != null;
         if (collectionsNames.length == 0){
             Toast.makeText(builder.getContext(), "Нет коллекций", Toast.LENGTH_LONG).show();
@@ -55,7 +48,7 @@ public class DialogSayDeleteCollection extends AppCompatDialogFragment {
                             for (int i = 0; i < list.size(); i++) {
                                 deletedCollections[i] = list.get(i);
                             }
-                            user.deleteCollections(deletedCollections);
+                            sayViewModel.deleteCollections(deletedCollections);
                         })
                 .setNegativeButton("Отмена",
                         (dialog, id) -> dialog.dismiss());

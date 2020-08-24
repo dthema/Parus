@@ -25,7 +25,7 @@ public class LocationData extends LiveData<Pair<Double, Double>> {
         this.docRef = docRef;
     }
 
-    EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
+    private EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
         if (e != null) {
             Log.i(TAG, "Listen failed.", e);
             return;

@@ -21,14 +21,13 @@ public class UserShortData extends LiveData<Pair<Pair<String, String>, Boolean>>
     private ListenerRegistration registration;
 
     private DocumentReference docRef;
-    private User user;
     private Pair<Pair<String, String>, Boolean> pair;
 
     public UserShortData(DocumentReference docRef) {
         this.docRef = docRef;
     }
 
-    EventListener<DocumentSnapshot> eventListener = new EventListener<DocumentSnapshot>() {
+    private EventListener<DocumentSnapshot> eventListener = new EventListener<DocumentSnapshot>() {
         @Override
         public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
             if (e != null) {
@@ -36,21 +35,13 @@ public class UserShortData extends LiveData<Pair<Pair<String, String>, Boolean>>
                 return;
             }
             if (documentSnapshot != null) {
-                user = documentSnapshot.toObject(User.class);
+                User user = documentSnapshot.toObject(User.class);
                 if (user != null)
                     if (pair == null) {
                         pair = Pair.create(Pair.create(user.getUserId(), user.getLinkUserId()), user.isSupport());
                         setValue(pair);
-                        Log.d("TAGAAA", String.valueOf(pair.first.first));
-                        Log.d("TAGAAA", String.valueOf(pair.first.second));
-                        Log.d("TAGAAA", String.valueOf(pair.second));
-                        Log.d("TAGAAA", "-----------------------");
                     } else if (!pair.equals(Pair.create(Pair.create(user.getUserId(), user.getLinkUserId()), user.isSupport()))) {
                         pair = Pair.create(Pair.create(user.getUserId(), user.getLinkUserId()), user.isSupport());
-                        Log.d("TAGAAA", String.valueOf(pair.first.first));
-                        Log.d("TAGAAA", String.valueOf(pair.first.second));
-                        Log.d("TAGAAA", String.valueOf(pair.second));
-                        Log.d("TAGAAA", "-----------------------");
                         setValue(pair);
                     }
             }

@@ -31,9 +31,9 @@ import com.example.parus.viewmodels.HealthModel;
 import com.example.parus.viewmodels.HomeViewModel;
 import com.example.parus.viewmodels.NetworkModel;
 import com.example.parus.viewmodels.ReminderModel;
+import com.example.parus.viewmodels.TTSViewModel;
 import com.example.parus.viewmodels.UserModel;
 import com.example.parus.viewmodels.data.binding.HomeData;
-import com.example.parus.viewmodels.data.models.Reminder;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
@@ -48,7 +48,6 @@ import com.samsung.android.sdk.healthdata.HealthPermissionManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -66,12 +65,13 @@ public class HomeFragment extends Fragment {
     private HealthDataStore mStore;
     private HomeData homeData;
     private FragmentHomeBinding homeBinding;
+    private TTSViewModel TTS;
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (hidden) {
-            homeViewModel.stopSpeech();
+            TTS.stopSpeech();
             if (mStore != null)
                 mStore.disconnectService();
             stopCheckInternetConnection();
@@ -120,6 +120,8 @@ public class HomeFragment extends Fragment {
         healthModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(HealthModel.class);
+        TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(TTSViewModel.class);
     }
 
     private void initObservers() {
@@ -127,17 +129,17 @@ public class HomeFragment extends Fragment {
             String userId = user.getUserId();
             String linkUserId = user.getLinkUserId();
             String fastAction = user.getFastAction();
-            HashMap<String, Object> SaySettings = user.getSaySettings();
             boolean isSupport = user.isSupport();
+            HashMap<String, Object> SaySettings = user.getSaySettings();
             if (linkUserId == null || userId == null)
                 return;
             if ((!isSupport || !userId.equals(linkUserId)) && reminderModel.getReminderData(false) == null) {
                 observeReminders(userId, linkUserId, isSupport);
             }
             if (SaySettings.get("TTS_Speed") != null)
-                homeViewModel.setSpeed((Double) SaySettings.get("TTS_Speed"));
+                TTS.setSpeed((Double) SaySettings.get("TTS_Speed"));
             if (SaySettings.get("TTS_Pitch") != null)
-                homeViewModel.setPitch((Double) SaySettings.get("TTS_Pitch"));
+                TTS.setPitch((Double) SaySettings.get("TTS_Pitch"));
             // быстрое действие
             if (fastAction != null)
                 setFastAction(fastAction);
@@ -264,8 +266,6 @@ public class HomeFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= 23) {
             mStore = new HealthDataStore(requireActivity(), mConnectionListener);
         }
-        homeViewModel.setTTS(new TextToSpeech(requireContext(), status -> {
-        }));
         return homeBinding.getRoot();
     }
 
@@ -316,7 +316,7 @@ public class HomeFragment extends Fragment {
                 homeBinding.homeFast.setOnLongClickListener(l -> true);
                 break;
             default:
-                homeData.setFastAction(getString(R.string.say_and_show) + action);
+                homeData.setFastAction(getString(R.string.say_and_show) + " " + action);
                 homeBinding.homeFast.setOnLongClickListener(l -> {
                     Intent intent = new Intent(getActivity(), SayShowActivity.class);
                     intent.putExtra("word", action);
@@ -329,7 +329,7 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onPause() {
-        homeViewModel.stopSpeech();
+        TTS.stopSpeech();
         stopCheckInternetConnection();
         stopCheckReminders();
         if (mStore != null)
@@ -344,12 +344,12 @@ public class HomeFragment extends Fragment {
         public void onConnected() {
             Log.d(TAG, "Health data service is connected.");
             if (healthModel.isPermissionAcquired(mStore)) {
-                homeData.setHeartRate(getString(R.string.samsung_not_connected));
-                requestPermission();
-            } else {
                 homeData.setHeartRate(getString(R.string.no_pulse_data));
                 mStore.disconnectService();
                 homeBinding.homePulse.setClickable(false);
+            } else {
+                homeData.setHeartRate(getString(R.string.samsung_not_connected));
+                requestPermission();
             }
         }
 
@@ -467,7 +467,7 @@ public class HomeFragment extends Fragment {
             intent3.putExtra("fastAction", true);
             startActivity(intent3);
         } else {
-            homeViewModel.speak();
+            TTS.speak(homeData.getFastAction().substring(16));
         }
     }
 

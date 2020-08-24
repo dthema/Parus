@@ -19,25 +19,20 @@ public class UserData extends LiveData<User> {
     private ListenerRegistration registration;
 
     private DocumentReference docRef;
-    private User user;
 
     public UserData(DocumentReference docRef) {
         this.docRef = docRef;
     }
 
-    EventListener<DocumentSnapshot> eventListener = new EventListener<DocumentSnapshot>() {
-        @Override
-        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-            if (e != null) {
-                Log.i(TAG, "Listen failed.", e);
-                return;
-            }
-            if (documentSnapshot != null) {
-                user = documentSnapshot.toObject(User.class);
-                if (user != null) {
-//                    user.setSupport();
-                    setValue(user);
-                }
+    private EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
+        if (e != null) {
+            Log.i(TAG, "Listen failed.", e);
+            return;
+        }
+        if (documentSnapshot != null) {
+            User user = documentSnapshot.toObject(User.class);
+            if (user != null) {
+                setValue(user);
             }
         }
     };

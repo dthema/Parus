@@ -160,36 +160,5 @@ public class HomeViewModel extends ViewModel {
             }
         }
     }
-
-    public void setUserUI(User user) {
-    }
-
-    private TTSRepository ttsRepository = new TTSRepository();
-
-    public void setTTS(TextToSpeech tts){
-        ttsRepository.setTTS(tts);
-    }
-
-    public void setSpeed(Double speed) {
-        ttsRepository.setSpeed(speed);
-    }
-
-    public void setPitch(Double pitch) {
-        ttsRepository.setPitch(pitch);
-    }
-
-    public void speak(){
-        ttsRepository.speak(homeData.getFastAction().substring(16));
-    }
-
-    public void stopSpeech(){
-        ttsRepository.stop();
-    }
-
-    @Override
-    protected void onCleared() {
-        ttsRepository.destroy();
-        super.onCleared();
-    }
 }
 

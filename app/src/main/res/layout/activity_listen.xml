@@ -1,44 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ProgressBar
-        android:id="@+id/listenProgressBar"
-        style="?android:attr/progressBarStyleHorizontal"
+<layout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/listenStart"
-        android:layout_marginTop="28dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/listenProgressBar"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true">
-        <TextView
-            android:id="@+id/listenText"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/listenProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textAlignment="center"
-            android:textColor="#000"/>
-    </ScrollView>
-    <ToggleButton
-        android:id="@+id/listenStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="25sp"
-        android:paddingRight="20sp"
-        android:paddingLeft="20sp"
-        android:textOn="Остановить запись"
-        android:textOff="Начать запись"
-        android:textSize="18sp"
-        android:textAllCaps="false"
-        style="@style/RoundedCommunicationButton"/>
-</RelativeLayout>
+            android:layout_below="@+id/listenStart"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="28dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/listenProgressBar"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:id="@+id/listenText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="#000" />
+        </ScrollView>
+
+        <ToggleButton
+            android:id="@+id/listenStart"
+            style="@style/RoundedCommunicationButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25sp"
+            android:paddingLeft="20sp"
+            android:paddingRight="20sp"
+            android:textAllCaps="false"
+            android:textOff="Начать запись"
+            android:textOn="Остановить запись"
+            android:textSize="18sp" />
+    </RelativeLayout>
+</layout>

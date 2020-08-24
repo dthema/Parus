@@ -49,7 +49,7 @@ public class ReminderData extends LiveData<List<Reminder>> {
         });
     }
 
-    Task<DocumentSnapshot> setRef() {
+    private Task<DocumentSnapshot> setRef() {
         return FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(s -> {
                     User user = s.toObject(User.class);
@@ -69,7 +69,7 @@ public class ReminderData extends LiveData<List<Reminder>> {
             colRef = FirebaseFirestore.getInstance().collection("users").document(linkUserId).collection("alerts");
     }
 
-    EventListener<QuerySnapshot> eventListener;
+    private EventListener<QuerySnapshot> eventListener;
 
     private void setEventListener() {
         eventListener = (queryDocumentSnapshots, e) -> {

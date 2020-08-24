@@ -15,10 +15,10 @@ public class NetworkRepository {
     private static NetworkRepository repository;
     private boolean isThreadActive;
 
-    public NetworkRepository() {
+    private NetworkRepository() {
     }
 
-    public static NetworkRepository getInstance(){
+    public synchronized static NetworkRepository getInstance(){
         if (repository == null) repository = new NetworkRepository();
         return repository;
     }

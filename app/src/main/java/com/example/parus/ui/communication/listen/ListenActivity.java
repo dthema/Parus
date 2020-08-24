@@ -17,35 +17,31 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.databinding.DataBindingUtil;
 
 import com.example.parus.R;
+import com.example.parus.databinding.ActivityListenBinding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ListenActivity extends AppCompatActivity implements
-        RecognitionListener {
+public class ListenActivity extends AppCompatActivity implements RecognitionListener {
+
     private static final int REQUEST_RECORD_PERMISSION = 100;
-    private TextView returnedText;
-    private ToggleButton toggleButton;
-    private ProgressBar progressBar;
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
     private String LOG_TAG = "ListenActivity";
+    private ActivityListenBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_listen);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_listen);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle("Слушать");
         }
-        returnedText = findViewById(R.id.listenText);
-        progressBar = findViewById(R.id.listenProgressBar);
-        toggleButton = findViewById(R.id.listenStart);
-        progressBar.setVisibility(View.INVISIBLE);
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         Log.i(LOG_TAG, "isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(this));
         speech.setRecognitionListener(this);
@@ -57,26 +53,27 @@ public class ListenActivity extends AppCompatActivity implements
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, "6000");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, "6000");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-        toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        binding.listenProgressBar.setVisibility(View.INVISIBLE);
+        binding.listenStart.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 // начать запись речи
-                progressBar.setVisibility(View.VISIBLE);
-                progressBar.setIndeterminate(true);
-                returnedText.setText("");
+                binding.listenProgressBar.setVisibility(View.VISIBLE);
+                binding.listenProgressBar.setIndeterminate(true);
+                binding.listenText.setText("");
                 ActivityCompat.requestPermissions
                         (ListenActivity.this,
                                 new String[]{Manifest.permission.RECORD_AUDIO},
                                 REQUEST_RECORD_PERMISSION);
             } else {
                 // завершить запись речи
-                progressBar.setIndeterminate(false);
-                progressBar.setVisibility(View.INVISIBLE);
+                binding.listenProgressBar.setIndeterminate(false);
+                binding.listenProgressBar.setVisibility(View.INVISIBLE);
                 speech.stopListening();
             }
         });
         // запуск с главной страницы
         if (getIntent().getBooleanExtra("fastAction", false)){
-            toggleButton.toggle();
+            binding.listenStart.toggle();
         }
     }
 
@@ -93,7 +90,7 @@ public class ListenActivity extends AppCompatActivity implements
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 speech.startListening(recognizerIntent);
             } else {
-                toggleButton.toggle();
+                binding.listenStart.toggle();
                 Toast.makeText(ListenActivity.this, "Нет прав на запись речи", Toast
                         .LENGTH_SHORT).show();
             }
@@ -118,8 +115,8 @@ public class ListenActivity extends AppCompatActivity implements
     @Override
     public void onBeginningOfSpeech() {
         Log.i(LOG_TAG, "onBeginningOfSpeech");
-        progressBar.setIndeterminate(false);
-        progressBar.setMax(10);
+        binding.listenProgressBar.setIndeterminate(false);
+        binding.listenProgressBar.setMax(10);
     }
     @Override
     public void onBufferReceived(byte[] buffer) {
@@ -128,16 +125,16 @@ public class ListenActivity extends AppCompatActivity implements
     @Override
     public void onEndOfSpeech() {
         Log.i(LOG_TAG, "onEndOfSpeech");
-        progressBar.setIndeterminate(true);
-        toggleButton.setChecked(false);
+        binding.listenProgressBar.setIndeterminate(true);
+        binding.listenStart.setChecked(false);
     }
     @Override
     public void onError(int errorCode) {
         String errorMessage = getErrorText(errorCode);
         Log.d(LOG_TAG, "FAILED " + errorMessage);
-        returnedText.setText("Речь не распознана");
-        returnedText.setTextSize(30);
-        toggleButton.setChecked(false);
+        binding.listenText.setText("Речь не распознана");
+        binding.listenText.setTextSize(30);
+        binding.listenStart.setChecked(false);
     }
     @Override
     public void onEvent(int arg0, Bundle arg1) {
@@ -157,69 +154,70 @@ public class ListenActivity extends AppCompatActivity implements
         ArrayList<String> matches = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         if (matches != null) {
-            returnedText.setText(matches.get(0));
+            binding.listenText.setText(matches.get(0));
             float min = 500;
             for (String s : matches.get(0).split(" ")) {
                 switch (s.length()) {
                     case 1:
-                        returnedText.setTextSize(300);
+                        binding.listenText.setTextSize(300);
                         if (300 < min)
                             min = 300;
                         break;
                     case 2:
-                        returnedText.setTextSize(180);
+                        binding.listenText.setTextSize(180);
                         if (180 < min)
                             min = 180;
                         break;
                     case 3:
-                        returnedText.setTextSize(120);
+                        binding.listenText.setTextSize(120);
                         if (120 < min)
                             min = 120;
                         break;
                     case 4:
-                        returnedText.setTextSize(90);
+                        binding.listenText.setTextSize(90);
                         if (90 < min)
                             min = 90;
                         break;
                     case 5:
-                        returnedText.setTextSize(70);
+                        binding.listenText.setTextSize(70);
                         if (70 < min)
                             min = 70;
                         break;
                     case 6:
-                        returnedText.setTextSize(60);
-                        if (60 < min)
+                        binding.listenText.setTextSize(60);
+                        if (60 < min) {
                             min = 60;
+                        }
                         break;
                     case 7:
-                        returnedText.setTextSize(50);
+                        binding.listenText.setTextSize(50);
                         if (50 < min)
                             min = 50;
                         break;
                     case 8:
-                        returnedText.setTextSize(48);
+                        binding.listenText.setTextSize(48);
                         if (48 < min)
                             min = 48;
                         break;
                     case 9:
-                        returnedText.setTextSize(40);
+                        binding.listenText.setTextSize(40);
                         if (40 < min)
                             min = 40;
                         break;
                     default:
-                        returnedText.setTextSize(30);
+                        binding.listenText.setTextSize(30);
                         if (30 < min)
                             min = 30;
                         break;
                 }
-                returnedText.setTextSize(min);
+                binding.listenText.setTextSize(min);
             }
         }
     }
     @Override
     public void onRmsChanged(float rmsdB) {
         Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
-        progressBar.setProgress((int) rmsdB);
+        binding.listenProgressBar.setProgress((int) rmsdB);
     }
     public static String getErrorText(int errorCode) {
         String message;

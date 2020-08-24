@@ -13,6 +13,8 @@ import androidx.annotation.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
 import android.util.Pair;
@@ -25,6 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.parus.R;
+import com.example.parus.databinding.ActivitySeeBinding;
+import com.example.parus.viewmodels.SeeViewModel;
 import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage;
 import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator;
@@ -41,12 +45,11 @@ import java.util.List;
 public class SeeActivity extends AppCompatActivity {
 
     private static final String TAG = SeeActivity.class.getSimpleName();
-    private TextView textView;
-    private TextView warning;
     private static final int CAMERA_REQUEST = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
-    private Spinner typeOfRecognize;
     private String[] types = {"Распознавание текста", "Распознавание объекта"};
+    private SeeViewModel seeViewModel;
+    private ActivitySeeBinding binding;
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -57,28 +60,24 @@ public class SeeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_see);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_see);
+        seeViewModel = new ViewModelProvider(this).get(SeeViewModel.class);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle("Смотреть");
         }
-        Button captureImg = findViewById(R.id.openSeeCamera);
-        captureImg.setOnClickListener(v -> startCameraActivity());
-        textView = findViewById(R.id.seeText);
-        warning = findViewById(R.id.seeWarning);
+        binding.openSeeCamera.setOnClickListener(v -> startCameraActivity());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item2, types);
         adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-        typeOfRecognize = findViewById(R.id.seeTypeSpinner);
-        typeOfRecognize.setAdapter(adapter);
-        typeOfRecognize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.seeTypeSpinner.setAdapter(adapter);
+        binding.seeTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0) {
-                    warning.setVisibility(View.VISIBLE);
-                } else {
-                    warning.setVisibility(View.GONE);
-                }
+                if (position == 0)
+                    binding.seeWarning.setVisibility(View.VISIBLE);
+                else
+                    binding.seeWarning.setVisibility(View.GONE);
             }
 
             @Override
@@ -88,12 +87,12 @@ public class SeeActivity extends AppCompatActivity {
         });
         // запуск с главной страницы
         if (getIntent().getIntExtra("fastAction", 0) == 1) {
-            typeOfRecognize.setSelection(0);
-            captureImg.callOnClick();
+            binding.seeTypeSpinner.setSelection(0);
+            binding.openSeeCamera.callOnClick();
         }
         if (getIntent().getIntExtra("fastAction", 0) == 2) {
-            typeOfRecognize.setSelection(1);
-            captureImg.callOnClick();
+            binding.seeTypeSpinner.setSelection(1);
+            binding.openSeeCamera.callOnClick();
         }
 
     }
@@ -127,104 +126,19 @@ public class SeeActivity extends AppCompatActivity {
                         image = FirebaseVisionImage.fromBitmap(bitmap);
                 }
                 if (image != null)
-                    switch (typeOfRecognize.getSelectedItemPosition()) {
+                    switch (binding.seeTypeSpinner.getSelectedItemPosition()) {
                         case 0:
-                            FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
-                                    .getOnDeviceTextRecognizer();
-                            // распознавание текста с фото
-                            detector.processImage(image)
-                                    .addOnSuccessListener(firebaseVisionText -> {
-                                        textView.setText(firebaseVisionText.getText());
-                                        if (textView.getText().toString().equals("")) {
-                                            Toast.makeText(SeeActivity.this, "Не удалось распознать текст", Toast.LENGTH_LONG).show();
-                                        } else
-                                            for (String string : textView.getText().toString().split(" "))
-                                                neededTextSize(string);
-                                    })
-                                    .addOnFailureListener(e -> Toast.makeText(SeeActivity.this, "Произошла ошибка", Toast.LENGTH_LONG).show());
+                            detectText(image);
                             break;
                         case 1:
-                            FirebaseVisionImageLabeler labeler = FirebaseVision.getInstance()
-                                    .getOnDeviceImageLabeler();
-                            // распознавание объекта
-                            labeler.processImage(image)
-                                    .addOnSuccessListener(labels -> {
-                                        List<Pair<String, Float>> list = new ArrayList<>();
-                                        for (FirebaseVisionImageLabel label : labels) {
-                                            if (label.getConfidence() >= 0.7)
-                                                list.add(Pair.create(label.getText(), label.getConfidence()));
-                                        }
-                                        if (list.isEmpty()) {
-                                            Toast.makeText(SeeActivity.this, "Не удалось распознать объект(-ы)", Toast.LENGTH_LONG).show();
-                                        } else {
-                                            textView.setText("Результат переводится...");
-                                            textView.setTextSize(40);
-                                            for (Pair<String, Float> pair : list) {
-                                                FirebaseTranslatorOptions options =
-                                                        new FirebaseTranslatorOptions.Builder()
-                                                                .setSourceLanguage(FirebaseTranslateLanguage.EN)
-                                                                .setTargetLanguage(FirebaseTranslateLanguage.RU)
-                                                                .build();
-                                                final FirebaseTranslator translator =
-                                                        FirebaseNaturalLanguage.getInstance().getTranslator(options);
-                                                String text = pair.first;
-                                                // перевод результата
-                                                translator.downloadModelIfNeeded()
-                                                        .addOnCompleteListener(task -> {
-                                                            textView.setText("");
-                                                            textView.setTextSize(501);
-                                                        })
-                                                        .addOnSuccessListener(v ->
-                                                                translator.translate(text).addOnSuccessListener(
-                                                                        translatedText -> {
-                                                                            // показать, если шанс "угадывания" объекта более 70%
-                                                                            float confidence = pair.second;
-                                                                            Log.d("ABCd", text);
-                                                                            switch (text) {
-                                                                                case "Nail":
-                                                                                    textView.setText(textView.getText().toString() +
-                                                                                            "Ноготь - " + Math.round(confidence * 100) + "%" + "\n");
-                                                                                    break;
-                                                                                case "Skin":
-                                                                                    textView.setText(textView.getText().toString() +
-                                                                                            "Кожа - " + Math.round(confidence * 100) + "%" + "\n");
-                                                                                    break;
-                                                                                case "Flash":
-                                                                                    textView.setText(textView.getText().toString() +
-                                                                                            "Вспышка - " + Math.round(confidence * 100) + "%" + "\n");
-                                                                                    break;
-                                                                                case "Pattern":
-                                                                                    textView.setText(textView.getText().toString() +
-                                                                                            "Узор - " + Math.round(confidence * 100) + "%" + "\n");
-                                                                                    break;
-                                                                                case "Room":
-                                                                                    textView.setText(textView.getText().toString() +
-                                                                                            "Комната - " + Math.round(confidence * 100) + "%" + "\n");
-                                                                                    break;
-                                                                                case "Ear":
-                                                                                    textView.setText(textView.getText().toString() +
-                                                                                            "Ухо - " + Math.round(confidence * 100) + "%" + "\n");
-                                                                                    break;
-                                                                                default:
-                                                                                    textView.setText(textView.getText().toString() + translatedText +
-                                                                                            " - " + Math.round(confidence * 100) + "%" + "\n");
-                                                                                    break;
-                                                                            }
-                                                                            neededTextSize(translatedText);
-                                                                        })
-                                                                        .addOnFailureListener(
-                                                                                e -> Toast.makeText(SeeActivity.this, "Не удалось загрузить языковой пакет", Toast.LENGTH_LONG).show()));
-                                            }
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> Toast.makeText(SeeActivity.this, "Произошла ошибка. Попробуйте еще раз", Toast.LENGTH_LONG).show());
+                            binding.seeText.setText("Результат переводится...");
+                            binding.seeText.setTextSize(40);
+                            detectObject(image);
                             break;
                     }
             }
-        } else {
-            if (getIntent().getIntExtra("fastAction", 0) != 0) {
-                finish();
-            }
+        } else if (getIntent().getIntExtra("fastAction", 0) != 0) {
+            finish();
         }
     }
 
@@ -239,62 +153,38 @@ public class SeeActivity extends AppCompatActivity {
         }
     }
 
-    private void neededTextSize(String text) {
-        // выбор оптимального размера шрифта
-        float min;
-        switch (text.length()) {
-            case 1:
-                min = 300;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 2:
-                min = 180;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 3:
-                min = 120;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 4:
-                min = 90;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 5:
-                min = 70;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 6:
-                min = 60;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 7:
-                min = 50;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 8:
-                min = 48;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            case 9:
-                min = 40;
-                if (textView.getTextSize() < min * 2.75)
-                    min = 500;
-                break;
-            default:
-                min = 30;
-                break;
-        }
-        if (min != 500)
-            textView.setTextSize(min);
+    private void detectText(FirebaseVisionImage image) {
+        seeViewModel.detectText(image).observe(this, pair -> {
+            String text = pair.first;
+            Float textSize = pair.second;
+            if (textSize == null || text == null)
+                return;
+            if (textSize == 0f) {
+                Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+                binding.seeText.setText("");
+            } else {
+                binding.seeText.setText(text);
+                binding.seeText.setTextSize(textSize);
+            }
+        });
     }
+
+    private void detectObject(FirebaseVisionImage image) {
+        seeViewModel.detectObject(image).observe(this, pair -> {
+            String text = pair.first;
+            Float textSize = pair.second;
+            if (textSize == null || text == null)
+                return;
+            if (textSize == 0f) {
+                Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+                binding.seeText.setText("");
+            } else {
+                binding.seeText.setText(text);
+                binding.seeText.setTextSize(textSize);
+            }
+        });
+    }
+
 }
 
 
