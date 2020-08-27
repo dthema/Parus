@@ -1,14 +1,18 @@
-package com.example.parus.ui.chat;
+package com.example.parus.viewmodels.data.models;
+
+import androidx.annotation.Nullable;
 
 import java.util.Date;
 
 public class Chat {
 
+    private String id;
     private String sender;
     private String receiver;
     private String message;
     private Date date;
     private boolean fromSupport;
+    private boolean isCalendar;
 
     public Chat(String sender, String receiver, String message, Date date, boolean fromSupport) {
         this.sender = sender;
@@ -64,4 +68,30 @@ public class Chat {
         this.message = message;
     }
 
-}
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public boolean isCalendar() {
+        return isCalendar;
+    }
+
+    public void setCalendar(boolean calendar) {
+        isCalendar = calendar;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (!obj.getClass().equals(this.getClass())) return false;
+        Chat that = (Chat) obj;
+        return this.getMessage().equals(that.getMessage()) &&
+                this.getSender().equals(that.getSender()) &&
+                this.getReceiver().equals(that.getReceiver()) &&
+                this.getDate() == that.getDate();
+    }}

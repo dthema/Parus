@@ -15,7 +15,7 @@ public class NetworkModel extends AndroidViewModel {
         super(application);
     }
 
-    NetworkRepository repository = NetworkRepository.getInstance();
+    private NetworkRepository repository = NetworkRepository.getInstance();
 
     public LiveData<Boolean> getInternetConnection(){
         return repository.connectionListener(getApplication());

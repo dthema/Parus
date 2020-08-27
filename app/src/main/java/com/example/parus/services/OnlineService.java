@@ -53,7 +53,7 @@ public class OnlineService extends Service {
                     if (uid != null) {
                         try {
                             if (new RequestTime().execute("").get() != null)
-                            db.collection("users").document(uid).update("lastOnline", new RequestTime().execute("").get().getDate())
+                            db.collection("users").document(uid).update("lastOnline", new RequestTime().execute("").get())
                                     .addOnCompleteListener(t -> {
                                         if (t.isSuccessful())
                                             Log.d(TAG, "updated");

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -93,6 +94,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         if (auth.getCurrentUser() != null && !del) {
+            Log.d("TAGAA", auth.getCurrentUser().getUid());
             progressBar.setVisibility(View.VISIBLE);
             startMainActivity();
         }

@@ -109,7 +109,7 @@ public class UserRepository {
         return userSingleLiveEvent;
     }
 
-    public LiveData<Pair<Pair<String, String>, Boolean>> userShortData() {
+    public LiveData<Pair<Pair<String, String>, Boolean>> userShortSingleData() {
         SingleLiveEvent<Pair<Pair<String, String>, Boolean>> userSingleLiveEvent = new SingleLiveEvent<>();
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(s -> {
@@ -124,20 +124,16 @@ public class UserRepository {
 
     public LiveData<Boolean> setFastAction(int action, String text){
         SingleLiveEvent<Boolean> userSingleLiveEvent = new SingleLiveEvent<>();
-        if (action <= 3) {
+        if (action <= 3)
             FirebaseFirestore.getInstance().collection("users").document(userId)
                     .update("fastAction", String.valueOf(action))
             .addOnSuccessListener(s -> userSingleLiveEvent.setValue(true));
-//            dialog.dismiss();
-        } else if (text.length() > 0) {
+        else if (text.length() > 0)
             FirebaseFirestore.getInstance().collection("users").document(userId)
                     .update("fastAction", text)
                     .addOnSuccessListener(s -> userSingleLiveEvent.setValue(true));
-//            dialog.dismiss();
-        } else {
+        else
             userSingleLiveEvent.setValue(false);
-            //            Toast.makeText(dialogView.getContext(), "Вы не ввели фразу", Toast.LENGTH_LONG).show();
-        }
         return userSingleLiveEvent;
     }
 }

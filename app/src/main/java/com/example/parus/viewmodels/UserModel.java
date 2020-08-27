@@ -22,11 +22,11 @@ public class UserModel extends ViewModel {
         return repository.userListening();
     }
 
-    public LiveData<User> getUserDataById(String userId, boolean recreateData) {
+    public LiveData<User> getOtherUserData(String userId, boolean recreateData) {
         return repository.otherUserListening(userId, recreateData);
     }
 
-    public LiveData<User> getUserDataById() {
+    public LiveData<User> getOtherUserData() {
         return repository.otherUserListening(null, false);
     }
 
@@ -47,10 +47,9 @@ public class UserModel extends ViewModel {
         return repository.userShortListening();
     }
 
-    public LiveData<Pair<Pair<String, String>, Boolean>> getSingleUserData() {
-        return repository.userShortData();
+    public LiveData<Pair<Pair<String, String>, Boolean>> getSingleShortUserData() {
+        return repository.userShortSingleData();
     }
-
 
     public LiveData<User> getSingleLinkUserData() {
         return repository.linkUserSingleData();

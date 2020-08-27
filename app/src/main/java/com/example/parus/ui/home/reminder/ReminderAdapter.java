@@ -40,17 +40,11 @@ public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewH
         this.reminderModel = reminderModel;
     }
 
-    private ReminderAdapter(@NonNull AsyncDifferConfig<Reminder> config) {
-        super(config);
-    }
-
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return ViewHolder.from(parent);
     }
-
 
     @SuppressLint("SetTextI18n")
     @Override

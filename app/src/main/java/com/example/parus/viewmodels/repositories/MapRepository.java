@@ -17,14 +17,7 @@ import java.util.HashMap;
 
 public class MapRepository {
 
-    private static MapRepository repository;
-
-    private MapRepository() { }
-
-    public synchronized static MapRepository getInstance(){
-        if (repository == null) repository = new MapRepository();
-        return repository;
-    }
+    public MapRepository() { }
 
     private LocationData locationData;
 

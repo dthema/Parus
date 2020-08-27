@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,7 +63,7 @@ public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
     private HealthDataStore mStore;
     private HomeData homeData;
-    private FragmentHomeBinding homeBinding;
+    private FragmentHomeBinding binding;
     private TTSViewModel TTS;
 
     @Override
@@ -145,29 +144,29 @@ public class HomeFragment extends Fragment {
                 setFastAction(fastAction);
             if (!isSupport) {
                 if (!userId.equals(linkUserId)) {
-                    homeBinding.homeCallSupport.setVisibility(View.VISIBLE);
-                    homeBinding.homeCallSupport.setOnClickListener(l -> userModel.callSupport().observe(getViewLifecycleOwner(),
+                    binding.homeCallSupport.setVisibility(View.VISIBLE);
+                    binding.homeCallSupport.setOnClickListener(l -> userModel.callSupport().observe(getViewLifecycleOwner(),
                             send -> Toast.makeText(getContext(), R.string.notification_send, Toast.LENGTH_LONG).show()));
                 } else {
-                    homeBinding.homeCallSupport.setVisibility(View.GONE);
+                    binding.homeCallSupport.setVisibility(View.GONE);
                 }
                 // отображение пульса
                 healthModel.get().observe(getViewLifecycleOwner(), result -> {
                     switch (result) {
                         case NO_PERMISSION:
-                            homeBinding.homePulse.setClickable(true);
+                            binding.homePulse.setClickable(true);
                             homeData.setHeartRate(getString(R.string.no_pulse_rights));
                             break;
                         case NO_GOOGLE_ACCOUNT:
-                            homeBinding.homePulse.setClickable(true);
+                            binding.homePulse.setClickable(true);
                             homeData.setHeartRate(getString(R.string.google_account_not_connected));
                             break;
                         case SAMSUNG_NO_CONNECT:
-                            homeBinding.homePulse.setClickable(true);
+                            binding.homePulse.setClickable(true);
                             homeData.setHeartRate(getString(R.string.samsung_not_connected));
                             break;
                         default:
-                            homeBinding.homePulse.setClickable(false);
+                            binding.homePulse.setClickable(false);
                             if (user.isCheckHeartBPM()) {
                                 homeData.setHeartRate(getString(R.string.no_pulse_data));
                                 Long BPM = user.getPulse();
@@ -179,23 +178,23 @@ public class HomeFragment extends Fragment {
                     }
                 });
             } else {
-                homeBinding.homeCallSupport.setVisibility(View.GONE);
-                homeBinding.homePulse.setClickable(false);
+                binding.homeCallSupport.setVisibility(View.GONE);
+                binding.homePulse.setClickable(false);
                 if (linkUserId.equals(userId)) {
                     stopCheckReminders();
                     homeData.setCurrentReminder(getString(R.string.no_reminders));
                     homeData.setHeartRate(getString(R.string.no_support_link));
-                    homeBinding.reminderButton.setClickable(false);
+                    binding.reminderButton.setClickable(false);
                     if (reminderModel.getReminderData(false) != null) {
                         reminderModel.removeObserver(getViewLifecycleOwner());
                         reminderModel.setReminders(null);
                     }
-                    if (userModel.getUserDataById() != null)
+                    if (userModel.getOtherUserData() != null)
                         userModel.removeLinkObserver(getViewLifecycleOwner());
                 } else {
                     startCheckReminders();
-                    homeBinding.reminderButton.setClickable(true);
-                    if (userModel.getUserDataById() == null)
+                    binding.reminderButton.setClickable(true);
+                    if (userModel.getOtherUserData() == null)
                         observeLinkUserPulse(linkUserId);
                 }
             }
@@ -205,7 +204,7 @@ public class HomeFragment extends Fragment {
 
     private void startCheckInternetConnection() {
         LiveData<Boolean> liveData = networkModel.getInternetConnection();
-        if (liveData != null) {
+        if (liveData != null)
             liveData.observe(getViewLifecycleOwner(), isInternetConnected -> {
                 if (isInternetConnected != null) {
                     if (isInternetConnected)
@@ -214,7 +213,6 @@ public class HomeFragment extends Fragment {
                         InternetOffUI();
                 }
             });
-        }
     }
 
     private void stopCheckInternetConnection() {
@@ -240,13 +238,13 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeData = new HomeData();
-        homeBinding = FragmentHomeBinding.inflate(inflater, container, false);
-        homeBinding.setViewmodel(homeViewModel);
-        homeBinding.setData(homeData);
-        homeBinding.setLifecycleOwner(getViewLifecycleOwner());
-        homeBinding.setFragment(this);
-        homeBinding.reminderButton.setOnClickListener(view ->
-                userModel.getSingleUserData().observe(getViewLifecycleOwner(), pair -> {
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding.setViewmodel(homeViewModel);
+        binding.setData(homeData);
+        binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.setFragment(this);
+        binding.reminderButton.setOnClickListener(view ->
+                userModel.getSingleShortUserData().observe(getViewLifecycleOwner(), pair -> {
                     if (pair.first == null)
                         return;
                     String userId = pair.first.first;
@@ -258,21 +256,21 @@ public class HomeFragment extends Fragment {
                         requireActivity().startActivity(new Intent(requireContext(), RemindersActivity.class));
                     }
                 }));
-        homeBinding.homeMap.setOnClickListener(c -> startActivity(new Intent(getActivity(), MapActivity.class)));
-        homeBinding.homeLastOnline.setClickable(false);
+        binding.homeMap.setOnClickListener(c -> startActivity(new Intent(getActivity(), MapActivity.class)));
+        binding.homeLastOnline.setClickable(false);
         initModels();
         homeViewModel.setData(homeData);
         initObservers();
         if (Build.VERSION.SDK_INT >= 23) {
             mStore = new HealthDataStore(requireActivity(), mConnectionListener);
         }
-        return homeBinding.getRoot();
+        return binding.getRoot();
     }
 
 
     @SuppressLint("SetTextI18n")
     private void observeLinkUserPulse(String linkUserId) {
-        userModel.getUserDataById(linkUserId, true).observe(getViewLifecycleOwner(), user -> {
+        userModel.getOtherUserData(linkUserId, true).observe(getViewLifecycleOwner(), user -> {
             if (user == null)
                 return;
             Long BPM = user.getPulse();
@@ -301,23 +299,23 @@ public class HomeFragment extends Fragment {
         switch (action) {
             case "0":
                 homeData.setFastAction(getString(R.string.fast_action_no_choose));
-                homeBinding.homeFast.setOnLongClickListener(l -> true);
+                binding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "1":
                 homeData.setFastAction(getString(R.string.detect_text));
-                homeBinding.homeFast.setOnLongClickListener(l -> true);
+                binding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "2":
                 homeData.setFastAction(getString(R.string.detect_object));
-                homeBinding.homeFast.setOnLongClickListener(l -> true);
+                binding.homeFast.setOnLongClickListener(l -> true);
                 break;
             case "3":
                 homeData.setFastAction(getString(R.string.start_listen));
-                homeBinding.homeFast.setOnLongClickListener(l -> true);
+                binding.homeFast.setOnLongClickListener(l -> true);
                 break;
             default:
                 homeData.setFastAction(getString(R.string.say_and_show) + " " + action);
-                homeBinding.homeFast.setOnLongClickListener(l -> {
+                binding.homeFast.setOnLongClickListener(l -> {
                     Intent intent = new Intent(getActivity(), SayShowActivity.class);
                     intent.putExtra("word", action);
                     startActivity(intent);
@@ -346,7 +344,7 @@ public class HomeFragment extends Fragment {
             if (healthModel.isPermissionAcquired(mStore)) {
                 homeData.setHeartRate(getString(R.string.no_pulse_data));
                 mStore.disconnectService();
-                homeBinding.homePulse.setClickable(false);
+                binding.homePulse.setClickable(false);
             } else {
                 homeData.setHeartRate(getString(R.string.samsung_not_connected));
                 requestPermission();
@@ -413,7 +411,7 @@ public class HomeFragment extends Fragment {
                             showPermissionAlarmDialog();
                         } else {
                             homeData.setHeartRate(getString(R.string.no_pulse_data));
-                            homeBinding.homePulse.setClickable(false);
+                            binding.homePulse.setClickable(false);
                             requireActivity().startService(new Intent(getActivity(), HeartRateService.class).setAction("action"));
                             FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).update("checkHeartBPM", true);
                         }
@@ -478,19 +476,19 @@ public class HomeFragment extends Fragment {
             switch (result) {
                 case NO_PERMISSION:
                     homeData.setHeartRate(getString(R.string.no_pulse_rights));
-                    homeBinding.homePulse.setClickable(true);
+                    binding.homePulse.setClickable(true);
                     break;
                 case NO_GOOGLE_ACCOUNT:
                     homeData.setHeartRate(getString(R.string.google_account_not_connected));
-                    homeBinding.homePulse.setClickable(true);
+                    binding.homePulse.setClickable(true);
                     break;
                 case SAMSUNG_NO_CONNECT:
                     homeData.setHeartRate(getString(R.string.samsung_not_connected));
-                    homeBinding.homePulse.setClickable(true);
+                    binding.homePulse.setClickable(true);
                     break;
                 default:
                     homeData.setHeartRate(getString(R.string.no_pulse_data));
-                    homeBinding.homePulse.setClickable(false);
+                    binding.homePulse.setClickable(false);
                     break;
             }
         });

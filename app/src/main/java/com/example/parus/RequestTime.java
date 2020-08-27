@@ -2,44 +2,44 @@ package com.example.parus;
 
 import android.os.AsyncTask;
 
-import org.apache.commons.net.ntp.NTPUDPClient;
-import org.apache.commons.net.ntp.TimeInfo;
-import org.apache.commons.net.ntp.TimeStamp;
+import com.google.firebase.Timestamp;
 
-import java.net.InetAddress;
+import org.apache.commons.net.time.TimeTCPClient;
 
-public class RequestTime extends AsyncTask<String, String, TimeStamp> {
+import java.io.IOException;
+
+public class RequestTime extends AsyncTask<String, String, Timestamp> {
     private static final String TIME_SERVER = "time-a.nist.gov";
 
     @Override
-    protected void onPostExecute(TimeStamp s) {
+    protected void onPostExecute(Timestamp s) {
         super.onPostExecute(s);
     }
 
     @Override
-    protected TimeStamp doInBackground(String... uri) {
+    protected Timestamp doInBackground(String... uri) {
+//        try {
+//            NTPUDPClient timeClient = new NTPUDPClient();
+//            InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
+//            TimeInfo timeInfo = timeClient.getTime(inetAddress);
+//            return timeInfo.getMessage().getTransmitTimeStamp();
+//        } catch (Exception e){
+//            e.printStackTrace();
+//            return null;
+//        }
         try {
-            NTPUDPClient timeClient = new NTPUDPClient();
-            InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
-            TimeInfo timeInfo = timeClient.getTime(inetAddress);
-            return timeInfo.getMessage().getTransmitTimeStamp();
-        } catch (Exception e){
+            TimeTCPClient client = new TimeTCPClient();
+            try {
+                client.setDefaultTimeout(3000);
+                client.connect("time.nist.gov");
+                return new Timestamp(client.getDate());
+            } finally {
+                client.disconnect();
+            }
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
-//        try {
-//            TimeTCPClient client = new TimeTCPClient();
-//            try {
-//                client.setDefaultTimeout(3000);
-//                client.connect("time.nist.gov");
-//                return client.getDate();
-//            } finally {
-//                client.disconnect();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null
-//        }
     }
 
 
