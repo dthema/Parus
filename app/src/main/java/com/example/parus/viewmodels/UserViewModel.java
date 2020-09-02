@@ -10,9 +10,9 @@ import androidx.lifecycle.ViewModel;
 import com.example.parus.viewmodels.data.models.User;
 import com.example.parus.viewmodels.repositories.UserRepository;
 
-public class UserModel extends ViewModel {
+public class UserViewModel extends ViewModel {
 
-    public UserModel() {
+    public UserViewModel() {
         super();
     }
 
@@ -55,8 +55,36 @@ public class UserModel extends ViewModel {
         return repository.linkUserSingleData();
     }
 
+    public LiveData<User> getSingleUserData() {
+        return repository.userSingleData();
+    }
+
+    public void removeLinkUser() {
+        repository.removeLinkUser();
+    }
+
+    public LiveData<String> setLinkUser(String linkUserId, boolean isSupport){
+        return repository.setLinkUser(linkUserId, isSupport);
+    }
+
     public LiveData<Boolean> setFastAction(int action, String text){
         return repository.setFastAction(action, text);
+    }
+
+    public LiveData<String> resetEmail(String password, String newEmail){
+        return repository.resetEmail(password, newEmail);
+    }
+
+    public LiveData<String> resetPassword(String oldPassword, String newPassword){
+        return repository.resetPassword(oldPassword, newPassword);
+    }
+
+    public void exit(){
+        repository.exit();
+    }
+
+    public LiveData<String> delete(String email, String password){
+        return repository.delete(email, password);
     }
 
     @Override
@@ -64,7 +92,7 @@ public class UserModel extends ViewModel {
         super.onCleared();
         if (!repository.userListening().hasObservers()) {
             Log.d("TAGAA", "user clear");
-            repository.stopListeningLinkUser();
+            repository.stopListeningShortUser();
             repository.stopListeningOtherUser();
             repository.stopListeningUser();
             repository.destroy();

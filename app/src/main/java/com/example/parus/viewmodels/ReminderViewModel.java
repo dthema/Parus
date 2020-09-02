@@ -12,9 +12,9 @@ import com.example.parus.viewmodels.repositories.ReminderRepository;
 import java.util.HashMap;
 import java.util.List;
 
-public class ReminderModel extends ViewModel {
+public class ReminderViewModel extends ViewModel {
 
-    public ReminderModel() {
+    public ReminderViewModel() {
         super();
     }
 

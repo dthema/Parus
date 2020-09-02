@@ -9,9 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.parus.viewmodels.repositories.NetworkRepository;
 
-public class NetworkModel extends AndroidViewModel {
+public class NetworkViewModel extends AndroidViewModel {
 
-    public NetworkModel(@NonNull Application application) {
+    public NetworkViewModel(@NonNull Application application) {
         super(application);
     }
 

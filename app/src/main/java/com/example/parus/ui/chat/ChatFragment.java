@@ -13,57 +13,33 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.parus.R;
-import com.example.parus.RequestTime;
 import com.example.parus.databinding.FragmentChatBinding;
 import com.example.parus.services.MyFirebaseMessagingService;
 import com.example.parus.viewmodels.ChatViewModel;
-import com.example.parus.viewmodels.NetworkModel;
-import com.example.parus.viewmodels.UserModel;
+import com.example.parus.viewmodels.NetworkViewModel;
+import com.example.parus.viewmodels.UserViewModel;
 import com.example.parus.viewmodels.data.models.Chat;
-import com.example.parus.viewmodels.data.models.User;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import org.apache.commons.net.ntp.TimeStamp;
-
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatFragment extends Fragment implements RecognitionListener {
 
     private static final String LOG_TAG = "Chat";
-    private UserModel userModel;
-    private NetworkModel networkModel;
+    private UserViewModel userViewModel;
+    private NetworkViewModel networkViewModel;
     private ChatViewModel chatViewModel;
     private MessageAdapter messageAdapter;
     private LinearLayoutManager linearLayoutManager;
@@ -127,7 +103,7 @@ public class ChatFragment extends Fragment implements RecognitionListener {
     }
 
     private void startCheckNetwork() {
-        LiveData<Boolean> liveData = networkModel.getInternetConnection();
+        LiveData<Boolean> liveData = networkViewModel.getInternetConnection();
         if (liveData != null)
             liveData.observe(getViewLifecycleOwner(), isInternetConnected -> {
                 if (isInternetConnected)
@@ -138,7 +114,7 @@ public class ChatFragment extends Fragment implements RecognitionListener {
     }
 
     private void stopCheckNetwork() {
-        networkModel.stopCheckInternetConnection();
+        networkViewModel.stopCheckInternetConnection();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -186,14 +162,14 @@ public class ChatFragment extends Fragment implements RecognitionListener {
 
     private void initViewModels() {
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
-        networkModel = new ViewModelProvider(this,
+        networkViewModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(NetworkModel.class);
-        userModel = new ViewModelProvider(this).get(UserModel.class);
+                .get(NetworkViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
     }
 
     private void initObservers() {
-        userModel.getShortUserData().observe(getViewLifecycleOwner(), pair -> {
+        userViewModel.getShortUserData().observe(getViewLifecycleOwner(), pair -> {
             if (pair.first == null)
                 return;
             String userId = pair.first.first;
@@ -215,7 +191,7 @@ public class ChatFragment extends Fragment implements RecognitionListener {
                     binding.chatSend.setOnClickListener(c ->
                             Toast.makeText(requireContext(), getString(R.string.no_disabled_link), Toast.LENGTH_LONG).show());
             } else {
-                userModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
+                userViewModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
                     messageAdapter = new MessageAdapter(new ChatDiffCallback(), user.getName());
                     chatViewModel.setLinkUser(linkUserId, isSupport);
                     binding.chatView.setAdapter(messageAdapter);

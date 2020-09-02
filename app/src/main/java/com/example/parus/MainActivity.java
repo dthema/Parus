@@ -3,20 +3,19 @@ package com.example.parus;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.parus.services.MyFirebaseMessagingService;
-import com.example.parus.services.OnlineService;
 import com.example.parus.ui.account.AccountFragment;
 import com.example.parus.ui.chat.ChatFragment;
 import com.example.parus.ui.communication.CommunicationFragment;
 import com.example.parus.ui.home.HomeFragment;
-import com.example.parus.viewmodels.ServiceModel;
+import com.example.parus.viewmodels.ServiceViewModel;
 import com.example.parus.viewmodels.TTSViewModel;
-import com.example.parus.viewmodels.UserModel;
+import com.example.parus.viewmodels.UserViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import androidx.annotation.NonNull;
@@ -28,12 +27,9 @@ import androidx.lifecycle.ViewModelProvider;
 public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "MainActivity";
-    private static final int ADD = 1;
-    private static final int CHANGE = 2;
-    private static final int DELETE = 3;
     private MyFirebaseMessagingService firebaseMessagingService;
-    private UserModel userModel;
-    private ServiceModel serviceModel;
+    private UserViewModel userViewModel;
+    private ServiceViewModel serviceViewModel;
     private TTSViewModel TTS;
     private BottomNavigationView navView;
     private Fragment fragmentHome;
@@ -106,12 +102,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        userModel = new ViewModelProvider(this).get(UserModel.class);
-        serviceModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
-                .get(ServiceModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        serviceViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                .get(ServiceViewModel.class);
         TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
                 .get(TTSViewModel.class);
-        serviceModel.startWorkService();
+        serviceViewModel.startWorkService();
         firebaseMessagingService = new MyFirebaseMessagingService();
         new Thread(() -> FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(MainActivity.this, instanceIdResult -> {
             String deviceToken = instanceIdResult.getToken();
@@ -187,18 +183,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        serviceModel.startOnlineService();
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
+        serviceViewModel.startOnlineService();
     }
 
     @Override
     protected void onPause() {
-        serviceModel.startOnlineService();
+        serviceViewModel.startOnlineService();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
         TTS.destroy();
+        serviceViewModel.destroy();
         super.onDestroy();
     }
 }

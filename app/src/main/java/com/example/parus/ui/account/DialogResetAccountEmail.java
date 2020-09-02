@@ -2,29 +2,31 @@ package com.example.parus.ui.account;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.R;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import java.util.Objects;
+import com.example.parus.viewmodels.UserViewModel;
 
 
 public class DialogResetAccountEmail extends AppCompatDialogFragment {
 
     private EditText newEmail;
     private EditText password;
+    private ProgressBar progressBar;
+    private boolean use = false;
 
     @NonNull
     @Override
@@ -32,38 +34,28 @@ public class DialogResetAccountEmail extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         @SuppressLint("InflateParams") View dialogView = inflater.inflate(R.layout.dialog_reset_account_email, null);
+        UserViewModel userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         newEmail = dialogView.findViewById(R.id.newEmail);
         password = dialogView.findViewById(R.id.emailPassword);
+        progressBar = dialogView.findViewById(R.id.resetEmailProgressBar);
         builder.setView(dialogView);
-        builder
-                .setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss())
-                .setPositiveButton("Сменить", (dialog, id) -> {
-                    if (newEmail.getText().toString().isEmpty() || password.getText().toString().isEmpty()) {
-                        Toast.makeText(dialogView.getContext(), "Поля не заполнены", Toast.LENGTH_LONG).show();
-                    } else {
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        assert user != null;
-                        AuthCredential credential = EmailAuthProvider
-                                .getCredential(Objects.requireNonNull(user.getEmail()), password.getText().toString());
-                        user.reauthenticate(credential)
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        user.updateEmail(newEmail.getText().toString())
-                                                .addOnCompleteListener(task1 -> {
-                                                    if (task1.isSuccessful()) {
-                                                        Toast.makeText(dialogView.getContext(), "Почта изменена", Toast.LENGTH_LONG).show();
-                                                    } else
-                                                        Toast.makeText(dialogView.getContext(), "Ошибка", Toast.LENGTH_LONG).show();
-                                                });
-                                    } else {
-                                        Toast.makeText(dialogView.getContext(), "Данные введены неверно", Toast.LENGTH_LONG).show();
-                                        dialog.dismiss();
-                                    }
-                                });
-
-                    }
-                });
-
-        return builder.create();
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss())
+                .setPositiveButton("Изменить", (dialog, id) -> {});
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialog1 -> {
+            Button positiveButton = ((AlertDialog) dialog1).getButton(DialogInterface.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(v -> {
+                if (!use) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    use = true;
+                    userViewModel.resetEmail(password.getText().toString(), newEmail.getText().toString())
+                            .observe(DialogResetAccountEmail.this, string -> {
+                                Toast.makeText(dialogView.getContext(), string, Toast.LENGTH_LONG).show();
+                                dialog1.dismiss();
+                            });
+                }
+            });
+        });
+        return dialog;
     }
 }

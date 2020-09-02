@@ -9,10 +9,14 @@ import com.example.parus.viewmodels.data.SingleLiveEvent;
 import com.example.parus.viewmodels.data.models.User;
 import com.example.parus.viewmodels.data.UserData;
 import com.example.parus.viewmodels.data.UserShortData;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class UserRepository {
 
@@ -20,10 +24,10 @@ public class UserRepository {
     private String userId;
 
     private UserRepository() {
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 
-    public synchronized static UserRepository getInstance(){
+    public synchronized static UserRepository getInstance() {
         if (repository == null) repository = new UserRepository();
         return repository;
     }
@@ -36,7 +40,7 @@ public class UserRepository {
         return userLiveData;
     }
 
-    public void stopListeningUser(){
+    public void stopListeningUser() {
         userLiveData = null;
     }
 
@@ -44,11 +48,11 @@ public class UserRepository {
 
     public LiveData<User> otherUserListening(String userId, boolean recreateData) {
         if (otherUserLiveData == null && recreateData)
-            otherUserLiveData = new UserData(FirebaseFirestore.getInstance().collection("users").document(userId));;
+            otherUserLiveData = new UserData(FirebaseFirestore.getInstance().collection("users").document(userId));
         return otherUserLiveData;
     }
 
-    public void stopListeningOtherUser(){
+    public void stopListeningOtherUser() {
         otherUserLiveData = null;
     }
 
@@ -60,11 +64,11 @@ public class UserRepository {
         return shortLiveData;
     }
 
-    public void stopListeningLinkUser(){
+    public void stopListeningShortUser() {
         shortLiveData = null;
     }
 
-    public void destroy(){
+    public void destroy() {
         if (shortLiveData == null && userLiveData == null && otherUserLiveData == null)
             repository = null;
     }
@@ -87,7 +91,6 @@ public class UserRepository {
                 });
         return callSupport;
     }
-
 
     public LiveData<User> linkUserSingleData() {
         SingleLiveEvent<User> userSingleLiveEvent = new SingleLiveEvent<>();
@@ -122,12 +125,181 @@ public class UserRepository {
         return userSingleLiveEvent;
     }
 
-    public LiveData<Boolean> setFastAction(int action, String text){
+    public LiveData<User> userSingleData() {
+        SingleLiveEvent<User> userSingleLiveEvent = new SingleLiveEvent<>();
+        FirebaseFirestore.getInstance().collection("users").document(userId).get()
+                .addOnSuccessListener(s -> {
+                    User currentUser = s.toObject(User.class);
+                    if (currentUser != null)
+                        userSingleLiveEvent.setValue(currentUser);
+                });
+        return userSingleLiveEvent;
+    }
+
+    public void removeLinkUser() {
+        if (otherUserLiveData != null)
+            if (otherUserLiveData.getValue() != null) {
+                FirebaseFirestore.getInstance().collection("users").document(otherUserLiveData.getValue().getUserId())
+                        .update("linkUserId", otherUserLiveData.getValue().getUserId());
+                FirebaseFirestore.getInstance().collection("users").document(userId).update("linkUserId", userId);
+            }
+    }
+
+    public LiveData<String> setLinkUser(String linkUserId, boolean isSupport) {
+        SingleLiveEvent<String> liveEvent = new SingleLiveEvent<>();
+        if (linkUserId.isEmpty()) {
+            liveEvent.setValue("Вы не ввели ID");
+            return liveEvent;
+        } else {
+            FirebaseFirestore.getInstance().collection("users").document(linkUserId).get()
+                    .addOnSuccessListener(u -> {
+                        User linkUser = u.toObject(User.class);
+                        if (linkUser == null) {
+                            liveEvent.setValue("Пользователь с таким ID не найден");
+                            return;
+                        }
+                        if (isSupport != linkUser.isSupport()) {
+                            if (linkUser.getLinkUserId().equals(linkUserId)) {
+                                FirebaseFirestore.getInstance().collection("users").document(userId)
+                                        .update("linkUserId", linkUserId)
+                                        .addOnSuccessListener(s ->
+                                                FirebaseFirestore.getInstance().collection("users").document(linkUserId)
+                                                        .update("linkUserId", userId)
+                                                        .addOnSuccessListener(c -> liveEvent.setValue("1"))
+                                                        .addOnFailureListener(e -> {
+                                                            liveEvent.setValue("Произошла ошибка");
+                                                            e.printStackTrace();
+                                                        }))
+                                        .addOnFailureListener(f -> {
+                                            liveEvent.setValue("Произошла ошибка");
+                                            f.printStackTrace();
+                                        });
+                            } else
+                                liveEvent.setValue("Ошибка: У пользователя уже есть связь с другим пользователем");
+                        } else
+                            liveEvent.setValue("Ошибка: Ваша роль индентична роли пользователя");
+                    });
+        }
+        return liveEvent;
+    }
+
+    public LiveData<String> resetEmail(String password, String newEmail) {
+        SingleLiveEvent<String> liveEvent = new SingleLiveEvent<>();
+        if (newEmail.isEmpty() || password.isEmpty())
+            liveEvent.setValue("Поля не заполнены");
+        else {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                liveEvent.setValue("Произошла ошибка");
+                return liveEvent;
+            }
+            AuthCredential credential = EmailAuthProvider
+                    .getCredential(Objects.requireNonNull(user.getEmail()), password);
+            user.reauthenticate(credential)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            user.updateEmail(newEmail)
+                                    .addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful())
+                                            liveEvent.setValue("Почта изменена");
+                                        else
+                                            liveEvent.setValue("Произошла ошибка");
+                                    });
+                        } else
+                            liveEvent.setValue("Данные введены неверно");
+                    });
+        }
+        return liveEvent;
+    }
+
+    public LiveData<String> resetPassword(String oldPassword, String newPassword) {
+        SingleLiveEvent<String> liveEvent = new SingleLiveEvent<>();
+        if (oldPassword.isEmpty() || newPassword.isEmpty())
+            liveEvent.setValue("Поля не заполнены");
+        else {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                liveEvent.setValue("Произошла ошибка");
+                return liveEvent;
+            }
+            AuthCredential credential = EmailAuthProvider
+                    .getCredential(Objects.requireNonNull(user.getEmail()), oldPassword);
+            user.reauthenticate(credential)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            user.updatePassword(newPassword)
+                                    .addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful())
+                                            liveEvent.setValue("Пароль изменён");
+                                        else
+                                            liveEvent.setValue("Произошла ошибка");
+                                    });
+                        } else
+                            liveEvent.setValue("Данные введены неверно");
+                    });
+        }
+        return liveEvent;
+    }
+
+    public void exit() {
+        FirebaseFirestore.getInstance().collection("users").document(userId).update("token", "");
+        FirebaseAuth.getInstance().signOut();
+    }
+
+    public LiveData<String> delete(String email, String password) {
+        SingleLiveEvent<String> liveEvent = new SingleLiveEvent<>();
+        if (email.isEmpty() || password.isEmpty())
+            liveEvent.setValue("Поля не заполнены");
+        else {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                liveEvent.setValue("Произошла ошибка");
+                return liveEvent;
+            }
+            Log.d("TAGAA", "----------");
+            Log.d("TAGAA", email + " " + password);
+            Log.d("TAGAA", "----------");
+            AuthCredential credential = EmailAuthProvider
+                    .getCredential(email, password);
+            user.reauthenticate(credential)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful())
+                            if (otherUserLiveData != null)
+                                if (otherUserLiveData.getValue() != null)
+                                    FirebaseFirestore.getInstance().collection("users")
+                                            .document(otherUserLiveData.getValue().getUserId())
+                                            .update("linkUserId", otherUserLiveData.getValue())
+                                            .addOnSuccessListener(s -> delete(liveEvent, user))
+                                            .addOnFailureListener(f -> liveEvent.setValue("Произошла ошибка"));
+                                else delete(liveEvent, user);
+                            else delete(liveEvent, user);
+                        else liveEvent.setValue("Данные введены неверно");
+                    });
+        }
+        return liveEvent;
+    }
+
+    private void delete(SingleLiveEvent<String> liveEvent, FirebaseUser user) {
+        Log.d("TAGAA", "+");
+        FirebaseFirestore.getInstance().collection("users").document(userId).delete()
+                .addOnSuccessListener(s -> {
+                    Log.d("TAGAA", "++");
+                    user.delete()
+                            .addOnSuccessListener(s1 -> {
+                                Log.d("TAGAA", "+++");
+                                liveEvent.setValue("1");
+                            })
+                            .addOnFailureListener(f1 -> liveEvent.setValue("Произошла ошибка"));
+                })
+                .addOnFailureListener(f -> liveEvent.setValue("Произошла ошибка"));
+    }
+
+    public LiveData<Boolean> setFastAction(int action, String text) {
         SingleLiveEvent<Boolean> userSingleLiveEvent = new SingleLiveEvent<>();
         if (action <= 3)
             FirebaseFirestore.getInstance().collection("users").document(userId)
                     .update("fastAction", String.valueOf(action))
-            .addOnSuccessListener(s -> userSingleLiveEvent.setValue(true));
+                    .addOnSuccessListener(s -> userSingleLiveEvent.setValue(true));
         else if (text.length() > 0)
             FirebaseFirestore.getInstance().collection("users").document(userId)
                     .update("fastAction", text)

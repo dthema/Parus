@@ -87,13 +87,13 @@ public class GeoLocationService extends Service {
                 .setContentIntent(pendingIntent);
         Notification notification = status.build();
         startForeground(12, notification);
-        new Thread(()-> db.collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).update("checkGeoPosition", true)).start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             isServiceRunning = true;
+            final String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
             // считывание геоданных при их изменении и отправка в Firestore
             new Thread(()->{
                 fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
@@ -121,7 +121,7 @@ public class GeoLocationService extends Service {
                                 HashMap<String, Object> hashMap = new HashMap<>();
                                 hashMap.put("Latitude", wayLatitude);
                                 hashMap.put("Longitude", wayLongitude);
-                                db.collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("GeoPosition").document("Location").set(hashMap)
+                                db.collection("users").document(userId).collection("GeoPosition").document("Location").set(hashMap)
                                         .addOnSuccessListener(l-> Log.d(TAG, "upload"))
                                         .addOnFailureListener(l-> Log.d(TAG, l.getMessage()));
 

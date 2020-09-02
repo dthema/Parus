@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.R;
-import com.example.parus.viewmodels.ReminderModel;
+import com.example.parus.viewmodels.ReminderViewModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,7 +41,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
     private EditText timeInterval;
     private LinearLayout scroll;
     private List<TextView> timers;
-    private ReminderModel reminderModel;
+    private ReminderViewModel reminderViewModel;
 
     static DialogChangeReminder newInstance(String id, String name, String start, String end, String interval) {
         DialogChangeReminder fragment = new DialogChangeReminder();
@@ -73,7 +73,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         @SuppressLint("InflateParams") View dialogView = inflater.inflate(R.layout.dialog_add_reminder, null);
-        reminderModel = new ViewModelProvider(requireActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).get(ReminderModel.class);
+        reminderViewModel = new ViewModelProvider(requireActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).get(ReminderViewModel.class);
         LinearLayout type1 = dialogView.findViewById(R.id.dialogReminderType1);
         LinearLayout type2 = dialogView.findViewById(R.id.dialogReminderType2);
         time = dialogView.findViewById(R.id.reminderDialogTime);
@@ -188,7 +188,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
                     hashMap.put("timers", dates);
                     hashMap.put("name", name.getText().toString());
                     String docId = getArguments().getString("id");
-                    reminderModel.changeReminder(docId, hashMap);
+                    reminderViewModel.changeReminder(docId, hashMap);
                 } else
                     Toast.makeText(dialogView.getContext(), "Ошибка", Toast.LENGTH_LONG).show();
             } else {
@@ -222,7 +222,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
                     hashMap.put("timeInterval", i.getTime());
                     hashMap.put("name", name.getText().toString());
                     String docId = getArguments().getString("id");
-                    reminderModel.changeReminder(docId, hashMap);
+                    reminderViewModel.changeReminder(docId, hashMap);
                 } else {
                     Toast.makeText(dialogView.getContext(), "Интервал должен быть меньше времени действия напоминаний", Toast.LENGTH_LONG).show();
                 }

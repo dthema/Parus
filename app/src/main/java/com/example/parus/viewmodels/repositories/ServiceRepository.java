@@ -3,6 +3,10 @@ package com.example.parus.viewmodels.repositories;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.work.WorkManager;
+
+import com.example.parus.services.GeoLocationService;
+import com.example.parus.services.HeartRateService;
 import com.example.parus.services.OnlineService;
 import com.example.parus.services.WorkService;
 import com.example.parus.viewmodels.data.models.User;
@@ -12,59 +16,75 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class ServiceRepository {
 
     private static ServiceRepository repository;
+    private String userId;
 
-    private ServiceRepository() {}
+    private ServiceRepository() {
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
 
-    public synchronized static ServiceRepository getInstance(){
+    public synchronized static ServiceRepository getInstance() {
         if (repository == null) repository = new ServiceRepository();
         return repository;
     }
 
     public void startWorkService(Context context) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null)
-            return;
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Intent intent = new Intent(context, WorkService.class);
-        intent.putExtra("uid", userId);
-        FirebaseFirestore.getInstance().collection("users").document(userId).get()
-                .addOnSuccessListener(s->{
-                    User user = s.toObject(User.class);
-                    if (user == null)
-                        return;
-                    intent.putExtra("linkUid", user.getLinkUserId());
-                    intent.putExtra("isSupport", user.isSupport());
-                    context.startService(intent);
-                });
+        if (!WorkService.isServiceRunning)
+            context.startService(new Intent(context, WorkService.class));
     }
 
-    public void stopWorkService(Context context){
-        Intent intent = new Intent(context, WorkService.class);
-        context.stopService(intent);
+    public void stopWorkService(Context context) {
+        context.stopService(new Intent(context, WorkService.class));
+        WorkManager.getInstance(context).cancelAllWork();
     }
 
     public void startOnlineService(Context context) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null)
+        if (FirebaseAuth.getInstance().getCurrentUser() == null || OnlineService.isServiceRunning)
             return;
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore.getInstance().collection("users").document(userId).get()
-                .addOnSuccessListener(s -> {
-                    if (s != null) {
-                        User user = s.toObject(User.class);
-                        if (user == null)
-                            return;
-                        if (!user.getUserId().equals(user.getLinkUserId()) && !OnlineService.isServiceRunning) {
-                            Intent intent = new Intent(context, OnlineService.class).setAction("action");
-                            intent.putExtra("uid", userId);
-                            context.startService(intent);
-
-                        }
-                    }
-                });
-    }
-
-    public void stopOnlineService(Context context){
         Intent intent = new Intent(context, OnlineService.class);
-        context.stopService(intent);
+        intent.putExtra("uid", userId);
+        context.startService(intent);
     }
 
+    public void stopOnlineService(Context context) {
+        context.stopService(new Intent(context, OnlineService.class));
+    }
+
+    public void startGeoLocationService(Context context) {
+        if (!GeoLocationService.isServiceRunning) {
+            context.startService(new Intent(context, GeoLocationService.class));
+            FirebaseFirestore.getInstance().collection("users").document(userId).update("checkGeoPosition", true);
+        }
+    }
+
+    public void stopGeoLocationService(Context context) {
+        context.stopService(new Intent(context, GeoLocationService.class));
+        FirebaseFirestore.getInstance().collection("users").document(userId).update("checkGeoPosition", false);
+    }
+
+    public void startHeartRateService(Context context) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null || HeartRateService.isServiceRunning)
+            return;
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Intent intent = new Intent(context, HeartRateService.class);
+        intent.putExtra("uid", userId);
+        context.startService(intent);
+        FirebaseFirestore.getInstance().collection("users").document(userId).update("checkHeartBPM", true);
+    }
+
+    public void stopHeartRateService(Context context) {
+        context.stopService(new Intent(context, HeartRateService.class));
+        FirebaseFirestore.getInstance().collection("users").document(userId).update("checkHeartBPM", false);
+    }
+
+    public void stopAllServices(Context context) {
+        stopOnlineService(context);
+        stopGeoLocationService(context);
+        stopHeartRateService(context);
+        stopWorkService(context);
+    }
+
+    public void destroy(){
+        repository = null;
+    }
 }

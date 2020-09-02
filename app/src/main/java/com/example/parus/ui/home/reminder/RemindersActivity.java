@@ -15,8 +15,8 @@ import android.widget.Toast;
 
 import com.example.parus.R;
 import com.example.parus.databinding.ActivityRemindersBinding;
-import com.example.parus.viewmodels.ReminderModel;
-import com.example.parus.viewmodels.UserModel;
+import com.example.parus.viewmodels.ReminderViewModel;
+import com.example.parus.viewmodels.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -129,17 +129,17 @@ public class RemindersActivity extends AppCompatActivity implements OnItemClickI
         binding.reminderView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.reminderView.setLayoutManager(linearLayoutManager);
-        ReminderModel reminderModel = new ViewModelProvider(this).get(ReminderModel.class);
-        reminderAdapter = new ReminderAdapter(new ReminderDiffCallback(), this, reminderModel);
+        ReminderViewModel reminderViewModel = new ViewModelProvider(this).get(ReminderViewModel.class);
+        reminderAdapter = new ReminderAdapter(new ReminderDiffCallback(), this, reminderViewModel);
         binding.reminderView.setAdapter(reminderAdapter);
-        reminderModel.getReminderData(false).observe(this, reminders -> reminderAdapter.submitList(new ArrayList<>(reminders)));
+        reminderViewModel.getReminderData(false).observe(this, reminders -> reminderAdapter.submitList(new ArrayList<>(reminders)));
         binding.addReminder.setOnClickListener(c -> {
             new DialogAddReminder();
             DialogAddReminder dialogAddReminder = new DialogAddReminder();
             dialogAddReminder.show(getSupportFragmentManager(), "ReminderDialog");
         });
-        UserModel userModel = new ViewModelProvider(this).get(UserModel.class);
-        userModel.getShortUserData().observe(this, pair -> {
+        UserViewModel userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.getShortUserData().observe(this, pair -> {
             if (pair.first == null)
                 return;
             String userId = pair.first.first;

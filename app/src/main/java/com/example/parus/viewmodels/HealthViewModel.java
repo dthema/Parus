@@ -35,7 +35,7 @@ import com.samsung.android.sdk.healthdata.HealthPermissionManager;
 import java.util.Collections;
 import java.util.Map;
 
-public class HealthModel extends AndroidViewModel {
+public class HealthViewModel extends AndroidViewModel {
 
     private static final String TAG = "HealthData";
     private static final int NO_PERMISSION = 0;
@@ -47,7 +47,7 @@ public class HealthModel extends AndroidViewModel {
 
     private ServiceRepository serviceRepository = ServiceRepository.getInstance();
 
-    public HealthModel(@NonNull Application application) {
+    public HealthViewModel(@NonNull Application application) {
         super(application);
     }
 
@@ -147,7 +147,7 @@ public class HealthModel extends AndroidViewModel {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == 1000) {
             if (resultCode == Activity.RESULT_OK) {
-//                serviceRepository.startHeartRateService(getApplication());
+                serviceRepository.startHeartRateService(getApplication());
             }
             Log.d(TAG + "_acResult", String.valueOf(resultCode));
         }

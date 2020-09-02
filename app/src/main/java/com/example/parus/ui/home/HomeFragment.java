@@ -20,25 +20,23 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.R;
 import com.example.parus.databinding.FragmentHomeBinding;
-import com.example.parus.services.HeartRateService;
 import com.example.parus.ui.communication.listen.ListenActivity;
 import com.example.parus.ui.communication.say.SayShowActivity;
 import com.example.parus.ui.communication.see.SeeActivity;
 import com.example.parus.ui.home.map.MapActivity;
 import com.example.parus.ui.home.reminder.RemindersActivity;
-import com.example.parus.viewmodels.HealthModel;
+import com.example.parus.viewmodels.HealthViewModel;
 import com.example.parus.viewmodels.HomeViewModel;
-import com.example.parus.viewmodels.NetworkModel;
-import com.example.parus.viewmodels.ReminderModel;
+import com.example.parus.viewmodels.NetworkViewModel;
+import com.example.parus.viewmodels.ReminderViewModel;
+import com.example.parus.viewmodels.ServiceViewModel;
 import com.example.parus.viewmodels.TTSViewModel;
-import com.example.parus.viewmodels.UserModel;
+import com.example.parus.viewmodels.UserViewModel;
 import com.example.parus.viewmodels.data.binding.HomeData;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
 import com.samsung.android.sdk.healthdata.HealthConstants;
 import com.samsung.android.sdk.healthdata.HealthDataStore;
@@ -48,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class HomeFragment extends Fragment {
 
@@ -56,11 +53,12 @@ public class HomeFragment extends Fragment {
     private static final int NO_PERMISSION = 0;
     private static final int NO_GOOGLE_ACCOUNT = 1;
     private static final int SAMSUNG_NO_CONNECT = 3;
-    private UserModel userModel;
-    private ReminderModel reminderModel;
-    private NetworkModel networkModel;
-    private HealthModel healthModel;
+    private UserViewModel userViewModel;
+    private ReminderViewModel reminderViewModel;
+    private NetworkViewModel networkViewModel;
+    private HealthViewModel healthViewModel;
     private HomeViewModel homeViewModel;
+    private ServiceViewModel serviceViewModel;
     private HealthDataStore mStore;
     private HomeData homeData;
     private FragmentHomeBinding binding;
@@ -87,7 +85,7 @@ public class HomeFragment extends Fragment {
 
     @SuppressLint("SetTextI18n")
     private void InternetOn() {
-        userModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), linkUser -> {
+        userViewModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), linkUser -> {
             if (linkUser != null) {
                 homeViewModel.setLastOnline(linkUser);
             }
@@ -110,21 +108,24 @@ public class HomeFragment extends Fragment {
     }
 
     private void initModels() {
-        userModel = new ViewModelProvider(this).get(UserModel.class);
-        reminderModel = new ViewModelProvider(this).get(ReminderModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        reminderViewModel = new ViewModelProvider(this).get(ReminderViewModel.class);
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        networkModel = new ViewModelProvider(this,
+        networkViewModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(NetworkModel.class);
-        healthModel = new ViewModelProvider(this,
+                .get(NetworkViewModel.class);
+        healthViewModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
-                .get(HealthModel.class);
+                .get(HealthViewModel.class);
         TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
                 .get(TTSViewModel.class);
+        serviceViewModel = new ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication()))
+                .get(ServiceViewModel.class);
     }
 
     private void initObservers() {
-        userModel.getUserData().observe(getViewLifecycleOwner(), user -> {
+        userViewModel.getUserData().observe(getViewLifecycleOwner(), user -> {
             String userId = user.getUserId();
             String linkUserId = user.getLinkUserId();
             String fastAction = user.getFastAction();
@@ -132,7 +133,7 @@ public class HomeFragment extends Fragment {
             HashMap<String, Object> SaySettings = user.getSaySettings();
             if (linkUserId == null || userId == null)
                 return;
-            if ((!isSupport || !userId.equals(linkUserId)) && reminderModel.getReminderData(false) == null) {
+            if ((!isSupport || !userId.equals(linkUserId)) && reminderViewModel.getReminderData(false) == null) {
                 observeReminders(userId, linkUserId, isSupport);
             }
             if (SaySettings.get("TTS_Speed") != null)
@@ -145,13 +146,13 @@ public class HomeFragment extends Fragment {
             if (!isSupport) {
                 if (!userId.equals(linkUserId)) {
                     binding.homeCallSupport.setVisibility(View.VISIBLE);
-                    binding.homeCallSupport.setOnClickListener(l -> userModel.callSupport().observe(getViewLifecycleOwner(),
+                    binding.homeCallSupport.setOnClickListener(l -> userViewModel.callSupport().observe(getViewLifecycleOwner(),
                             send -> Toast.makeText(getContext(), R.string.notification_send, Toast.LENGTH_LONG).show()));
                 } else {
                     binding.homeCallSupport.setVisibility(View.GONE);
                 }
                 // отображение пульса
-                healthModel.get().observe(getViewLifecycleOwner(), result -> {
+                healthViewModel.get().observe(getViewLifecycleOwner(), result -> {
                     switch (result) {
                         case NO_PERMISSION:
                             binding.homePulse.setClickable(true);
@@ -185,25 +186,25 @@ public class HomeFragment extends Fragment {
                     homeData.setCurrentReminder(getString(R.string.no_reminders));
                     homeData.setHeartRate(getString(R.string.no_support_link));
                     binding.reminderButton.setClickable(false);
-                    if (reminderModel.getReminderData(false) != null) {
-                        reminderModel.removeObserver(getViewLifecycleOwner());
-                        reminderModel.setReminders(null);
+                    if (reminderViewModel.getReminderData(false) != null) {
+                        reminderViewModel.removeObserver(getViewLifecycleOwner());
+                        reminderViewModel.setReminders(null);
                     }
-                    if (userModel.getOtherUserData() != null)
-                        userModel.removeLinkObserver(getViewLifecycleOwner());
+                    if (userViewModel.getOtherUserData() != null)
+                        userViewModel.removeLinkObserver(getViewLifecycleOwner());
                 } else {
                     startCheckReminders();
                     binding.reminderButton.setClickable(true);
-                    if (userModel.getOtherUserData() == null)
+                    if (userViewModel.getOtherUserData() == null)
                         observeLinkUserPulse(linkUserId);
                 }
             }
         });
-        reminderModel.setReminders(new ArrayList<>());
+        reminderViewModel.setReminders(new ArrayList<>());
     }
 
     private void startCheckInternetConnection() {
-        LiveData<Boolean> liveData = networkModel.getInternetConnection();
+        LiveData<Boolean> liveData = networkViewModel.getInternetConnection();
         if (liveData != null)
             liveData.observe(getViewLifecycleOwner(), isInternetConnected -> {
                 if (isInternetConnected != null) {
@@ -216,13 +217,13 @@ public class HomeFragment extends Fragment {
     }
 
     private void stopCheckInternetConnection() {
-        networkModel.stopCheckInternetConnection();
+        networkViewModel.stopCheckInternetConnection();
     }
 
     private void startCheckReminders() {
-        LiveData<String> liveData = reminderModel.startCheckReminders();
+        LiveData<String> liveData = reminderViewModel.startCheckReminders();
         if (liveData != null) {
-            userModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
+            userViewModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
                 if (!user.isSupport() || !user.getLinkUserId().equals(user.getUserId())) {
                     liveData.observe(getViewLifecycleOwner(), s -> homeData.setCurrentReminder(s));
                 }
@@ -231,7 +232,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void stopCheckReminders() {
-        reminderModel.stopCheckReminders();
+        reminderViewModel.stopCheckReminders();
     }
 
     @SuppressLint("SetTextI18n")
@@ -244,7 +245,7 @@ public class HomeFragment extends Fragment {
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setFragment(this);
         binding.reminderButton.setOnClickListener(view ->
-                userModel.getSingleShortUserData().observe(getViewLifecycleOwner(), pair -> {
+                userViewModel.getSingleShortUserData().observe(getViewLifecycleOwner(), pair -> {
                     if (pair.first == null)
                         return;
                     String userId = pair.first.first;
@@ -270,7 +271,7 @@ public class HomeFragment extends Fragment {
 
     @SuppressLint("SetTextI18n")
     private void observeLinkUserPulse(String linkUserId) {
-        userModel.getOtherUserData(linkUserId, true).observe(getViewLifecycleOwner(), user -> {
+        userViewModel.getOtherUserData(linkUserId, true).observe(getViewLifecycleOwner(), user -> {
             if (user == null)
                 return;
             Long BPM = user.getPulse();
@@ -286,10 +287,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void observeReminders(String userId, String linkUserId, boolean isSupport) {
-        if (reminderModel.getReminderData(false) != null || isSupport && userId.equals(linkUserId))
+        if (reminderViewModel.getReminderData(false) != null || isSupport && userId.equals(linkUserId))
             return;
-        reminderModel.getReminderData(userId, linkUserId, isSupport).observe(getViewLifecycleOwner(), reminders -> {
-            reminderModel.setReminders(reminders);
+        reminderViewModel.getReminderData(userId, linkUserId, isSupport).observe(getViewLifecycleOwner(), reminders -> {
+            reminderViewModel.setReminders(reminders);
             homeViewModel.showCurrentReminder(reminders);
         });
     }
@@ -341,7 +342,7 @@ public class HomeFragment extends Fragment {
         @Override
         public void onConnected() {
             Log.d(TAG, "Health data service is connected.");
-            if (healthModel.isPermissionAcquired(mStore)) {
+            if (healthViewModel.isPermissionAcquired(mStore)) {
                 homeData.setHeartRate(getString(R.string.no_pulse_data));
                 mStore.disconnectService();
                 binding.homePulse.setClickable(false);
@@ -412,8 +413,7 @@ public class HomeFragment extends Fragment {
                         } else {
                             homeData.setHeartRate(getString(R.string.no_pulse_data));
                             binding.homePulse.setClickable(false);
-                            requireActivity().startService(new Intent(getActivity(), HeartRateService.class).setAction("action"));
-                            FirebaseFirestore.getInstance().collection("users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).update("checkHeartBPM", true);
+                            serviceViewModel.startHeartRateService();
                         }
                         mStore.disconnectService();
                     });
@@ -425,7 +425,7 @@ public class HomeFragment extends Fragment {
 
 
     public void onHealthClick() {
-        healthModel.get().observe(getViewLifecycleOwner(), result -> {
+        healthViewModel.get().observe(getViewLifecycleOwner(), result -> {
             switch (result) {
                 case 0:
                     requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 100);
@@ -472,7 +472,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        healthModel.onRequestPermissionsResult(requestCode, permissions, grantResults).observe(getViewLifecycleOwner(), result -> {
+        healthViewModel.onRequestPermissionsResult(requestCode, permissions, grantResults).observe(getViewLifecycleOwner(), result -> {
             switch (result) {
                 case NO_PERMISSION:
                     homeData.setHeartRate(getString(R.string.no_pulse_rights));
@@ -498,6 +498,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        healthModel.onActivityResult(requestCode, resultCode, data);
+        healthViewModel.onActivityResult(requestCode, resultCode, data);
     }
 }

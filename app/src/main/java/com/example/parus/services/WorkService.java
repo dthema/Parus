@@ -12,7 +12,7 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-import com.example.parus.viewmodels.UserModel;
+import com.example.parus.viewmodels.UserViewModel;
 import com.example.parus.viewmodels.data.models.Reminder;
 import com.example.parus.workmanagers.OneWorker;
 import com.example.parus.workmanagers.PereodicWorker;
@@ -34,7 +34,7 @@ public class WorkService extends LifecycleService {
     private final static String TAG = "WorkService";
     private FirebaseFirestore db;
     private ListenerRegistration registration;
-    private UserModel userModel;
+    private UserViewModel userViewModel;
 
     @Nullable
     @Override
@@ -49,7 +49,7 @@ public class WorkService extends LifecycleService {
         if (isServiceRunning) return;
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
-        userModel = new UserModel();
+        userViewModel = new UserViewModel();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class WorkService extends LifecycleService {
         if (intent != null) {
             isServiceRunning = true;
             Log.d(TAG, "start");
-            userModel.getShortUserData().observe(this, pair -> {
+            userViewModel.getShortUserData().observe(this, pair -> {
                 if (pair == null)
                     return;
                 else if (pair.first == null)

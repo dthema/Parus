@@ -12,13 +12,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
-import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.parus.R;
 import com.example.parus.databinding.ReminderItemBinding;
-import com.example.parus.viewmodels.ReminderModel;
+import com.example.parus.viewmodels.ReminderViewModel;
 import com.example.parus.viewmodels.data.models.Reminder;
 
 import java.util.ArrayList;
@@ -31,13 +30,13 @@ public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewH
     private boolean delete;
     private List<Reminder> deletingReminders;
     private OnItemClickInterface onItemClickInterface;
-    private ReminderModel reminderModel;
+    private ReminderViewModel reminderViewModel;
 
-    ReminderAdapter(@NonNull ReminderDiffCallback diffCallback, OnItemClickInterface onItemClickInterface, ReminderModel reminderModel) {
+    ReminderAdapter(@NonNull ReminderDiffCallback diffCallback, OnItemClickInterface onItemClickInterface, ReminderViewModel reminderViewModel) {
         super(diffCallback);
         deletingReminders = new ArrayList<>();
         this.onItemClickInterface = onItemClickInterface;
-        this.reminderModel = reminderModel;
+        this.reminderViewModel = reminderViewModel;
     }
 
     @NonNull
@@ -55,7 +54,7 @@ public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewH
     }
 
     LiveData<Integer> delete() {
-        return reminderModel.deleteReminders(new ArrayList<>(deletingReminders));
+        return reminderViewModel.deleteReminders(new ArrayList<>(deletingReminders));
     }
 
     void setDeleting() {

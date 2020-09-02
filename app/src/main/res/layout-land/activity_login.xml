@@ -139,7 +139,7 @@
 
     </LinearLayout>
     <ProgressBar
-        android:id="@+id/loginProgressBar"
+        android:id="@+id/resetPasswordProgressBar"
         android:layout_height="40dp"
         android:layout_width="40dp"
         android:layout_centerVertical="true"

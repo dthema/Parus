@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.example.parus.R;
 import com.example.parus.databinding.ActivityMapBinding;
 import com.example.parus.viewmodels.MapViewModel;
-import com.example.parus.viewmodels.UserModel;
+import com.example.parus.viewmodels.UserViewModel;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -63,7 +63,7 @@ public class MapActivity extends AppCompatActivity implements
     private Location userLocation;
     private Location linkUserLocation;
     private SymbolManager symbolManager;
-    private UserModel userModel;
+    private UserViewModel userViewModel;
     private MapViewModel mapViewModel;
     private ActivityMapBinding binding;
 
@@ -72,7 +72,7 @@ public class MapActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, "pk.eyJ1IjoiZHRoZW1hIiwiYSI6ImNrYW1kcGphMjEzMDQydHA2aDdxbGg1MTcifQ.zZZ1fAHOUWJ9OCuz6fVBZg");
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map);
-        userModel = new ViewModelProvider(this).get(UserModel.class);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         binding.myLocation.setOnClickListener(l -> {
             if (PermissionsManager.areLocationPermissionsGranted(this) && userLocation != null) {
@@ -135,7 +135,7 @@ public class MapActivity extends AppCompatActivity implements
                         if (settlementLabelLayer != null)
                             settlementLabelLayer.setProperties(prop_ru);
                     }
-                    userModel.getShortUserData().observe(this, pair -> {
+                    userViewModel.getShortUserData().observe(this, pair -> {
                         if (pair.first == null)
                             return;
                         String userId = pair.first.first;
@@ -155,7 +155,7 @@ public class MapActivity extends AppCompatActivity implements
                                 binding.linkLocation.setOnClickListener(c ->
                                         Toast.makeText(MapActivity.this, R.string.no_disabled_link, Toast.LENGTH_LONG).show());
                         } else {
-                            userModel.getSingleLinkUserData().observe(this, user -> {
+                            userViewModel.getSingleLinkUserData().observe(this, user -> {
                                 if (!user.isCheckGeoPosition())
                                     if (isSupport)
                                         Toast.makeText(MapActivity.this, R.string.off_disabled_geoposition, Toast.LENGTH_LONG).show();

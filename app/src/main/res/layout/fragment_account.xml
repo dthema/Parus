@@ -1,129 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.account.AccountFragment"
-    android:orientation="vertical"
-    android:weightSum="1">
-    <ImageButton
-        android:id="@+id/btnExitAccount"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/btn_link_location"
-        app:srcCompat="@drawable/ic_input_black_24dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:contentDescription="Выход из аккаунта"/>
-    <ImageButton
-        android:id="@+id/accountSettings"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@drawable/btn_link_location"
-        app:srcCompat="@drawable/ic_settings_black_24dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="120dp"
-        android:layout_marginTop="10dp"
-        android:contentDescription="Настройки аккаунта"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:orientation="vertical"
-        android:layout_marginTop="40dp">
-        <TextView
-            android:layout_marginTop="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ваше Имя:"
-            android:textSize="17sp"
-            android:drawablePadding="20dp"
-            android:drawableStart="@drawable/ic_account"
-            android:layout_marginLeft="10dp"/>
-        <TextView
-            android:layout_marginTop="10dp"
-            android:id="@+id/infoName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Глеб"
-            android:textSize="20sp"
-            android:layout_marginStart="55dp"
-            android:layout_marginLeft="10dp"
-            android:textColor="#000" />
-        <TextView
-            android:layout_marginTop="30dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ваш ID:"
-            android:textSize="17sp"
-            android:drawablePadding="20dp"
-            android:drawableStart="@drawable/ic_menu_share"
-            android:layout_marginLeft="10dp"/>
-        <TextView
-            android:layout_marginTop="10dp"
-            android:id="@+id/infoId"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Zia5bE5F9uSt7ugq0fidrKJuR2q1"
-            android:textSize="20sp"
-            android:layout_marginStart="55dp"
-            android:layout_marginLeft="10dp"
-            android:textColor="#000" />
-        <TextView
-            android:layout_marginTop="30dp"
-            android:id="@+id/infoLinkNameLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Имя помощника:"
-            android:textSize="17sp"
-            android:drawablePadding="20dp"
-            android:drawableStart="@drawable/ic_people_black_24dp"
-            android:layout_marginLeft="10dp"/>
-        <TextView
-            android:layout_marginTop="10dp"
-            android:id="@+id/infoLinkName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Вася"
-            android:textSize="20sp"
-            android:layout_marginStart="55dp"
-            android:layout_marginLeft="10dp"
-            android:textColor="#000" />
+<layout>
 
-        <Button
-            android:visibility="gone"
-            android:id="@+id/accountInfo"
+    <data>
+        <variable
+            name="user"
+            type="com.example.parus.viewmodels.data.models.User" />
+        <variable
+            name="linkUser"
+            type="com.example.parus.viewmodels.data.models.User" />
+    </data>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="1"
+        tools:context=".ui.account.AccountFragment">
+
+        <ImageButton
+            android:id="@+id/btnExitAccount"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/btn_link_location"
+            android:contentDescription="Выход из аккаунта"
+            app:srcCompat="@drawable/ic_input_black_24dp" />
+
+        <ImageButton
+            android:id="@+id/accountSettings"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="120dp"
+            android:background="@drawable/btn_link_location"
+            android:contentDescription="Настройки аккаунта"
+            app:srcCompat="@drawable/ic_settings_black_24dp" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Информация об аккаунте"
-            android:backgroundTint="@color/white"
-            android:textAllCaps="false"/>
-        <Button
-            android:id="@+id/accountLink"
-            android:layout_width="200dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="40dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="30dp"
+                android:drawableStart="@drawable/ic_account"
+                android:drawablePadding="20dp"
+                android:text="Ваше Имя:"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/infoName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="55dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:text="@={user.name}"
+                android:textColor="#000"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="30dp"
+                android:drawableStart="@drawable/ic_menu_share"
+                android:drawablePadding="20dp"
+                android:text="Ваш ID:"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/infoId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="55dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:text="@={user.userId}"
+                android:textColor="#000"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/infoLinkNameLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="30dp"
+                android:drawableStart="@drawable/ic_people_black_24dp"
+                android:drawablePadding="20dp"
+                android:text="Имя помощника:"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/infoLinkName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="55dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:text="@={linkUser.name}"
+                android:textColor="#000"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/accountInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:text="Информация об аккаунте"
+                android:textAllCaps="false"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/accountLink"
+                style="@style/RoundedCommunicationButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:textAllCaps="false"
+                android:textSize="17sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Разорвать связь"
-            android:textSize="17sp"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginEnd="10dp"
-            style="@style/RoundedCommunicationButton"
-            android:textAllCaps="false"/>
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100dp"
+            android:orientation="vertical">
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="100dp">
+        </LinearLayout>
 
-    </LinearLayout>
-
-</RelativeLayout>
+    </RelativeLayout>
+</layout>

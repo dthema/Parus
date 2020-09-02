@@ -83,18 +83,8 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        Intent intent = getIntent();
         progressBar = findViewById(R.id.loginProgressBar);
-        boolean del = false;
-        if (intent != null) {
-            del = intent.getBooleanExtra("del", false);
-            if (del) {
-                WorkManager.getInstance(this).cancelAllWork();
-                auth.signOut();
-            }
-        }
-        if (auth.getCurrentUser() != null && !del) {
-            Log.d("TAGAA", auth.getCurrentUser().getUid());
+        if (auth.getCurrentUser() != null) {
             progressBar.setVisibility(View.VISIBLE);
             startMainActivity();
         }
