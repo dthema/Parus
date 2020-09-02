@@ -26,4 +26,11 @@
     <string name="enable_shealth">Включите Samsung Health</string>
     <string name="agree_with_shealth_policy">Пожалуйста, согласитесь с политикой Samsung Health</string>
     <string name="shealth_dialog_message">Для отслеживания пульса из Samsung Health необходимо выдать нужные разрешения\n На данный момент приложение не является партнёром Samsung Health, поэтому включите режим разработчика в Samsung Health, чтобы приложение могло считывать данные о пульсе\n Чтобы его включить перейдите во вкладку \'О Samsung Health\' в настройках приложения и несколько раз нажите на версию приложения</string>
+    <string name="no_name">Имя не введено</string>
+    <string name="error">Произошла ошибка</string>
+    <string name="choose_role">Выберите роль</string>
+    <string name="id_support">ID помощника</string>
+    <string name="id_desabled">ID человека с ОВЗ</string>
+    <string name="if_support_registrated">Если ваш подопечный уже зарегистрирован, введите его ID.\nИначе оставьте это поле пустым</string>
+    <string name="if_desabled_registrated">Если ваш помощник уже зарегистрирован, введите его ID.\nИначе оставьте это поле пустым</string>
 </resources>

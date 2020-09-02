@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.parus.viewmodels.data.models.User;
 import com.example.parus.viewmodels.repositories.UserRepository;
+import com.google.android.gms.tasks.Task;
 
 public class UserViewModel extends ViewModel {
 
@@ -97,6 +98,14 @@ public class UserViewModel extends ViewModel {
             repository.stopListeningUser();
             repository.destroy();
         }
+    }
+
+    public LiveData<Boolean> setSupport() {
+        return repository.setSupport();
+    }
+
+    public LiveData<Boolean> setName(String name) {
+        return repository.setName(name);
     }
 }
 

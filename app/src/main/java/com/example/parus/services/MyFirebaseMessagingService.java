@@ -18,8 +18,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.parus.MainActivity;
 import com.example.parus.R;
-import com.example.parus.data.User;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -41,8 +41,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendRegistrationToServer(String token) {
-        if (FirebaseAuth.getInstance().getCurrentUser() != null)
-            new User().update("token", token);
+        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            FirebaseFirestore.getInstance().collection("users").document(userId).update("token", token);
+        }
     }
 
     @Override

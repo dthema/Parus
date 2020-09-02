@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
-import com.example.parus.data.User;
 import com.example.parus.viewmodels.data.OftenWordsData;
 import com.example.parus.viewmodels.data.SayCollectionData;
 import com.example.parus.viewmodels.data.SaySettingsData;

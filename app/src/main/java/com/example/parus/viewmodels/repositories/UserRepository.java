@@ -294,6 +294,14 @@ public class UserRepository {
                 .addOnFailureListener(f -> liveEvent.setValue("Произошла ошибка"));
     }
 
+    public LiveData<Boolean> setSupport(){
+        SingleLiveEvent<Boolean> liveEvent = new SingleLiveEvent<>();
+        FirebaseFirestore.getInstance().collection("users").document(userId).update("support", true)
+        .addOnSuccessListener(s -> liveEvent.setValue(true))
+        .addOnFailureListener(f -> liveEvent.setValue(false));
+        return liveEvent;
+    }
+
     public LiveData<Boolean> setFastAction(int action, String text) {
         SingleLiveEvent<Boolean> userSingleLiveEvent = new SingleLiveEvent<>();
         if (action <= 3)
@@ -307,5 +315,13 @@ public class UserRepository {
         else
             userSingleLiveEvent.setValue(false);
         return userSingleLiveEvent;
+    }
+
+    public LiveData<Boolean> setName(String name) {
+        SingleLiveEvent<Boolean> liveEvent = new SingleLiveEvent<>();
+        FirebaseFirestore.getInstance().collection("users").document(userId).update("name", name)
+                .addOnSuccessListener(s -> liveEvent.setValue(true))
+                .addOnFailureListener(f -> liveEvent.setValue(false));
+        return liveEvent;
     }
 }

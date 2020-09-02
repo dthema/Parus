@@ -19,7 +19,6 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.R;
-import com.example.parus.data.User;
 import com.example.parus.viewmodels.SayViewModel;
 
 import java.util.ArrayList;

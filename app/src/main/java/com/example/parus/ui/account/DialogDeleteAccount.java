@@ -21,7 +21,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.parus.FirstRunActivity;
 import com.example.parus.LoginActivity;
 import com.example.parus.R;
-import com.example.parus.data.User;
 import com.example.parus.services.OnlineService;
 import com.example.parus.ui.communication.say.SayActivity;
 import com.example.parus.viewmodels.ServiceViewModel;

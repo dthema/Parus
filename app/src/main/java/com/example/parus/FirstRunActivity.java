@@ -2,121 +2,84 @@ package com.example.parus;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.example.parus.data.User;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import java.util.Objects;
+
+import com.example.parus.databinding.ActivityFirstRunBinding;
+import com.example.parus.viewmodels.UserViewModel;
 
 public class FirstRunActivity extends AppCompatActivity {
 
-    private User user;
     private int cnt = 0;
+    private boolean isSupport = false;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityFirstRunBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_first_run);
         setContentView(R.layout.activity_first_run);
-        Button btn = findViewById(R.id.firstRunBtn);
-        TextView text = findViewById(R.id.firstText);
-        EditText editText = findViewById(R.id.firstEditText);
-        Button support = findViewById(R.id.firstSupport);
-        Button disabled = findViewById(R.id.firstDisabled);
+        UserViewModel userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        Button btn = binding.firstRunBtn;
+        TextView text = binding.firstText;
+        EditText editText = binding.firstEditText;
+        Button support = binding.firstSupport;
+        Button disabled = binding.firstDisabled;
         LinearLayout linearLayout = findViewById(R.id.firstLinear);
         disabled.setOnClickListener(l -> {
             editText.setVisibility(View.VISIBLE);
             btn.setVisibility(View.VISIBLE);
-            editText.setHint("ID помощника");
-            text.setText("Если ваш помощник уже зарегистрирован, введите его ID.\nИначе оставьте это поле пустым");
+            editText.setHint(R.string.id_support);
+            text.setText(R.string.if_desabled_registrated);
             linearLayout.setVisibility(View.GONE);
         });
-        support.setOnClickListener(l -> user.update("support", true)
-                .addOnSuccessListener(c -> {
-                    editText.setVisibility(View.VISIBLE);
-                    btn.setVisibility(View.VISIBLE);
-                    editText.setHint("ID человека с ОВЗ");
-                    text.setText("Если ваш подопечный уже зарегистрирован, введите его ID.\nИначе оставьте это поле пустым");
-                    linearLayout.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(f -> Toast.makeText(this, "Произошла ошибка", Toast.LENGTH_LONG).show()));
-        user = new User();
+        support.setOnClickListener(l ->
+                userViewModel.setSupport().observe(this, success -> {
+                    if (success) {
+                        isSupport = true;
+                        editText.setVisibility(View.VISIBLE);
+                        btn.setVisibility(View.VISIBLE);
+                        editText.setHint(R.string.id_desabled);
+                        text.setText(R.string.if_support_registrated);
+                        linearLayout.setVisibility(View.GONE);
+                    } else Toast.makeText(this, R.string.error, Toast.LENGTH_LONG).show();
+                }));
         btn.setOnClickListener(e -> {
             if (cnt == 0) {
                 if (editText.getText().toString().length() > 0) {
-                    user.update("name", editText.getText().toString()).addOnSuccessListener(t2 -> {
-                        cnt++;
-                        editText.setVisibility(View.GONE);
-                        linearLayout.setVisibility(View.VISIBLE);
-                        btn.setVisibility(View.GONE);
-                        text.setText("Выберите роль");
-                        editText.setText("");
-                    })
-                            .addOnFailureListener(f -> Toast.makeText(this, "Произошла ошибка", Toast.LENGTH_LONG).show());
+                    userViewModel.setName(editText.getText().toString()).observe(this, success -> {
+                        if (success) {
+                            cnt++;
+                            editText.setVisibility(View.GONE);
+                            linearLayout.setVisibility(View.VISIBLE);
+                            btn.setVisibility(View.GONE);
+                            text.setText(R.string.choose_role);
+                            editText.setText("");
+                        } else Toast.makeText(this, R.string.error, Toast.LENGTH_LONG).show();
+                    });
                 } else
-                    Toast.makeText(this, "Имя не введено", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.no_name, Toast.LENGTH_LONG).show();
             } else if (cnt == 1) {
                 if (String.valueOf(editText.getText()).equals("")) {
                     startActivity(new Intent(this, MainActivity.class));
                     finish();
                 } else {
-                    if (!String.valueOf(editText.getText()).equals(user.getUser().getUid())) {
-                        user.getUsers().addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                QueryDocumentSnapshot thisUser = null;
-                                QueryDocumentSnapshot linkedUser = null;
-                                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                    if (document.getId().equals(String.valueOf(editText.getText()))) {
-                                        linkedUser = document;
-                                        Log.d("linkingUsers", linkedUser.getId());
-                                    }
-                                    if (document.getId().equals(user.getUser().getUid())) {
-                                        thisUser = document;
-                                        Log.d("linkingUsers", thisUser.getId());
-                                    }
-                                }
-                                if (linkedUser == null) {
-                                    Toast.makeText(this, "Пользователь с таким ID не найден", Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if (thisUser != null) {
-                                    Boolean thisBool = (Boolean) thisUser.get("isSupport");
-                                    Boolean linkBool = (Boolean) linkedUser.get("isSupport");
-                                    String linkId = linkedUser.getId();
-                                    String linkLinkUser = (String) linkedUser.get("linkUserId");
-                                    if (thisBool != linkBool) {
-                                        if (linkId.equals(linkLinkUser)) {
-                                            Log.d("linkingUsers", "+");
-                                            user.update("linkUserId", linkId).addOnSuccessListener(t -> {
-                                                Log.d("linkingUsers", "++");
-                                                user.update(linkId, "linkUserId", user.getUser().getUid()).addOnSuccessListener(t2 -> {
-                                                    Log.d("linkingUsers", "link user update");
-                                                    startActivity(new Intent(FirstRunActivity.this, MainActivity.class));
-                                                    finish();
-                                                })
-                                                        .addOnFailureListener(f -> Toast.makeText(this, "Ошибка", Toast.LENGTH_LONG).show());
-                                            });
-                                        } else
-                                            Toast.makeText(this, "Ошибка: У пользователя уже есть связь с другим пользователем", Toast.LENGTH_LONG).show();
-                                    } else
-                                        Toast.makeText(this, "Ошибка: Ваша роль индентична роли пользователя", Toast.LENGTH_LONG).show();
-                                }
-                            } else {
-                                Log.d("linkingUsers", "Error getting documents: ", task.getException());
-                                Toast.makeText(this, "Ошибка", Toast.LENGTH_LONG).show();
-                            }
-                        });
-
-                    }
+                    userViewModel.setLinkUser(editText.getText().toString(), isSupport).observe(this, string -> {
+                        if ("1".equals(string)) {
+                            startActivity(new Intent(FirstRunActivity.this, MainActivity.class));
+                            finish();
+                        } else Toast.makeText(this, string, Toast.LENGTH_LONG).show();
+                    });
                 }
             }
         });
