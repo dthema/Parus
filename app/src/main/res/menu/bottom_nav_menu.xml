@@ -4,21 +4,21 @@
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_home_black_24dp"
-        android:title="Главная" />
+        android:title="@string/main" />
 
     <item
         android:id="@+id/navigation_communication"
         android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="Коммуникация" />
+        android:title="@string/communication" />
 
     <item
         android:id="@+id/navigation_account"
         android:icon="@drawable/ic_account"
-        android:title="Аккаунт" />
+        android:title="@string/account" />
 
     <item
         android:id="@+id/navigation_chat"
         android:icon="@drawable/ic_chat_black_24dp"
-        android:title="Чат" />
+        android:title="@string/chat" />
 
 </menu>

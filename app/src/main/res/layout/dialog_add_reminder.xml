@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -8,12 +9,12 @@
         android:id="@+id/dialogReminderSpinner"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:contentDescription="Тип напоминания"/>
+        android:contentDescription="@string/type_of_reminder"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Название напоминания:"
-        android:layout_marginLeft="5sp"
+        android:text="@string/reminder_name"
+        android:layout_marginStart="5dp"
         android:textSize="18sp"
         android:textColor="#000"/>
     <EditText
@@ -22,7 +23,10 @@
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:ems="10"
-        android:contentDescription="Название напоминания"/>
+        android:contentDescription="@string/reminder_name"
+        android:autofillHints="@string/enter_text"
+        android:inputType="text"
+        tools:ignore="LabelFor" />
     <LinearLayout
         android:id="@+id/dialogReminderType1"
         android:layout_width="match_parent"
@@ -34,8 +38,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Добавить время напоминания:"
-                android:layout_marginLeft="5sp"
+                android:text="@string/add_reminder_time"
+                android:layout_marginStart="5dp"
                 android:textSize="18sp"
                 android:textColor="#000"/>
 
@@ -45,7 +49,9 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="number"
-                android:contentDescription="Время напоминания"/>
+                android:contentDescription="@string/reminder_time"
+                android:autofillHints=""
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,32 +62,32 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/dialogDeleteReminder"
                 style="@style/RoundedCommunicationButton"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
                 android:textSize="30sp"
-                android:text="-"
-                android:contentDescription="Удалить последнее время из списка"/>
+                android:text="@string/minus"
+                android:contentDescription="@string/delete_last_reminder"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/dialogAddReminder"
                 style="@style/RoundedCommunicationButton"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:textSize="30sp"
-                android:text="+"
-                android:contentDescription="Добавить время в список"/>
+                android:text="@string/plus"
+                android:contentDescription="@string/add_reminder_to_list"/>
         </LinearLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Добавленное время:"
-            android:layout_marginLeft="5sp"
+            android:text="@string/added_reminder_times"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
             android:textSize="18sp"
             android:textColor="#000"/>
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="Список времени для напоминания">
+            android:contentDescription="@string/reminder_list">
             <LinearLayout
                 android:id="@+id/reminderDialogScroll"
                 android:layout_width="match_parent"
@@ -90,8 +96,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Время не добавлено"
-                    android:layout_marginLeft="5sp"
+                    android:text="@string/time_not_added"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="5dp"
                     android:textSize="18sp"
                     android:textColor="#000"/>
@@ -109,8 +115,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Начать напоминать в:"
-                android:layout_marginLeft="5sp"
+                android:text="@string/start_reminder"
+                android:layout_marginStart="5dp"
                 android:textSize="18sp"
                 android:textColor="#000"/>
 
@@ -120,7 +126,9 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="number"
-                android:contentDescription="Время начала напоминаний"/>
+                android:contentDescription="@string/start_reminder_time"
+                android:autofillHints=""
+                tools:ignore="LabelFor" />
 
         </LinearLayout>
         <LinearLayout
@@ -129,8 +137,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Закончить напоминать в:"
-                android:layout_marginLeft="5sp"
+                android:text="@string/end_reminder_time"
+                android:layout_marginStart="5dp"
                 android:textSize="18sp"
                 android:textColor="#000"/>
 
@@ -140,7 +148,9 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="number"
-                android:contentDescription="Время конца напоминаний"/>
+                android:contentDescription="@string/end_reminder"
+                android:autofillHints=""
+                tools:ignore="LabelFor" />
 
         </LinearLayout>
         <LinearLayout
@@ -149,8 +159,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Интервал:"
-                android:layout_marginLeft="5sp"
+                android:text="@string/interval"
+                android:layout_marginStart="5dp"
                 android:textSize="18sp"
                 android:textColor="#000"/>
             <EditText
@@ -159,19 +169,21 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="number"
-                android:contentDescription="Интервал между напоминаниями"/>
+                android:contentDescription="@string/reminder_interval"
+                android:autofillHints=""
+                tools:ignore="LabelFor" />
         </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Минимальный интервал: 15 минут"
-            android:layout_marginLeft="5sp"
+            android:text="@string/min_interval"
+            android:layout_marginStart="5dp"
             android:textSize="13sp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Максимальный интервал: 12 часов"
-            android:layout_marginLeft="5sp"
+            android:text="@string/max_interval"
+            android:layout_marginStart="5dp"
             android:textSize="13sp"/>
     </LinearLayout>
 </LinearLayout>

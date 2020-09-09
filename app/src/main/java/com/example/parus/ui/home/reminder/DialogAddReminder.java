@@ -44,7 +44,7 @@ public class DialogAddReminder extends AppCompatDialogFragment {
     private LinearLayout type1;
     private LinearLayout type2;
     private Spinner spinner;
-    private String[] spinnerData = {"Напоминания в\nустановленное время", "Напоминания с\nинтервалом"};
+    private final String[] spinnerData = {"Напоминания в\nустановленное время", "Напоминания с\nинтервалом"};
     private List<TextView> timers;
     private ReminderViewModel reminderViewModel;
 
@@ -163,6 +163,7 @@ public class DialogAddReminder extends AppCompatDialogFragment {
             }
         } else
             Toast.makeText(dialogView.getContext(), "Поля не заполнены", Toast.LENGTH_LONG).show();
+        dialog.dismiss();
     }
 
     private void addIntervalTimer(View dialogView, DialogInterface dialog) {
@@ -176,11 +177,9 @@ public class DialogAddReminder extends AppCompatDialogFragment {
                 i.set(2010, 10, 10, Integer.parseInt(timeInterval.getText().toString().split(":")[0]), Integer.parseInt(timeInterval.getText().toString().split(":")[1]), 0);
                 if (s.getTime().getTime() >= e.getTime().getTime()) {
                     Toast.makeText(dialogView.getContext(), "Начало напоминаний должно быть раньше конца", Toast.LENGTH_LONG).show();
-                    dialog.dismiss();
                 } else {
                     if ((i.get(Calendar.HOUR_OF_DAY) < 1 && i.get(Calendar.MINUTE) < 15) || (i.get(Calendar.HOUR_OF_DAY) >= 12 && i.get(Calendar.MINUTE) > 0)) {
                         Toast.makeText(dialogView.getContext(), "Интервал должен быть от 15 минут и до 12 часов", Toast.LENGTH_LONG).show();
-                        dialog.dismiss();
                     } else if ((e.get(Calendar.HOUR_OF_DAY) - s.get(Calendar.HOUR_OF_DAY) > i.get(Calendar.HOUR_OF_DAY)) ||
                             (e.get(Calendar.HOUR_OF_DAY) - s.get(Calendar.HOUR_OF_DAY) == i.get(Calendar.HOUR_OF_DAY) &&
                                     e.get(Calendar.MINUTE) - s.get(Calendar.MINUTE) > i.get(Calendar.MINUTE))) {
@@ -197,6 +196,7 @@ public class DialogAddReminder extends AppCompatDialogFragment {
                 }
         } else
             Toast.makeText(dialogView.getContext(), "Поля не заполнены", Toast.LENGTH_LONG).show();
+        dialog.dismiss();
     }
 
     @SuppressLint("ResourceType")

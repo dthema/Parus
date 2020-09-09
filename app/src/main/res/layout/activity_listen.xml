@@ -44,8 +44,8 @@
             android:paddingLeft="20sp"
             android:paddingRight="20sp"
             android:textAllCaps="false"
-            android:textOff="Начать запись"
-            android:textOn="Остановить запись"
+            android:textOff="@string/start_listen"
+            android:textOn="@string/stop_listen"
             android:textSize="18sp" />
     </RelativeLayout>
 </layout>

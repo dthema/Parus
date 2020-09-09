@@ -1,47 +1,33 @@
 package com.example.parus.ui.communication.say;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.parus.R;
 import com.example.parus.databinding.ActivitySayBinding;
-import com.example.parus.databinding.ActivitySeeBinding;
 import com.example.parus.viewmodels.SayViewModel;
 import com.example.parus.viewmodels.TTSViewModel;
-import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
-import static android.util.Log.d;
-import static android.util.Log.w;
-
+@SuppressWarnings("ALL")
 public class SayActivity extends AppCompatActivity {
 
     private boolean oftenWordsFlag = false;
@@ -53,8 +39,6 @@ public class SayActivity extends AppCompatActivity {
     private TTSViewModel TTS;
     private ActivitySayBinding binding;
 
-    @SuppressLint("WrongConstant")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

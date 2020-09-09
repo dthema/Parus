@@ -21,7 +21,7 @@ import java.util.Objects;
 public class UserRepository {
 
     private static UserRepository repository;
-    private String userId;
+    private final String userId;
 
     private UserRepository() {
         userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();

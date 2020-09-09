@@ -10,20 +10,18 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.ListenerRegistration;
 
-import java.util.HashMap;
-
 public class SaySettingsData extends LiveData<Object[]> {
 
     private static final String TAG = "say settings data";
     private ListenerRegistration registration;
-    private DocumentReference docRef;
+    private final DocumentReference docRef;
     private Object[] settings;
 
     public SaySettingsData(DocumentReference docRef) {
         this.docRef = docRef;
     }
 
-    private EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
+    private final EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
         if (e != null) {
             Log.i(TAG, "Listen failed.", e);
             return;

@@ -1,17 +1,11 @@
 package com.example.parus.viewmodels.repositories;
 
-import android.util.Log;
-import android.util.Pair;
-
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.example.parus.viewmodels.data.OftenWordsData;
 import com.example.parus.viewmodels.data.SayCollectionData;
 import com.example.parus.viewmodels.data.SaySettingsData;
-import com.example.parus.viewmodels.data.SingleLiveEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -27,10 +21,10 @@ import java.util.Set;
 public class SayRepository {
 
     private static SayRepository repository;
-    private String userId;
+    private final String userId;
 
     private SayRepository() {
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         wordsData = new OftenWordsData(FirebaseFirestore.getInstance().collection("users").
                 document(userId).collection("Say").document("OftenWords"));
         wordsStringData = Transformations.map(wordsData, hashMap -> {
@@ -57,15 +51,15 @@ public class SayRepository {
         return repository;
     }
 
-    private SayCollectionData collectionData;
-    private LiveData<List<String>> collectionStringData;
+    private final SayCollectionData collectionData;
+    private final LiveData<List<String>> collectionStringData;
 
     public LiveData<List<String>> getCollectionData() {
         return collectionStringData;
     }
 
-    private OftenWordsData wordsData;
-    private LiveData<List<String>> wordsStringData;
+    private final OftenWordsData wordsData;
+    private final LiveData<List<String>> wordsStringData;
 
     public LiveData<List<String>> getOftenWordsData() {
         return wordsStringData;
@@ -204,7 +198,7 @@ public class SayRepository {
         FirebaseFirestore.getInstance().collection("users").document(userId).update(userData);
     }
 
-    private SaySettingsData settingsData;
+    private final SaySettingsData settingsData;
 
     public LiveData<Object[]> getSettingsLiveData() {
         return settingsData;

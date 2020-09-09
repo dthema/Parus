@@ -23,7 +23,6 @@ import java.util.Objects;
 
 public class RemindersActivity extends AppCompatActivity implements OnItemClickInterface {
 
-    private final static String TAG = "ReminderActivity";
     private ReminderAdapter reminderAdapter;
     private int chosenItems;
     private ActivityRemindersBinding binding;
@@ -145,7 +144,9 @@ public class RemindersActivity extends AppCompatActivity implements OnItemClickI
             String userId = pair.first.first;
             String linkUserId = pair.first.second;
             Boolean isSupport = pair.second;
-            if (isSupport && userId.equals(linkUserId))
+            if (isSupport == null)
+                return;
+            if (isSupport && Objects.requireNonNull(userId).equals(linkUserId))
                 finish();
         });
     }

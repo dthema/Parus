@@ -6,6 +6,6 @@
         android:title=""
         app:showAsAction="always"
         android:icon="@drawable/ic_settings_black_24dp"
-        android:contentDescription="Настройки"
+        android:contentDescription="@string/settings"
         />
 </menu>

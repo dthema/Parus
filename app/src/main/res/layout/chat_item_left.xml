@@ -12,8 +12,8 @@
             android:layout_height="wrap_content"
             android:minWidth="41dp"
             android:layout_alignParentStart="true"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="15sp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/chat_background_left"
             android:paddingTop="10dp"
             android:paddingLeft="10dp"
@@ -26,9 +26,9 @@
             android:id="@+id/chatItemParams"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignRight="@id/chatText"
+            android:layout_alignEnd="@id/chatText"
             android:layout_alignBottom="@id/chatText"
-            android:layout_marginRight="6dp"
+            android:layout_marginEnd="6dp"
             android:layout_marginBottom="3dp"
             android:textSize="12sp" />
 

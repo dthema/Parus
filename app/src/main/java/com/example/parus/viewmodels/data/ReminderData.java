@@ -26,10 +26,10 @@ public class ReminderData extends LiveData<List<Reminder>> {
     private ListenerRegistration registration;
 
     private CollectionReference colRef;
-    private String userId;
+    private final String userId;
     private String linkUserId;
     private boolean isSupport;
-    private List<Reminder> reminders;
+    private final List<Reminder> reminders;
 
     public ReminderData(String userId, String linkUserId, boolean isSupport) {
         this.userId = userId;

@@ -3,7 +3,6 @@ package com.example.parus.ui.account;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,17 +17,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.parus.FirstRunActivity;
-import com.example.parus.LoginActivity;
 import com.example.parus.R;
-import com.example.parus.services.OnlineService;
-import com.example.parus.ui.communication.say.SayActivity;
 import com.example.parus.viewmodels.ServiceViewModel;
 import com.example.parus.viewmodels.UserViewModel;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 
 public class DialogDeleteAccount extends AppCompatDialogFragment {

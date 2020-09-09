@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleService;
 import androidx.work.Data;
@@ -38,7 +39,7 @@ public class WorkService extends LifecycleService {
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(@NonNull Intent intent) {
         super.onBind(intent);
         return null;
     }
@@ -88,7 +89,7 @@ public class WorkService extends LifecycleService {
         return START_STICKY;
     }
 
-    EventListener<QuerySnapshot> eventListener = (queryDocumentSnapshots, e) -> {
+    private final EventListener<QuerySnapshot> eventListener = (queryDocumentSnapshots, e) -> {
             if (e != null) {
                 Log.i(TAG, "Listen failed.", e);
                 return;
@@ -288,7 +289,7 @@ public class WorkService extends LifecycleService {
 
     public static boolean isServiceRunning = false;
 
-    void stopMyService() {
+    private void stopMyService() {
         stopForeground(true);
         stopSelf();
         isServiceRunning = false;

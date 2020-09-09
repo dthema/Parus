@@ -1,23 +1,15 @@
 package com.example.parus.viewmodels;
 
 import android.annotation.SuppressLint;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
-import android.util.Pair;
 
-import androidx.databinding.ObservableField;
 import androidx.lifecycle.ViewModel;
 
 import com.example.parus.viewmodels.data.binding.HomeData;
 import com.example.parus.viewmodels.data.models.Reminder;
 import com.example.parus.viewmodels.data.models.User;
-import com.example.parus.viewmodels.repositories.ReminderRepository;
-import com.example.parus.viewmodels.repositories.TTSRepository;
 import com.google.firebase.Timestamp;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 

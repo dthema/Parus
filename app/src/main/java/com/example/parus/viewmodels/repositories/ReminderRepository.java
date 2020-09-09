@@ -21,7 +21,7 @@ import java.util.List;
 public class ReminderRepository {
 
     private static ReminderRepository repository;
-    private String userId;
+    private final String userId;
 
     private ReminderRepository() {
         this.userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -86,7 +86,7 @@ public class ReminderRepository {
     }
 
 
-    public LiveData<Boolean> addReminder(HashMap<String, Object> hashMap) {
+    public void addReminder(HashMap<String, Object> hashMap) {
         SingleLiveEvent<Boolean> add = new SingleLiveEvent<>();
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(s -> {
@@ -104,11 +104,10 @@ public class ReminderRepository {
                         colRef.add(hashMap).addOnSuccessListener(t -> add.setValue(true));
                     }
                 });
-        return add;
     }
 
 
-    public LiveData<Boolean> changeReminder(String docId, HashMap<String, Object> hashMap) {
+    public void changeReminder(String docId, HashMap<String, Object> hashMap) {
         SingleLiveEvent<Boolean> change = new SingleLiveEvent<>();
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
                 .addOnSuccessListener(s -> {
@@ -126,7 +125,6 @@ public class ReminderRepository {
                         colRef.document(docId).update(hashMap).addOnSuccessListener(t -> change.setValue(true));
                     }
                 });
-        return change;
     }
 
     private boolean isThreadActive;
@@ -137,7 +135,7 @@ public class ReminderRepository {
         this.reminders = reminders;
     }
 
-    private MutableLiveData<String> checkReminders = new MutableLiveData<>();
+    private final MutableLiveData<String> checkReminders = new MutableLiveData<>();
 
     public LiveData<String> reminderListener() {
         if (isThreadActive)

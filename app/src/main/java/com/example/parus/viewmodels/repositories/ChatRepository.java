@@ -15,18 +15,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Objects;
 
 public class ChatRepository {
 
-    private String userId;
+    private final String userId;
     private String linkUserId;
     private CollectionReference reference;
 
     public ChatRepository() {
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 
     public void setLinkUserId(String linkUserId, boolean isSupport){

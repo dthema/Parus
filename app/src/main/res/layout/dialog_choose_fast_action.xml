@@ -7,14 +7,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Выберите быстрое действие:"
-        android:layout_marginLeft="5sp"
+        android:text="@string/choose_fast_action"
+        android:layout_marginStart="5sp"
         android:textSize="18sp"
         android:textColor="#000"/>
     <Spinner
         android:id="@+id/fastDialogSpinner"
         android:layout_width="match_parent"
-        android:contentDescription="Список быстрых действий"
+        android:contentDescription="@string/fast_action_list"
         android:layout_height="50dp"/>
     <EditText
         android:maxLines="1"
@@ -22,6 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Введите фразу"
-        android:visibility="gone"/>
+        android:hint="@string/enter_word"
+        android:visibility="gone"
+        android:autofillHints="@string/enter_word"
+        android:inputType="text" />
 </LinearLayout>

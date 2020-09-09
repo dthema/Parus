@@ -40,7 +40,7 @@ public class FirstRunActivity extends AppCompatActivity {
             editText.setVisibility(View.VISIBLE);
             btn.setVisibility(View.VISIBLE);
             editText.setHint(R.string.id_support);
-            text.setText(R.string.if_desabled_registrated);
+            text.setText(R.string.if_disabled_registrated);
             linearLayout.setVisibility(View.GONE);
         });
         support.setOnClickListener(l ->
@@ -49,7 +49,7 @@ public class FirstRunActivity extends AppCompatActivity {
                         isSupport = true;
                         editText.setVisibility(View.VISIBLE);
                         btn.setVisibility(View.VISIBLE);
-                        editText.setHint(R.string.id_desabled);
+                        editText.setHint(R.string.id_disabled);
                         text.setText(R.string.if_support_registrated);
                         linearLayout.setVisibility(View.GONE);
                     } else Toast.makeText(this, R.string.error, Toast.LENGTH_LONG).show();

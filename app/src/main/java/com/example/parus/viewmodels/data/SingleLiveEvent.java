@@ -16,16 +16,12 @@
 
 package com.example.parus.viewmodels.data;
 
-import android.util.Log;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A lifecycle-aware observable that sends only new updates after subscription, used for events like
@@ -38,8 +34,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Note that only one observer is going to be notified of changes.
  */
 public class SingleLiveEvent<T> extends MutableLiveData<T> {
-
-    private static final String TAG = "SingleLiveEvent";
 
     @MainThread
     public void observe(@NonNull LifecycleOwner owner, @NonNull final Observer<? super T> observer) {
@@ -56,16 +50,4 @@ public class SingleLiveEvent<T> extends MutableLiveData<T> {
         super.setValue(t);
     }
 
-    /**
-     * Used for cases where T is Void, to make calls cleaner.
-     */
-    @MainThread
-    public void call() {
-        setValue(null);
-    }
-
-    @Override
-    protected void onInactive() {
-        super.onInactive();
-    }
 }

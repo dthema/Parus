@@ -6,12 +6,12 @@
     android:orientation="vertical">
 
     <Spinner
-        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="15dp"
         android:id="@+id/addWordSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="Список коллекций"
+        android:contentDescription="@string/collections_list"
         android:spinnerMode="dropdown" />
     <EditText
         android:id="@+id/dialog_say_addWord_text"
@@ -22,5 +22,7 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
-        android:hint="Введите фразу" />
+        android:hint="@string/enter_word"
+        android:autofillHints=""
+        android:inputType="text" />
 </LinearLayout>

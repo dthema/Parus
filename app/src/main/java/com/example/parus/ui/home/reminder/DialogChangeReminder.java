@@ -87,7 +87,8 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
         timers = new ArrayList<>();
         Spinner spinner = dialogView.findViewById(R.id.dialogReminderSpinner);
         spinner.setVisibility(View.GONE);
-        name.setText(getArguments().getString("name"));
+        name.setText(requireArguments().getString("name"));
+        assert getArguments() != null;
         if (getArguments().getInt("type") == 0) {
             type1.setVisibility(View.GONE);
             timeStart.setText(getArguments().getString("start"));
@@ -187,7 +188,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
                     Collections.sort(dates, Date::compareTo);
                     hashMap.put("timers", dates);
                     hashMap.put("name", name.getText().toString());
-                    String docId = getArguments().getString("id");
+                    String docId = requireArguments().getString("id");
                     reminderViewModel.changeReminder(docId, hashMap);
                 } else
                     Toast.makeText(dialogView.getContext(), "Ошибка", Toast.LENGTH_LONG).show();
@@ -196,6 +197,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
             }
         } else
             Toast.makeText(dialogView.getContext(), "Поля не заполнены", Toast.LENGTH_LONG).show();
+        dialog.dismiss();
     }
 
     private void addIntervalTimer(View dialogView, DialogInterface dialog) {
@@ -209,11 +211,9 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
             i.set(2010, 10, 10, Integer.parseInt(timeInterval.getText().toString().split(":")[0]), Integer.parseInt(timeInterval.getText().toString().split(":")[1]), 0);
             if (s.getTime().getTime() >= e.getTime().getTime()) {
                 Toast.makeText(dialogView.getContext(), "Начало напоминаний должно быть раньше конца", Toast.LENGTH_LONG).show();
-                dialog.dismiss();
             } else {
                 if ((i.get(Calendar.HOUR_OF_DAY) < 1 && i.get(Calendar.MINUTE) < 15) || (i.get(Calendar.HOUR_OF_DAY) >= 12 && i.get(Calendar.MINUTE) > 0)) {
                     Toast.makeText(dialogView.getContext(), "Интервал должен быть от 15 минут и до 12 часов", Toast.LENGTH_LONG).show();
-                    dialog.dismiss();
                 } else if ((e.get(Calendar.HOUR_OF_DAY) - s.get(Calendar.HOUR_OF_DAY) > i.get(Calendar.HOUR_OF_DAY)) ||
                         (e.get(Calendar.HOUR_OF_DAY) - s.get(Calendar.HOUR_OF_DAY) == i.get(Calendar.HOUR_OF_DAY) &&
                                 e.get(Calendar.MINUTE) - s.get(Calendar.MINUTE) > i.get(Calendar.MINUTE))) {
@@ -221,7 +221,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
                     hashMap.put("timeEnd", e.getTime());
                     hashMap.put("timeInterval", i.getTime());
                     hashMap.put("name", name.getText().toString());
-                    String docId = getArguments().getString("id");
+                    String docId = requireArguments().getString("id");
                     reminderViewModel.changeReminder(docId, hashMap);
                 } else {
                     Toast.makeText(dialogView.getContext(), "Интервал должен быть меньше времени действия напоминаний", Toast.LENGTH_LONG).show();
@@ -229,6 +229,7 @@ public class DialogChangeReminder extends AppCompatDialogFragment {
             }
         } else
             Toast.makeText(dialogView.getContext(), "Поля не заполнены", Toast.LENGTH_LONG).show();
+        dialog.dismiss();
     }
 
     @SuppressLint("ResourceType")

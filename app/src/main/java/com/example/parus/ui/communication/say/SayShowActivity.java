@@ -3,10 +3,8 @@ package com.example.parus.ui.communication.say;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import com.example.parus.R;
 import com.example.parus.databinding.ActivitySayShowBinding;

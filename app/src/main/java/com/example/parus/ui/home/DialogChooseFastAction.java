@@ -23,7 +23,7 @@ public class DialogChooseFastAction extends AppCompatDialogFragment {
 
     private EditText text;
     private Spinner spinner;
-    private String[] spinnerData = {"Отключить быстрое действие", "Распознать текст", "Распознать объект", "Начать слушать", "Сказать/Показать"};
+    private final String[] spinnerData = {"Отключить быстрое действие", "Распознать текст", "Распознать объект", "Начать слушать", "Сказать/Показать"};
 
     @NonNull
     @Override
@@ -52,13 +52,11 @@ public class DialogChooseFastAction extends AppCompatDialogFragment {
             }
         });
         builder.setView(dialogView);
-        builder.setPositiveButton("Сохранить", (dialog, id) -> {
-            userViewModel.setFastAction(spinner.getSelectedItemPosition(), text.getText().toString()).observe(this, failed -> {
-                if (failed)
-                    Toast.makeText(dialogView.getContext(), "Вы не ввели фразу", Toast.LENGTH_LONG).show();
-                dismiss();
-            });
-        });
+        builder.setPositiveButton("Сохранить", (dialog, id) -> userViewModel.setFastAction(spinner.getSelectedItemPosition(), text.getText().toString()).observe(this, failed -> {
+            if (failed)
+                Toast.makeText(dialogView.getContext(), "Вы не ввели фразу", Toast.LENGTH_LONG).show();
+            dismiss();
+        }));
         builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
         return builder.create();
     }

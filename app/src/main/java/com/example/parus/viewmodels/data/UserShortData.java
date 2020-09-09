@@ -20,14 +20,14 @@ public class UserShortData extends LiveData<Pair<Pair<String, String>, Boolean>>
 
     private ListenerRegistration registration;
 
-    private DocumentReference docRef;
+    private final DocumentReference docRef;
     private Pair<Pair<String, String>, Boolean> pair;
 
     public UserShortData(DocumentReference docRef) {
         this.docRef = docRef;
     }
 
-    private EventListener<DocumentSnapshot> eventListener = new EventListener<DocumentSnapshot>() {
+    private final EventListener<DocumentSnapshot> eventListener = new EventListener<DocumentSnapshot>() {
         @Override
         public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
             if (e != null) {

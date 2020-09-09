@@ -9,17 +9,18 @@ import com.example.parus.services.GeoLocationService;
 import com.example.parus.services.HeartRateService;
 import com.example.parus.services.OnlineService;
 import com.example.parus.services.WorkService;
-import com.example.parus.viewmodels.data.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Objects;
 
 public class ServiceRepository {
 
     private static ServiceRepository repository;
-    private String userId;
+    private final String userId;
 
     private ServiceRepository() {
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 
     public synchronized static ServiceRepository getInstance() {

@@ -1,27 +1,21 @@
 package com.example.parus.viewmodels.repositories;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class TTSRepository {
 
     private static TTSRepository repository;
     private TextToSpeech tts;
-    private MutableLiveData<Boolean> liveData;
+    private final MutableLiveData<Boolean> liveData;
 
     private TTSRepository(Context context) {
         liveData = new MutableLiveData<>(true);

@@ -13,7 +13,6 @@ import com.example.parus.ui.communication.CommunicationFragment;
 import com.example.parus.ui.home.HomeFragment;
 import com.example.parus.viewmodels.ServiceViewModel;
 import com.example.parus.viewmodels.TTSViewModel;
-import com.example.parus.viewmodels.UserViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -26,9 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String TAG = "MainActivity";
     private MyFirebaseMessagingService firebaseMessagingService;
-    private UserViewModel userViewModel;
     private ServiceViewModel serviceViewModel;
     private TTSViewModel TTS;
     private BottomNavigationView navView;
@@ -36,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private Fragment fragmentCommunication;
     private Fragment fragmentAccount;
     private Fragment fragmentChat;
-    final FragmentManager fm = getSupportFragmentManager();
+    private final FragmentManager fm = getSupportFragmentManager();
     private Fragment active;
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
@@ -102,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         serviceViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
                 .get(ServiceViewModel.class);
         TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))

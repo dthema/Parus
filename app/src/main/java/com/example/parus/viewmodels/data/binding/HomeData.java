@@ -9,14 +9,7 @@ public class HomeData extends BaseObservable {
     private String linkUserOnline;
     private String fastAction;
 
-    public HomeData(){};
-
-    public HomeData(String currentReminder, String heartRate, String linkUserOnline, String fastAction) {
-        this.currentReminder = currentReminder;
-        this.heartRate = heartRate;
-        this.linkUserOnline = linkUserOnline;
-        this.fastAction = fastAction;
-    }
+    public HomeData(){}
 
     public String getCurrentReminder() {
         return currentReminder;

@@ -11,7 +11,6 @@ public class Chat {
     private String receiver;
     private String message;
     private Date date;
-    private boolean fromSupport;
     private boolean isCalendar;
 
     public Chat(String sender, String receiver, String message, Date date, boolean fromSupport) {
@@ -19,21 +18,12 @@ public class Chat {
         this.receiver = receiver;
         this.message = message;
         this.date = date;
-        this.fromSupport = fromSupport;
     }
 
     public Chat() {
         this.sender = "";
         this.receiver = "";
         this.message = "";
-    }
-
-    public boolean isFromSupport() {
-        return fromSupport;
-    }
-
-    public void setFromSupport(boolean fromSupport) {
-        this.fromSupport = fromSupport;
     }
 
     public Date getDate() {
@@ -52,7 +42,7 @@ public class Chat {
         this.sender = sender;
     }
 
-    public String getReceiver() {
+    private String getReceiver() {
         return receiver;
     }
 

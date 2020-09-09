@@ -4,10 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,11 +28,8 @@ public class MessageAdapter extends ListAdapter<Chat, MessageAdapter.ViewHolder>
     private static final int MSG_TYPE_RIGHT = 1;
     private static final int MSG_TYPE_CENTER = 2;
 
-    private String linkUserName;
-
-    MessageAdapter(@NonNull ChatDiffCallback diffCallback, String linkUserName) {
+    MessageAdapter(@NonNull ChatDiffCallback diffCallback) {
         super(diffCallback);
-        this.linkUserName = linkUserName;
     }
 
     @NonNull
@@ -46,7 +41,7 @@ public class MessageAdapter extends ListAdapter<Chat, MessageAdapter.ViewHolder>
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(getCurrentList().get(position), linkUserName);
+        holder.bind(getCurrentList().get(position));
     }
 
     @Override
@@ -64,7 +59,7 @@ public class MessageAdapter extends ListAdapter<Chat, MessageAdapter.ViewHolder>
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView message;
+        private final TextView message;
         private TextView params;
 
         private ViewHolder(@NonNull ChatItemLeftBinding binding) {
@@ -115,7 +110,7 @@ public class MessageAdapter extends ListAdapter<Chat, MessageAdapter.ViewHolder>
         }
 
         @SuppressLint("SetTextI18n")
-        private void bind(Chat chat, String linkUserName) {
+        private void bind(Chat chat) {
             if (!chat.isCalendar()) {
                 message.setText(chat.getMessage());
                 Calendar time = Calendar.getInstance();

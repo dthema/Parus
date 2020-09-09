@@ -42,7 +42,6 @@ public class ChatFragment extends Fragment implements RecognitionListener {
     private NetworkViewModel networkViewModel;
     private ChatViewModel chatViewModel;
     private MessageAdapter messageAdapter;
-    private LinearLayoutManager linearLayoutManager;
     private SpeechRecognizer speech;
     private Intent recognizerIntent;
     private boolean isRecording;
@@ -152,7 +151,7 @@ public class ChatFragment extends Fragment implements RecognitionListener {
             }
         });
         binding.chatView.setHasFixedSize(true);
-        linearLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setStackFromEnd(true);
         binding.chatView.setLayoutManager(linearLayoutManager);
         initViewModels();
@@ -191,16 +190,14 @@ public class ChatFragment extends Fragment implements RecognitionListener {
                     binding.chatSend.setOnClickListener(c ->
                             Toast.makeText(requireContext(), getString(R.string.no_disabled_link), Toast.LENGTH_LONG).show());
             } else {
-                userViewModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
-                    messageAdapter = new MessageAdapter(new ChatDiffCallback(), user.getName());
-                    chatViewModel.setLinkUser(linkUserId, isSupport);
-                    binding.chatView.setAdapter(messageAdapter);
-                    chatViewModel.getMessageData().observe(getViewLifecycleOwner(), chats -> {
-                        messageAdapter.submitList(new ArrayList<>(chats));
-                        if (messageAdapter.getCurrentList().size() > 0)
-                            binding.chatView.postDelayed(() -> binding.chatView.smoothScrollToPosition(messageAdapter.getItemCount() - 1),
-                                    100);
-                    });
+                messageAdapter = new MessageAdapter(new ChatDiffCallback());
+                chatViewModel.setLinkUser(linkUserId, isSupport);
+                binding.chatView.setAdapter(messageAdapter);
+                chatViewModel.getMessageData().observe(getViewLifecycleOwner(), chats -> {
+                    messageAdapter.submitList(new ArrayList<>(chats));
+                    if (messageAdapter.getCurrentList().size() > 0)
+                        binding.chatView.postDelayed(() -> binding.chatView.smoothScrollToPosition(messageAdapter.getItemCount() - 1),
+                                100);
                 });
                 binding.chatSend.setOnClickListener(c -> {
                     if (!binding.chatText.getText().toString().trim().equals("")) {

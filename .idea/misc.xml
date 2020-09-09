@@ -1,5 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="EntryPointsManager">
+    <entry_points version="2.0">
+      <entry_point TYPE="field" FQNAME="com.example.parus.ui.account.AccountFragment serviceViewModel" />
+      <entry_point TYPE="field" FQNAME="com.example.parus.ui.account.AccountFragment userViewModel" />
+    </entry_points>
+    <pattern value="com.example.parus.ui.account.AccountFragment" />
+    <pattern value="com.example.parus.ui.account.AccountFragment" method="initObservers" />
+    <pattern value="com.example.parus.ui.account.AccountFragment" method="initViewModels" />
+    <pattern value="com.example.parus.viewmodels.data.models.Chat" method="setReceiver" />
+    <pattern value="com.example.parus.ui.chat.ChatDiffCallback" />
+    <pattern value="com.example.parus.viewmodels.repositories.ChatRepository" />
+    <pattern value="com.example.parus.viewmodels.repositories.ChatRepository" method="ChatRepository" />
+    <pattern value="com.example.parus.viewmodels.ChatViewModel" />
+    <pattern value="com.example.parus.viewmodels.ChatViewModel" method="ChatViewModel" />
+    <pattern value="com.example.parus.viewmodels.ChatViewModel" method="getMessageData" />
+    <pattern value="com.example.parus.viewmodels.ChatViewModel" method="sendMessage" />
+    <pattern value="com.example.parus.viewmodels.ChatViewModel" method="setLinkUser" />
+  </component>
+  <component name="NullableNotNullManager">
+    <option name="myDefaultNullable" value="org.jetbrains.annotations.Nullable" />
+    <option name="myDefaultNotNull" value="androidx.annotation.NonNull" />
+    <option name="myNullables">
+      <value>
+        <list size="12">
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
+          <item index="2" class="java.lang.String" itemvalue="javax.annotation.CheckForNull" />
+          <item index="3" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
+          <item index="4" class="java.lang.String" itemvalue="android.support.annotation.Nullable" />
+          <item index="5" class="java.lang.String" itemvalue="androidx.annotation.Nullable" />
+          <item index="6" class="java.lang.String" itemvalue="android.annotation.Nullable" />
+          <item index="7" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNullable" />
+          <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.qual.Nullable" />
+          <item index="9" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableDecl" />
+          <item index="10" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NullableType" />
+          <item index="11" class="java.lang.String" itemvalue="com.android.annotations.Nullable" />
+        </list>
+      </value>
+    </option>
+    <option name="myNotNulls">
+      <value>
+        <list size="11">
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
+          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
+          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.NonNull" />
+          <item index="4" class="java.lang.String" itemvalue="androidx.annotation.NonNull" />
+          <item index="5" class="java.lang.String" itemvalue="android.annotation.NonNull" />
+          <item index="6" class="java.lang.String" itemvalue="androidx.annotation.RecentlyNonNull" />
+          <item index="7" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.qual.NonNull" />
+          <item index="8" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullDecl" />
+          <item index="9" class="java.lang.String" itemvalue="org.checkerframework.checker.nullness.compatqual.NonNullType" />
+          <item index="10" class="java.lang.String" itemvalue="com.android.annotations.NonNull" />
+        </list>
+      </value>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

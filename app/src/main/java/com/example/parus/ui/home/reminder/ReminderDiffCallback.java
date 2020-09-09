@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import com.example.parus.viewmodels.data.models.Reminder;
 
-public class ReminderDiffCallback extends DiffUtil.ItemCallback<Reminder> {
+class ReminderDiffCallback extends DiffUtil.ItemCallback<Reminder> {
 
     @Override
     public boolean areItemsTheSame(@NonNull Reminder oldItem, @NonNull Reminder newItem) {

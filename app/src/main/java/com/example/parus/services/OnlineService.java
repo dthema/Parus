@@ -114,7 +114,7 @@ public class OnlineService extends Service {
 
     public static boolean isServiceRunning = false;
 
-    void stopMyService() {
+    private void stopMyService() {
         stopForeground(true);
         stopSelf();
         isServiceRunning = false;

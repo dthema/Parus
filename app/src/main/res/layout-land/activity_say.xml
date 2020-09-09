@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,8 +15,9 @@
         android:layout_weight="0.15"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="Введите текст"
-        android:inputType="textMultiLine" />
+        android:hint="@string/enter_text"
+        android:inputType="textMultiLine"
+        android:autofillHints="@string/enter_text" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,14 +29,16 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="0.8">
+            android:layout_weight="0.8"
+            android:weightSum="1"
+            tools:ignore="NestedWeights">
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.3"
-                android:text="Частые фразы:"
-                android:layout_marginLeft="5sp"
+                android:text="@string/often_words"
+                android:layout_marginStart="5sp"
                 android:textColor="#000"
                 android:textSize="20sp" />
 
@@ -44,9 +46,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.7"
-                android:layout_marginLeft="5sp"
+                android:layout_marginStart="5sp"
                 android:baselineAligned="false"
-                android:layout_marginRight="30sp">
+                android:layout_marginEnd="30sp">
 
                 <LinearLayout
                     android:id="@+id/oftenWordLayout"
@@ -63,8 +65,8 @@
             android:layout_height="65dp"
             android:layout_gravity="end"
             android:layout_weight="0.2"
-            android:text="Сказать"
-            android:layout_marginRight="50sp"
+            android:text="@string/say"
+            android:layout_marginEnd="50sp"
             android:textAllCaps="false"
             style="@style/RoundedCommunicationButton"
             android:textSize="18sp"
@@ -86,20 +88,21 @@
             android:layout_height="0dp"
             android:layout_weight="0.35"
             android:orientation="horizontal"
-            android:layout_marginLeft="5sp"
-            android:weightSum="1">
+            android:layout_marginStart="5sp"
+            android:weightSum="1"
+            tools:ignore="NestedWeights">
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:weightSum="1"
                 android:layout_weight="0.22"
                 android:orientation="vertical"
-                android:layout_marginRight="20sp">
+                android:layout_marginEnd="20sp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Коллекции:"
+                    android:text="@string/collections"
                     android:textSize="20sp"
                     android:textColor="#000"/>
                 <LinearLayout
@@ -110,20 +113,22 @@
                         android:layout_width="60sp"
                         android:layout_height="wrap_content"
                         android:background="#9F37D71B"
-                        android:text="+"
+                        android:text="@string/plus"
                         android:textAllCaps="false"
                         android:textSize="20sp"
-                        android:contentDescription="Добавить коллекцию"/>
+                        android:contentDescription="@string/add_collection"
+                        tools:ignore="ButtonStyle" />
 
                     <Button
                         android:id="@+id/btnDeleteSayCollection"
                         android:layout_width="60sp"
                         android:layout_height="wrap_content"
                         android:background="#A3ED3A3A"
-                        android:text="-"
+                        android:text="@string/minus"
                         android:textAllCaps="false"
                         android:textSize="20sp"
-                        android:contentDescription="Удалить коллекцию"/>
+                        android:contentDescription="@string/delete_collection"
+                        tools:ignore="ButtonStyle" />
 
                 </LinearLayout>
 
@@ -138,8 +143,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_columnSpan="2"
-                    android:text="Фразы:"
+                    android:text="@string/words"
                     android:textSize="20sp"
                     android:textColor="#000"/>
             <LinearLayout
@@ -152,20 +156,22 @@
                     android:layout_width="60sp"
                     android:layout_height="wrap_content"
                     android:background="#9F37D71B"
-                    android:text="+"
+                    android:text="@string/plus"
                     android:textAllCaps="false"
                     android:textSize="20sp"
-                    android:contentDescription="Добавить фразу в коллекцию"/>
+                    android:contentDescription="@string/add_word"
+                    tools:ignore="ButtonStyle" />
 
                 <Button
                     android:id="@+id/btnDeleteSayWord"
                     android:layout_width="60sp"
                     android:layout_height="wrap_content"
                     android:background="#A3ED3A3A"
-                    android:text="-"
+                    android:text="@string/minus"
                     android:textAllCaps="false"
                     android:textSize="20sp"
-                    android:contentDescription="Удалить фразу из коллекции"/>
+                    android:contentDescription="@string/delete_word"
+                    tools:ignore="ButtonStyle" />
             </LinearLayout>
 
             </LinearLayout>
@@ -175,11 +181,11 @@
                 android:layout_height="65dp"
                 android:layout_gravity="end"
                 android:layout_weight="0.2"
-                android:text="Показать"
+                android:text="@string/show"
                 android:textAllCaps="false"
                 style="@style/RoundedCommunicationButton"
                 android:textSize="18sp"
-                android:layout_marginRight="50sp" />
+                android:layout_marginEnd="50sp" />
 
         </LinearLayout>
 
@@ -190,7 +196,8 @@
             android:orientation="horizontal"
             android:weightSum="1"
 
-            android:layout_marginLeft="5sp">
+            android:layout_marginStart="5sp"
+            android:baselineAligned="false">
             <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

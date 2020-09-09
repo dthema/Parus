@@ -25,13 +25,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    final static String TAG = "Notification";
+    private final static String TAG = "Notification";
     public static boolean inChat = false;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 
     @Override
     public void onNewToken(@NonNull String token) {

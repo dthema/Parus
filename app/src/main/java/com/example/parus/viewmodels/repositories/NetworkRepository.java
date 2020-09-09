@@ -23,7 +23,7 @@ public class NetworkRepository {
         return repository;
     }
 
-    private MutableLiveData<Boolean> internetConnected = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> internetConnected = new MutableLiveData<>();
 
     public LiveData<Boolean> connectionListener(Context context) {
         if (isThreadActive)

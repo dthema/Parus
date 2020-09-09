@@ -32,7 +32,6 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
@@ -54,11 +53,10 @@ public class MapActivity extends AppCompatActivity implements
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
-    private static final String TAG = "MapActivityDebug";
     private MapboxMap mapboxMap;
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
-    private LocationChangeListeningActivityLocationCallback callback =
+    private final LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
     private Location userLocation;
     private Location linkUserLocation;
@@ -100,7 +98,7 @@ public class MapActivity extends AppCompatActivity implements
         return getBitmapFromDrawable(drawable);
     }
 
-    static Bitmap getBitmapFromDrawable(Drawable drawable) {
+    private static Bitmap getBitmapFromDrawable(Drawable drawable) {
         if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable) drawable).getBitmap();
         } else {
@@ -171,7 +169,7 @@ public class MapActivity extends AppCompatActivity implements
                                             .build());
                                 } else {
                                     if (isSupport)
-                                        Toast.makeText(MapActivity.this, R.string.desabled_not_find, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(MapActivity.this, R.string.disabled_not_find, Toast.LENGTH_LONG).show();
                                     else
                                         Toast.makeText(MapActivity.this, R.string.support_not_find, Toast.LENGTH_LONG).show();
                                 }
@@ -195,7 +193,7 @@ public class MapActivity extends AppCompatActivity implements
                                     SymbolOptions SymbolOptions = new SymbolOptions()
                                             .withLatLng(new LatLng(latitude, longitude))
                                             .withIconImage(ID_ICON_1);
-                                    Symbol symbol = symbolManager.create(SymbolOptions);
+                                    symbolManager.create(SymbolOptions);
                                 }
                             });
                         }

@@ -8,19 +8,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModelProvider;
 
-import com.example.parus.services.HeartRateService;
 import com.example.parus.viewmodels.data.SingleLiveEvent;
 import com.example.parus.viewmodels.repositories.ServiceRepository;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -45,7 +38,7 @@ public class HealthViewModel extends AndroidViewModel {
     private static final int SAMSUNG_CONNECT = 4;
     private HealthDataStore mStore;
 
-    private ServiceRepository serviceRepository = ServiceRepository.getInstance();
+    private final ServiceRepository serviceRepository = ServiceRepository.getInstance();
 
     public HealthViewModel(@NonNull Application application) {
         super(application);

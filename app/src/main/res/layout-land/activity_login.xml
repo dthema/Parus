@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -42,7 +41,7 @@
         android:textAllCaps="false"
         android:textAlignment="center"
         android:textSize="30sp"
-        android:text="PARUS"
+        android:text="@string/parus"
         android:textColor="#000"/>
     <TextView
         android:layout_width="match_parent"
@@ -53,7 +52,7 @@
         android:textAllCaps="false"
         android:textAlignment="center"
         android:textSize="20sp"
-        android:text="Your tailwind"/>
+        android:text="@string/your_tailwind"/>
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -77,19 +76,22 @@
                 android:hint="Email"
                 android:background="@drawable/btn_call"
                 android:textColor="@color/white"
-                android:textColorHint="@color/white"/>
+                android:textColorHint="@color/white"
+                tools:ignore="HardcodedText"
+                android:autofillHints="" />
 
             <EditText
                 android:id="@+id/password"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:hint="Пароль"
+                android:hint="@string/password"
                 android:inputType="textPassword"
                 android:padding="12dp"
                 android:background="@drawable/btn_call"
                 android:textColor="@color/white"
-                android:textColorHint="@color/white"/>
+                android:textColorHint="@color/white"
+                android:autofillHints="" />
         <!-- Login Button -->
 
         <LinearLayout
@@ -104,11 +106,12 @@
                 android:layout_weight="0.6"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/circle2"
-                android:text="Войти"
-                android:layout_marginRight="5dp"
+                android:text="@string/login"
+                android:layout_marginEnd="5dp"
                 android:textAllCaps="false"
                 android:textSize="17sp"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                tools:ignore="ButtonStyle" />
 
             <Button
                 android:id="@+id/btn_signup"
@@ -117,10 +120,11 @@
                 android:layout_weight="0.7"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/circle2"
-                android:layout_marginLeft="5dp"
-                android:text="Зарегистрироваться"
+                android:layout_marginStart="5dp"
+                android:text="@string/registrated"
                 android:textAllCaps="false"
-                android:textSize="17sp" />
+                android:textSize="17sp"
+                tools:ignore="ButtonStyle" />
             <Button
                 android:id="@+id/btn_reset_password"
                 android:layout_width="0dp"
@@ -128,18 +132,17 @@
                 android:layout_weight="0.7"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/circle2"
-                android:text="Восстановить пароль"
+                android:text="@string/recover_password"
                 android:textAllCaps="false"
                 android:textColor="#000"
-                android:textSize="17sp" />
+                android:textSize="17sp"
+                tools:ignore="ButtonStyle" />
 
         </LinearLayout>
 
-        <!-- Link to Login Screen -->
-
     </LinearLayout>
     <ProgressBar
-        android:id="@+id/resetPasswordProgressBar"
+        android:id="@+id/loginProgressBar"
         android:layout_height="40dp"
         android:layout_width="40dp"
         android:layout_centerVertical="true"

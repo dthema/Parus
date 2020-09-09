@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SayViewModel extends ViewModel {
 
-    private SayRepository repository = SayRepository.getInstance();
+    private final SayRepository repository = SayRepository.getInstance();
 
     public SayViewModel() {
         super();

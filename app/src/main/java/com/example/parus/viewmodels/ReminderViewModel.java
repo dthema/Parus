@@ -18,7 +18,7 @@ public class ReminderViewModel extends ViewModel {
         super();
     }
 
-    ReminderRepository repository = ReminderRepository.getInstance();
+    private final ReminderRepository repository = ReminderRepository.getInstance();
 
     private LiveData<List<Reminder>> remindersList;
 

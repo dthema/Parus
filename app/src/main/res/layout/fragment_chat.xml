@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <RelativeLayout
@@ -19,7 +18,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:gravity="center"
-            android:text="Нет подключения к интернету"
+            android:text="@string/not_internet"
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="30sp"
@@ -59,10 +58,11 @@
                 android:layout_marginTop="10dp"
                 android:layout_toStartOf="@id/chatSend"
                 android:ems="10"
-                android:hint="Введите сообщение"
+                android:hint="@string/enter_chat"
                 android:inputType="textFilter|textMultiLine|textNoSuggestions"
                 android:maxLines="4"
-                android:padding="5sp" />
+                android:padding="5sp"
+                android:autofillHints="" />
 
             <Button
                 android:id="@+id/chatSend"
@@ -71,7 +71,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/ic_mic_black_24dp"
-                android:text="Начать запись голоса"
+                android:text="@string/start_listen"
                 android:textSize="0sp" />
         </RelativeLayout>
 

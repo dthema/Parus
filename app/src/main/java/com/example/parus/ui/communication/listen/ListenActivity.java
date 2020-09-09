@@ -9,10 +9,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,7 +27,7 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
     private static final int REQUEST_RECORD_PERMISSION = 100;
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
-    private String LOG_TAG = "ListenActivity";
+    private final String LOG_TAG = "ListenActivity";
     private ActivityListenBinding binding;
 
     @Override
@@ -100,10 +97,7 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
     public void onResume() {
         super.onResume();
     }
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -219,7 +213,7 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
         Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
         binding.listenProgressBar.setProgress((int) rmsdB);
     }
-    public static String getErrorText(int errorCode) {
+    private static String getErrorText(int errorCode) {
         String message;
         switch (errorCode) {
             case SpeechRecognizer.ERROR_AUDIO:

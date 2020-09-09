@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="Новый Email:"
+        android:text="@string/new_email"
         android:textColor="#000"
         android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,7 +24,9 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textWebEmailAddress"
-        app:layout_constraintTop_toBottomOf="@id/textResetEmail" />
+        app:layout_constraintTop_toBottomOf="@id/textResetEmail"
+        android:autofillHints="@string/email"
+        tools:ignore="LabelFor" />
 
     <ProgressBar
         android:id="@+id/resetEmailProgressBar"
@@ -42,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="Пароль:"
+        android:text="@string/password"
         android:textColor="#000"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@+id/newEmail"
@@ -54,7 +56,9 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textWebPassword"
-        app:layout_constraintTop_toBottomOf="@+id/textResetEmailPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/textResetEmailPassword"
+        android:autofillHints="@string/password"
+        tools:ignore="LabelFor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

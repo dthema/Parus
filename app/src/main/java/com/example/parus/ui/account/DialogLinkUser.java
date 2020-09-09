@@ -23,7 +23,6 @@ import com.example.parus.viewmodels.UserViewModel;
 
 public class DialogLinkUser extends AppCompatDialogFragment {
 
-    private TextView text;
     private EditText uId;
 
     static DialogLinkUser newInstance(boolean isSupport) {
@@ -45,7 +44,7 @@ public class DialogLinkUser extends AppCompatDialogFragment {
         ServiceViewModel serviceViewModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).get(ServiceViewModel.class);
         uId = dialogView.findViewById(R.id.linkId);
-        text = dialogView.findViewById(R.id.linkText);
+        TextView text = dialogView.findViewById(R.id.linkText);
         assert getArguments() != null;
         boolean isSupport = getArguments().getBoolean("support");
         if (isSupport) {

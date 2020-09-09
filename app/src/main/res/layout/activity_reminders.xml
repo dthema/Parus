@@ -24,7 +24,7 @@
             android:layout_alignParentBottom="true"
             android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
-            android:contentDescription="Добавить напоминание"
+            android:contentDescription="@string/add_reminder"
             app:srcCompat="@drawable/ic_add_black_24dp" />
     </RelativeLayout>
 </layout>

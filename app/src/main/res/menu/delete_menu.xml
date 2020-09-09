@@ -2,22 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/startDelete"
         android:title=""
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_delete_black_24dp"
-        android:contentDescription="Удаление напоминаний"
+        android:contentDescription="@string/reminders_deleting"
         />
     <item
-        android:id="@+id/cancelDelete"
-        android:title="Отмена"
-        app:showAsAction="always"
-        android:contentDescription="Удаление напоминаний"
+        android:title="@string/cancel"
+        app:showAsAction="ifRoom"
+        android:contentDescription="@string/cancel_deleting"
         />
     <item
-        android:id="@+id/deleteButton"
-        android:title="Удалить"
-        app:showAsAction="always"
-        android:contentDescription="Удаление напоминаний"
+        android:title="@string/delete"
+        app:showAsAction="ifRoom"
+        android:contentDescription="@string/delete_current_reminders"
         />
 </menu>

@@ -9,7 +9,7 @@ import com.example.parus.viewmodels.repositories.ServiceRepository;
 
 public class ServiceViewModel extends AndroidViewModel {
 
-    ServiceRepository repository = ServiceRepository.getInstance();
+    private final ServiceRepository repository = ServiceRepository.getInstance();
 
     public ServiceViewModel(@NonNull Application application) {
         super(application);

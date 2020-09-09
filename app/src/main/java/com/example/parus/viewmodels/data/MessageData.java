@@ -5,10 +5,8 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 
 import com.example.parus.viewmodels.data.models.Chat;
-import com.example.parus.viewmodels.data.models.User;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -16,24 +14,21 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class MessageData extends LiveData<List<Chat>> {
 
     private static final String TAG = "user data";
     private ListenerRegistration registration;
-    private CollectionReference collectionReference;
-    private List<Chat> chats;
-    private List<String> times;
+    private final CollectionReference collectionReference;
+    private final List<Chat> chats = new ArrayList<>();
+    private final List<String> times = new ArrayList<>();
 
     public MessageData(CollectionReference docRef) {
         this.collectionReference = docRef;
-        chats = new ArrayList<>();
-        times = new ArrayList<>();
     }
 
-    private EventListener<QuerySnapshot> eventListener = (queryDocumentSnapshots, e) -> {
+    private final EventListener<QuerySnapshot> eventListener = (queryDocumentSnapshots, e) -> {
         if (e != null) {
             Log.i(TAG, "Listen failed.", e);
             return;
@@ -50,8 +45,7 @@ public class MessageData extends LiveData<List<Chat>> {
                             }
                         }
                         chat.setCalendar(false);
-//                        if (chat.getMessage().substring(chat.getMessage().length()-1).equals("\n"))
-                            chat.setMessage(chat.getMessage().trim());
+                        chat.setMessage(chat.getMessage().trim());
                         chats.add(chat);
                         if (chats.size() > 0) {
                             boolean flag = true;

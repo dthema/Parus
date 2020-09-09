@@ -8,7 +8,7 @@ import com.example.parus.viewmodels.repositories.MapRepository;
 
 public class MapViewModel extends ViewModel {
 
-    private MapRepository repository = new MapRepository();
+    private final MapRepository repository = new MapRepository();
 
     public MapViewModel() { super(); }
 

@@ -2,8 +2,6 @@
 <layout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -23,7 +21,7 @@
             android:drawableTop="@drawable/ic_eye"
             android:drawablePadding="-10dp"
             android:paddingTop="10dp"
-            android:text="Смотреть"
+            android:text="@string/see"
             android:textAllCaps="false"
             android:textSize="25sp" />
 
@@ -39,7 +37,7 @@
             android:drawableTop="@drawable/ic_hearing_black_24dp"
             android:drawablePadding="-10dp"
             android:paddingTop="10dp"
-            android:text="Слушать"
+            android:text="@string/listen"
             android:textAllCaps="false"
             android:textSize="25sp" />
 
@@ -55,7 +53,7 @@
             android:drawableTop="@drawable/ic_audio"
             android:drawablePadding="-10dp"
             android:paddingTop="10dp"
-            android:text="Говорить"
+            android:text="@string/say"
             android:textAllCaps="false"
             android:textSize="25sp" />
     </LinearLayout>

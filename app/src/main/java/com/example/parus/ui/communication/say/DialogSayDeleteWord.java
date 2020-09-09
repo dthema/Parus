@@ -22,7 +22,6 @@ import com.example.parus.R;
 import com.example.parus.viewmodels.SayViewModel;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 

@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.parus.viewmodels.data.models.User;
 import com.example.parus.viewmodels.repositories.UserRepository;
-import com.google.android.gms.tasks.Task;
 
 public class UserViewModel extends ViewModel {
 
@@ -17,7 +16,7 @@ public class UserViewModel extends ViewModel {
         super();
     }
 
-    UserRepository repository = UserRepository.getInstance();
+    private final UserRepository repository = UserRepository.getInstance();
 
     public LiveData<User> getUserData() {
         return repository.userListening();

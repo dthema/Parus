@@ -28,9 +28,9 @@ import java.util.List;
 public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewHolder> {
 
     private boolean delete;
-    private List<Reminder> deletingReminders;
-    private OnItemClickInterface onItemClickInterface;
-    private ReminderViewModel reminderViewModel;
+    private final List<Reminder> deletingReminders;
+    private final OnItemClickInterface onItemClickInterface;
+    private final ReminderViewModel reminderViewModel;
 
     ReminderAdapter(@NonNull ReminderDiffCallback diffCallback, OnItemClickInterface onItemClickInterface, ReminderViewModel reminderViewModel) {
         super(diffCallback);
@@ -68,11 +68,11 @@ public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewH
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView background;
-        private TextView name;
-        private TextView time;
-        private CheckBox checkBox;
-        private Context context;
+        private final TextView background;
+        private final TextView name;
+        private final TextView time;
+        private final CheckBox checkBox;
+        private final Context context;
 
         private ViewHolder(ReminderItemBinding binding) {
             super(binding.getRoot());

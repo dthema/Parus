@@ -9,7 +9,6 @@ import org.apache.commons.net.time.TimeTCPClient;
 import java.io.IOException;
 
 public class RequestTime extends AsyncTask<String, String, Timestamp> {
-    private static final String TIME_SERVER = "time-a.nist.gov";
 
     @Override
     protected void onPostExecute(Timestamp s) {

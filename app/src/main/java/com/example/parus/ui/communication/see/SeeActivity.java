@@ -17,37 +17,21 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.parus.R;
 import com.example.parus.databinding.ActivitySeeBinding;
 import com.example.parus.viewmodels.SeeViewModel;
-import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
-import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage;
-import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator;
-import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
-import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SeeActivity extends AppCompatActivity {
 
     private static final String TAG = SeeActivity.class.getSimpleName();
     private static final int CAMERA_REQUEST = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
-    private String[] types = {"Распознавание текста", "Распознавание объекта"};
+    private final String[] types = {"Распознавание текста", "Распознавание объекта"};
     private SeeViewModel seeViewModel;
     private ActivitySeeBinding binding;
 
@@ -119,23 +103,21 @@ public class SeeActivity extends AppCompatActivity {
         if (data != null) {
             Bundle extras = data.getExtras();
             if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-                FirebaseVisionImage image = null;
                 if (extras != null) {
                     Bitmap bitmap = (Bitmap) extras.get("data");
-                    if (bitmap != null)
-                        image = FirebaseVisionImage.fromBitmap(bitmap);
-                }
-                if (image != null)
-                    switch (binding.seeTypeSpinner.getSelectedItemPosition()) {
-                        case 0:
-                            detectText(image);
-                            break;
-                        case 1:
-                            binding.seeText.setText("Результат переводится...");
-                            binding.seeText.setTextSize(40);
-                            detectObject(image);
-                            break;
+                    if (bitmap != null) {
+                        switch (binding.seeTypeSpinner.getSelectedItemPosition()) {
+                            case 0:
+                                detectText(bitmap);
+                                break;
+                            case 1:
+                                binding.seeText.setText("Результат переводится...");
+                                binding.seeText.setTextSize(40);
+                                detectObject(bitmap);
+                                break;
+                        }
                     }
+                }
             }
         } else if (getIntent().getIntExtra("fastAction", 0) != 0) {
             finish();
@@ -153,8 +135,8 @@ public class SeeActivity extends AppCompatActivity {
         }
     }
 
-    private void detectText(FirebaseVisionImage image) {
-        seeViewModel.detectText(image).observe(this, pair -> {
+    private void detectText(Bitmap bitmap) {
+        seeViewModel.detectText(bitmap).observe(this, pair -> {
             String text = pair.first;
             Float textSize = pair.second;
             if (textSize == null || text == null)
@@ -169,8 +151,8 @@ public class SeeActivity extends AppCompatActivity {
         });
     }
 
-    private void detectObject(FirebaseVisionImage image) {
-        seeViewModel.detectObject(image).observe(this, pair -> {
+    private void detectObject(Bitmap bitmap) {
+        seeViewModel.detectObject(bitmap).observe(this, pair -> {
             String text = pair.first;
             Float textSize = pair.second;
             if (textSize == null || text == null)
