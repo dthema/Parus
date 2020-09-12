@@ -17,15 +17,6 @@ public class RequestTime extends AsyncTask<String, String, Timestamp> {
 
     @Override
     protected Timestamp doInBackground(String... uri) {
-//        try {
-//            NTPUDPClient timeClient = new NTPUDPClient();
-//            InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
-//            TimeInfo timeInfo = timeClient.getTime(inetAddress);
-//            return timeInfo.getMessage().getTransmitTimeStamp();
-//        } catch (Exception e){
-//            e.printStackTrace();
-//            return null;
-//        }
         try {
             TimeTCPClient client = new TimeTCPClient();
             try {
@@ -40,6 +31,4 @@ public class RequestTime extends AsyncTask<String, String, Timestamp> {
             return null;
         }
     }
-
-
 }

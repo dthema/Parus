@@ -75,7 +75,7 @@
 
 
             <EditText
-                android:id="@+id/email"
+                android:id="@+id/loginEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -88,7 +88,7 @@
                 android:autofillHints="@string/email" />
 
             <EditText
-                android:id="@+id/password"
+                android:id="@+id/loginPassword"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
@@ -107,7 +107,7 @@
                 android:weightSum="2">
 
                 <Button
-                    android:id="@+id/btn_login"
+                    android:id="@+id/loginBtn"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
@@ -121,7 +121,7 @@
                     tools:ignore="ButtonStyle" />
 
                 <Button
-                    android:id="@+id/btn_signup"
+                    android:id="@+id/loginRegisterBtn"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -138,7 +138,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/btn_reset_password"
+            android:id="@+id/loginResetPassword"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

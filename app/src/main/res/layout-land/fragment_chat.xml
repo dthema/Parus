@@ -1,59 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="1">
+<layout>
 
-    <TextView
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/chatInternet"
-        android:visibility="gone"
-        android:textSize="30sp"
-        android:textColor="#000"
-        android:gravity="center"
-        android:textAlignment="center"
-        android:text="@string/not_internet"/>
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:id="@+id/chatView"
-        android:layout_weight="0.85"/>
+        android:orientation="vertical"
+        android:weightSum="1">
 
-    <RelativeLayout
+        <TextView
+            android:id="@+id/chatInternet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/not_internet"
+            android:textAlignment="center"
+            android:textColor="#000"
+            android:textSize="30sp"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_weight="0.85" />
+
+        <RelativeLayout
             android:id="@+id/chatBottom"
-        android:layout_weight="0.15">
-        <ProgressBar
-            android:id="@+id/chatProgressBar"
-            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp" />
-        <EditText
+            android:layout_height="0dp"
+            android:layout_weight="0.15">
+
+            <ProgressBar
+                android:id="@+id/chatProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp" />
+
+            <EditText
+                android:id="@+id/chatText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/chatText"
-                android:maxLines="3"
-                android:padding="5sp"
-                android:layout_marginTop="10dp"
                 android:layout_alignTop="@id/chatProgressBar"
+                android:layout_marginTop="10dp"
                 android:layout_toStartOf="@id/chatSend"
+                android:autofillHints=""
                 android:hint="@string/enter_chat"
-            android:autofillHints=""
-            android:inputType="text" />
+                android:inputType="text"
+                android:maxLines="3"
+                android:padding="5sp" />
+
             <Button
+                android:id="@+id/chatSend"
                 android:layout_width="40sp"
                 android:layout_height="40sp"
-                android:id="@+id/chatSend"
-                android:layout_marginTop="10dp"
                 android:layout_alignParentEnd="true"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/ic_mic_black_24dp"
-                android:contentDescription="@string/start_listen"/>
-    </RelativeLayout>
+                android:contentDescription="@string/start_listen" />
+        </RelativeLayout>
 
-</LinearLayout>
+    </LinearLayout>
+</layout>

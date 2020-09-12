@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 28
@@ -37,6 +39,8 @@ dependencies {
     implementation project(path: ':samsung-health-data-v1.4.0')
 
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
+    implementation 'com.google.firebase:firebase-perf:19.0.8'
     implementation ('com.google.firebase:firebase-auth:19.3.2') { exclude module: 'protobuf-lite' }
     implementation ('com.google.firebase:firebase-firestore:21.6.0') { exclude module: 'protobuf-lite' }
     implementation 'com.google.mlkit:image-labeling:17.0.0'
@@ -54,7 +58,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.3.0'
     implementation 'androidx.navigation:navigation-ui:2.3.0'
 
-    implementation 'com.google.android.material:material:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'

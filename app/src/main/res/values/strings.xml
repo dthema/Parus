@@ -122,4 +122,12 @@
     <string name="delete">Удалить</string>
     <string name="delete_current_reminders">Удалить выбранные напоминания</string>
     <string name="settings">Настройки</string>
+    <string name="send_reset_password_error">Не удалось отправить письмо на Вашу почту</string>
+    <string name="send_reset_password_success">Письмо для восстановления пароля отправлено на Вашу почту</string>
+    <string name="enter_registration_email">Введите email, на который Вы регистрировали аккаунт</string>
+    <string name="enter_email">Введите почту</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="create_account_error">Не удалось создать аккаунт</string>
+    <string name="short_password_error">Пароль должен быть от 6 символов</string>
+    <string name="login_error">Проверьте почту или пароль</string>
 </resources>

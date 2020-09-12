@@ -104,11 +104,6 @@ public class MainActivity extends AppCompatActivity {
         TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
                 .get(TTSViewModel.class);
         serviceViewModel.startWorkService();
-        firebaseMessagingService = new MyFirebaseMessagingService();
-        new Thread(() -> FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(MainActivity.this, instanceIdResult -> {
-            String deviceToken = instanceIdResult.getToken();
-            firebaseMessagingService.onNewToken(deviceToken);
-        })).start();
         Intent intent = getIntent();
         navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

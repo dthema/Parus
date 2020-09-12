@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 
 import com.example.parus.viewmodels.data.SingleLiveEvent;
 import com.example.parus.viewmodels.repositories.ServiceRepository;
@@ -64,7 +65,7 @@ public class HealthViewModel extends AndroidViewModel {
 
     private SingleLiveEvent<Integer> healthLiveData;
 
-    public SingleLiveEvent<Integer> get(){
+    public LiveData<Integer> get(){
         healthLiveData = new SingleLiveEvent<>();
         int result = checkHealthDataConnect();
         if (result != SAMSUNG_NO_CONNECT) {

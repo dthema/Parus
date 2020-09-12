@@ -37,6 +37,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
 import com.samsung.android.sdk.healthdata.HealthConstants;
 import com.samsung.android.sdk.healthdata.HealthDataStore;
@@ -63,6 +64,7 @@ public class HomeFragment extends Fragment {
     private HomeData homeData;
     private FragmentHomeBinding binding;
     private TTSViewModel TTS;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onHiddenChanged(boolean hidden) {
@@ -238,9 +240,9 @@ public class HomeFragment extends Fragment {
     @SuppressLint("SetTextI18n")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        homeData = new HomeData();
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        binding.setViewmodel(homeViewModel);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(requireContext());
+        homeData = new HomeData();
         binding.setData(homeData);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setFragment(this);
@@ -260,6 +262,7 @@ public class HomeFragment extends Fragment {
         binding.homeMap.setOnClickListener(c -> startActivity(new Intent(getActivity(), MapActivity.class)));
         binding.homeLastOnline.setClickable(false);
         initModels();
+        binding.setViewmodel(homeViewModel);
         homeViewModel.setData(homeData);
         initObservers();
         if (Build.VERSION.SDK_INT >= 23) {
@@ -343,6 +346,7 @@ public class HomeFragment extends Fragment {
         public void onConnected() {
             Log.d(TAG, "Health data service is connected.");
             if (healthViewModel.isPermissionAcquired(mStore)) {
+                healthAreChecking();
                 homeData.setHeartRate(getString(R.string.no_pulse_data));
                 mStore.disconnectService();
                 binding.homePulse.setClickable(false);
@@ -409,8 +413,10 @@ public class HomeFragment extends Fragment {
                         Log.d(TAG, "Permission callback is received.");
                         Map<HealthPermissionManager.PermissionKey, Boolean> resultMap = result.getResultMap();
                         if (resultMap.containsValue(Boolean.FALSE)) {
+                            failSamsungHealthPermissions();
                             showPermissionAlarmDialog();
                         } else {
+                            healthAreChecking();
                             homeData.setHeartRate(getString(R.string.no_pulse_data));
                             binding.homePulse.setClickable(false);
                             serviceViewModel.startHeartRateService();
@@ -418,6 +424,7 @@ public class HomeFragment extends Fragment {
                         mStore.disconnectService();
                     });
         } catch (Exception e) {
+            failSamsungHealthPermissions();
             Log.e(TAG, "Permission setting fails.", e);
             mStore.disconnectService();
         }
@@ -428,9 +435,11 @@ public class HomeFragment extends Fragment {
         healthViewModel.get().observe(getViewLifecycleOwner(), result -> {
             switch (result) {
                 case 0:
+                    getHealthPermissions();
                     requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 100);
                     break;
                 case 1:
+                    getGoogleHealthPermissions();
                     FitnessOptions fitnessOptions = FitnessOptions.builder()
                             .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
                             .build();
@@ -442,6 +451,7 @@ public class HomeFragment extends Fragment {
                             fitnessOptions);
                     break;
                 case 3:
+                    getSamsungHealthPermissions();
                     mStore.connectService();
                     break;
             }
@@ -453,18 +463,22 @@ public class HomeFragment extends Fragment {
             DialogChooseFastAction dialogChooseFastAction = new DialogChooseFastAction();
             dialogChooseFastAction.show(requireActivity().getSupportFragmentManager(), "DialogFastAction");
         } else if (homeData.getFastAction().equals(getString(R.string.detect_text))) {
+            recognizeTextFastAction();
             Intent intent1 = new Intent(getActivity(), SeeActivity.class);
             intent1.putExtra("fastAction", 1);
             startActivity(intent1);
         } else if (homeData.getFastAction().equals(getString(R.string.detect_object))) {
+            recognizeObjectFastAction();
             Intent intent2 = new Intent(getActivity(), SeeActivity.class);
             intent2.putExtra("fastAction", 2);
             startActivity(intent2);
         } else if (homeData.getFastAction().equals(getString(R.string.start_listen))) {
+            listenFastAction();
             Intent intent3 = new Intent(getActivity(), ListenActivity.class);
             intent3.putExtra("fastAction", true);
             startActivity(intent3);
         } else {
+            sayFastAction();
             TTS.speak(homeData.getFastAction().substring(16));
         }
     }
@@ -475,18 +489,22 @@ public class HomeFragment extends Fragment {
         healthViewModel.onRequestPermissionsResult(requestCode, permissions, grantResults).observe(getViewLifecycleOwner(), result -> {
             switch (result) {
                 case NO_PERMISSION:
+                    failHealthPermissions();
                     homeData.setHeartRate(getString(R.string.no_pulse_rights));
                     binding.homePulse.setClickable(true);
                     break;
                 case NO_GOOGLE_ACCOUNT:
+                    failGoogleHealthPermissions();
                     homeData.setHeartRate(getString(R.string.google_account_not_connected));
                     binding.homePulse.setClickable(true);
                     break;
                 case SAMSUNG_NO_CONNECT:
+                    failSamsungHealthPermissions();
                     homeData.setHeartRate(getString(R.string.samsung_not_connected));
                     binding.homePulse.setClickable(true);
                     break;
                 default:
+                    healthAreChecking();
                     homeData.setHeartRate(getString(R.string.no_pulse_data));
                     binding.homePulse.setClickable(false);
                     break;
@@ -499,5 +517,93 @@ public class HomeFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         healthViewModel.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void healthAreChecking() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "health-check");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Heart Rate is checking");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void getHealthPermissions() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "health-permission");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Granted");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void failHealthPermissions() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "health-permission");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Not granted");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void getGoogleHealthPermissions() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "google-health-permission");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Granted");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void failGoogleHealthPermissions() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "google-health-permission");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Not granted");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void getSamsungHealthPermissions() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "samsung-health-permission");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Granted");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void failSamsungHealthPermissions() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "samsung-health-permission");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Not granted");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void recognizeTextFastAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Recognize Text");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void recognizeObjectFastAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Recognize Object");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void listenFastAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Listen");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void sayFastAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Say");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 }

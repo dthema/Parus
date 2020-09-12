@@ -17,19 +17,21 @@ import android.widget.Toast;
 
 import com.example.parus.databinding.ActivityFirstRunBinding;
 import com.example.parus.viewmodels.UserViewModel;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class FirstRunActivity extends AppCompatActivity {
 
     private int cnt = 0;
     private boolean isSupport = false;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityFirstRunBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_first_run);
-        setContentView(R.layout.activity_first_run);
         UserViewModel userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         Button btn = binding.firstRunBtn;
         TextView text = binding.firstText;
         EditText editText = binding.firstEditText;
@@ -37,6 +39,7 @@ public class FirstRunActivity extends AppCompatActivity {
         Button disabled = binding.firstDisabled;
         LinearLayout linearLayout = findViewById(R.id.firstLinear);
         disabled.setOnClickListener(l -> {
+            setDisabled();
             editText.setVisibility(View.VISIBLE);
             btn.setVisibility(View.VISIBLE);
             editText.setHint(R.string.id_support);
@@ -45,6 +48,7 @@ public class FirstRunActivity extends AppCompatActivity {
         });
         support.setOnClickListener(l ->
                 userViewModel.setSupport().observe(this, success -> {
+                    setSupport();
                     if (success) {
                         isSupport = true;
                         editText.setVisibility(View.VISIBLE);
@@ -71,18 +75,65 @@ public class FirstRunActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.no_name, Toast.LENGTH_LONG).show();
             } else if (cnt == 1) {
                 if (String.valueOf(editText.getText()).equals("")) {
+                    withoutLinkUser();
                     startActivity(new Intent(this, MainActivity.class));
                     finish();
                 } else {
                     userViewModel.setLinkUser(editText.getText().toString(), isSupport).observe(this, string -> {
                         if ("1".equals(string)) {
+                            successLinkUser();
                             startActivity(new Intent(FirstRunActivity.this, MainActivity.class));
                             finish();
-                        } else Toast.makeText(this, string, Toast.LENGTH_LONG).show();
+                        } else {
+                            failLinkUser();
+                            Toast.makeText(this, string, Toast.LENGTH_LONG).show();
+                        }
                     });
                 }
             }
         });
+    }
+
+    private void successLinkUser(){
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link");
+        bundle.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
+    }
+
+    private void failLinkUser(){
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link");
+        bundle.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
+    }
+
+    private void withoutLinkUser(){
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, "Didn't");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
+    }
+
+    private void setDisabled(){
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "user-role");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Роль пользователя");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, getString(R.string.disabled));
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, bundle);
+    }
+
+    private void setSupport(){
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "user-role");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Роль пользователя");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, getString(R.string.support));
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, bundle);
     }
 
     @Override
