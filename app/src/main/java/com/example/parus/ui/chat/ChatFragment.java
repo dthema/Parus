@@ -83,13 +83,17 @@ public class ChatFragment extends Fragment implements RecognitionListener {
 
     private void InternetOff() {
         binding.chatInternet.setVisibility(View.VISIBLE);
-        binding.chatBottom.setVisibility(View.GONE);
+        binding.chatView.setVisibility(View.GONE);
+        binding.chatSend.setVisibility(View.GONE);
+        binding.chatText.setVisibility(View.GONE);
         binding.chatView.setVisibility(View.GONE);
     }
 
     private void InternetOn() {
         binding.chatInternet.setVisibility(View.GONE);
-        binding.chatBottom.setVisibility(View.VISIBLE);
+        binding.chatView.setVisibility(View.VISIBLE);
+        binding.chatSend.setVisibility(View.VISIBLE);
+        binding.chatText.setVisibility(View.VISIBLE);
         binding.chatView.setVisibility(View.VISIBLE);
     }
 
@@ -138,10 +142,10 @@ public class ChatFragment extends Fragment implements RecognitionListener {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     binding.chatSend.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_menu_send));
-                    binding.chatSend.setText("Отправить сообщение");
+                    binding.chatSend.setContentDescription(getString(R.string.send_chat));
                 } else {
                     binding.chatSend.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_mic_black_24dp));
-                    binding.chatSend.setText("Начать запись голоса");
+                    binding.chatSend.setContentDescription(getString(R.string.start_record_voice));
                 }
             }
 

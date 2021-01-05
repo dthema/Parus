@@ -153,6 +153,8 @@ public class UserRepository {
         } else {
             FirebaseFirestore.getInstance().collection("users").document(linkUserId).get()
                     .addOnSuccessListener(u -> {
+                        if (u == null)
+                            return;
                         User linkUser = u.toObject(User.class);
                         if (linkUser == null) {
                             liveEvent.setValue("Пользователь с таким ID не найден");
@@ -256,49 +258,39 @@ public class UserRepository {
                 liveEvent.setValue("Произошла ошибка");
                 return liveEvent;
             }
-            Log.d("TAGAA", "----------");
-            Log.d("TAGAA", email + " " + password);
-            Log.d("TAGAA", "----------");
             AuthCredential credential = EmailAuthProvider
                     .getCredential(email, password);
             user.reauthenticate(credential)
                     .addOnCompleteListener(task -> {
-                        if (task.isSuccessful())
-                            if (otherUserLiveData != null)
-                                if (otherUserLiveData.getValue() != null)
+                        if (task.isSuccessful()) {
+                            if (userLiveData.getValue() != null) {
+                                if (!userLiveData.getValue().getUserId().equals(userLiveData.getValue().getLinkUserId())) {
                                     FirebaseFirestore.getInstance().collection("users")
-                                            .document(otherUserLiveData.getValue().getUserId())
-                                            .update("linkUserId", otherUserLiveData.getValue())
+                                            .document(userLiveData.getValue().getLinkUserId())
+                                            .update("linkUserId", userLiveData.getValue().getLinkUserId())
                                             .addOnSuccessListener(s -> delete(liveEvent, user))
                                             .addOnFailureListener(f -> liveEvent.setValue("Произошла ошибка"));
-                                else delete(liveEvent, user);
-                            else delete(liveEvent, user);
-                        else liveEvent.setValue("Данные введены неверно");
+                                } else delete(liveEvent, user);
+                            } else delete(liveEvent, user);
+                        } else liveEvent.setValue("Данные введены неверно");
                     });
         }
         return liveEvent;
     }
 
     private void delete(SingleLiveEvent<String> liveEvent, FirebaseUser user) {
-        Log.d("TAGAA", "+");
         FirebaseFirestore.getInstance().collection("users").document(userId).delete()
-                .addOnSuccessListener(s -> {
-                    Log.d("TAGAA", "++");
-                    user.delete()
-                            .addOnSuccessListener(s1 -> {
-                                Log.d("TAGAA", "+++");
-                                liveEvent.setValue("1");
-                            })
-                            .addOnFailureListener(f1 -> liveEvent.setValue("Произошла ошибка"));
-                })
+                .addOnSuccessListener(s -> user.delete()
+                        .addOnSuccessListener(s1 -> liveEvent.setValue("1"))
+                        .addOnFailureListener(f1 -> liveEvent.setValue("Произошла ошибка")))
                 .addOnFailureListener(f -> liveEvent.setValue("Произошла ошибка"));
     }
 
-    public LiveData<Boolean> setSupport(){
+    public LiveData<Boolean> setSupport() {
         SingleLiveEvent<Boolean> liveEvent = new SingleLiveEvent<>();
         FirebaseFirestore.getInstance().collection("users").document(userId).update("support", true)
-        .addOnSuccessListener(s -> liveEvent.setValue(true))
-        .addOnFailureListener(f -> liveEvent.setValue(false));
+                .addOnSuccessListener(s -> liveEvent.setValue(true))
+                .addOnFailureListener(f -> liveEvent.setValue(false));
         return liveEvent;
     }
 

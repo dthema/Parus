@@ -227,7 +227,9 @@ public class HomeFragment extends Fragment {
         if (liveData != null) {
             userViewModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
                 if (!user.isSupport() || !user.getLinkUserId().equals(user.getUserId())) {
-                    liveData.observe(getViewLifecycleOwner(), s -> homeData.setCurrentReminder(s));
+                    liveData.observe(getViewLifecycleOwner(), s -> {
+                        homeData.setCurrentReminder(s);
+                    });
                 }
             });
         }
@@ -286,6 +288,10 @@ public class HomeFragment extends Fragment {
                         homeData.setHeartRate("Пульс:\n" + BPM + " у/м");
             } else
                 homeData.setHeartRate(getString(R.string.no_link_pulse_checked));
+            if (binding.homePulse.getHeight() > binding.reminderButton.getHeight())
+                binding.reminderButton.setMinHeight(binding.homePulse.getHeight());
+            else
+                binding.homePulse.setMinHeight(binding.reminderButton.getHeight());
         });
     }
 

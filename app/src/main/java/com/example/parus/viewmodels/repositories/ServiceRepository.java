@@ -17,10 +17,11 @@ import java.util.Objects;
 public class ServiceRepository {
 
     private static ServiceRepository repository;
-    private final String userId;
+    private String userId;
 
     private ServiceRepository() {
-        userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
     public synchronized static ServiceRepository getInstance() {
@@ -41,7 +42,8 @@ public class ServiceRepository {
     public void startOnlineService(Context context) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null || OnlineService.isServiceRunning)
             return;
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (userId == null)
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Intent intent = new Intent(context, OnlineService.class);
         intent.putExtra("uid", userId);
         context.startService(intent);
@@ -52,10 +54,14 @@ public class ServiceRepository {
     }
 
     public void startGeoLocationService(Context context) {
-        if (!GeoLocationService.isServiceRunning) {
-            context.startService(new Intent(context, GeoLocationService.class));
-            FirebaseFirestore.getInstance().collection("users").document(userId).update("checkGeoPosition", true);
-        }
+        if (FirebaseAuth.getInstance().getCurrentUser() == null || GeoLocationService.isServiceRunning)
+            return;
+        if (userId == null)
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Intent intent = new Intent(context, GeoLocationService.class);
+        intent.putExtra("uid", userId);
+        context.startService(intent);
+        FirebaseFirestore.getInstance().collection("users").document(userId).update("checkGeoPosition", true);
     }
 
     public void stopGeoLocationService(Context context) {
@@ -66,7 +72,8 @@ public class ServiceRepository {
     public void startHeartRateService(Context context) {
         if (FirebaseAuth.getInstance().getCurrentUser() == null || HeartRateService.isServiceRunning)
             return;
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (userId == null)
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Intent intent = new Intent(context, HeartRateService.class);
         intent.putExtra("uid", userId);
         context.startService(intent);
@@ -85,7 +92,7 @@ public class ServiceRepository {
         stopWorkService(context);
     }
 
-    public void destroy(){
+    public void destroy() {
         repository = null;
     }
 }

@@ -15,7 +15,6 @@ import com.example.parus.viewmodels.ServiceViewModel;
 import com.example.parus.viewmodels.TTSViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

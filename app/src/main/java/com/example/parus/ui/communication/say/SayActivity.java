@@ -241,7 +241,6 @@ public class SayActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT);
             params.bottomMargin = 30;
-            params.rightMargin = 20;
             b.setLayoutParams(params);
             b.setTextSize(20f);
             b.setContentDescription("Коллекция " + b.getText());

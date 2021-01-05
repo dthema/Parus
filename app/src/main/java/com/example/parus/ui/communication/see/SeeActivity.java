@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.example.parus.R;
 import com.example.parus.databinding.ActivitySeeBinding;
 import com.example.parus.viewmodels.SeeViewModel;
+import com.example.parus.viewmodels.TTSViewModel;
 
 public class SeeActivity extends AppCompatActivity {
 
@@ -33,6 +34,7 @@ public class SeeActivity extends AppCompatActivity {
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private final String[] types = {"Распознавание текста", "Распознавание объекта"};
     private SeeViewModel seeViewModel;
+    private TTSViewModel TTS;
     private ActivitySeeBinding binding;
 
     @Override
@@ -46,6 +48,8 @@ public class SeeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_see);
         seeViewModel = new ViewModelProvider(this).get(SeeViewModel.class);
+        TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                .get(TTSViewModel.class);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -69,6 +73,9 @@ public class SeeActivity extends AppCompatActivity {
 
             }
         });
+        binding.seeSay.setOnClickListener(click -> {
+            TTS.speak(binding.seeText.getText().toString());
+        });
         // запуск с главной страницы
         if (getIntent().getIntExtra("fastAction", 0) == 1) {
             binding.seeTypeSpinner.setSelection(0);
@@ -82,6 +89,7 @@ public class SeeActivity extends AppCompatActivity {
     }
 
     private void startCameraActivity() {
+        binding.seeSay.setVisibility(View.GONE);
         try {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
@@ -143,8 +151,10 @@ public class SeeActivity extends AppCompatActivity {
                 return;
             if (textSize == 0f) {
                 Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+                binding.seeSay.setVisibility(View.GONE);
                 binding.seeText.setText("");
             } else {
+                binding.seeSay.setVisibility(View.VISIBLE);
                 binding.seeText.setText(text);
                 binding.seeText.setTextSize(textSize);
             }
@@ -159,14 +169,21 @@ public class SeeActivity extends AppCompatActivity {
                 return;
             if (textSize == 0f) {
                 Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+                binding.seeSay.setVisibility(View.GONE);
                 binding.seeText.setText("");
             } else {
+                binding.seeSay.setVisibility(View.VISIBLE);
                 binding.seeText.setText(text);
                 binding.seeText.setTextSize(textSize);
             }
         });
     }
 
+    @Override
+    protected void onPause() {
+        TTS.stopSpeech();
+        super.onPause();
+    }
 }
 
 

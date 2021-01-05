@@ -31,7 +31,6 @@ android {
     dataBinding {
         enabled = true
     }
-    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -56,14 +55,11 @@ dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.8.0'
 
     implementation 'androidx.navigation:navigation-fragment:2.3.0'
-    implementation 'androidx.navigation:navigation-ui:2.3.0'
-
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
-    implementation 'com.google.guava:guava:27.0.1-android'
     implementation "com.facebook.android:facebook-android-sdk:4.42.0"
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -75,14 +71,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     testImplementation 'junit:junit:4.13'
-
-    annotationProcessor 'com.jakewharton:butterknife:10.0.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
 }
 
-configurations {
-    all {
-        exclude module: 'httpclient'
-    }
-}
 

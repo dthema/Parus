@@ -31,7 +31,7 @@ public class SeeRepository {
 
     public LiveData<Pair<String, Float>> detectText(Bitmap bitmap) {
         SingleLiveEvent<Pair<String, Float>> liveEvent = new SingleLiveEvent<>();
-        textSize = 501f;
+        textSize = 40f;
         if (bitmap == null) {
             liveEvent.setValue(Pair.create("Не удалось распознать текст", 0f));
             return liveEvent;
@@ -44,10 +44,7 @@ public class SeeRepository {
                     if (firebaseVisionText.getText().equals(""))
                         liveEvent.setValue(Pair.create("Не удалось распознать текст", 0f));
                     else
-                        for (String string : firebaseVisionText.getText().split(" ")) {
-                            neededTextSize(string);
-                        }
-                    liveEvent.setValue(Pair.create(firebaseVisionText.getText(), textSize));
+                        liveEvent.setValue(Pair.create(firebaseVisionText.getText(), textSize));
                 })
                 .addOnFailureListener(e -> liveEvent.setValue(Pair.create("Произошла ошибка", 0f)));
         return liveEvent;
@@ -55,7 +52,7 @@ public class SeeRepository {
 
     public LiveData<Pair<String, Float>> detectObject(Bitmap bitmap) {
         SingleLiveEvent<Pair<String, Float>> liveEvent = new SingleLiveEvent<>();
-        textSize = 501f;
+        textSize = 40f;
         if (bitmap == null) {
             liveEvent.setValue(Pair.create("Не удалось обнаружить объект(-ы)", 0f));
             return liveEvent;
@@ -119,8 +116,6 @@ public class SeeRepository {
                                                                     " - " + Math.round(label.getConfidence() * 100) + "%" + "\n");
                                                             break;
                                                     }
-                                                    Log.d("TAGAA",result.get());
-                                                    neededTextSize(translatedText);
                                                     if (labels.indexOf(label) == labels.size()-1)
                                                         liveEvent.setValue(Pair.create(result.get(), textSize));
                                                 })
@@ -130,62 +125,5 @@ public class SeeRepository {
                 })
                 .addOnFailureListener(e -> liveEvent.setValue(Pair.create("Произошла ошибка", 0f)));
         return liveEvent;
-    }
-
-    private void neededTextSize(String text) {
-        // выбор оптимального размера шрифта
-        float min;
-        switch (text.length()) {
-            case 1:
-                min = 300;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 2:
-                min = 180;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 3:
-                min = 120;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 4:
-                min = 90;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 5:
-                min = 70;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 6:
-                min = 60;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 7:
-                min = 50;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 8:
-                min = 48;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            case 9:
-                min = 40;
-                if (textSize < min * 2.75)
-                    min = 500;
-                break;
-            default:
-                min = 30;
-                break;
-        }
-        if (min != 500)
-            textSize = min;
     }
 }

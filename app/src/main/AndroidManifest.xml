@@ -67,7 +67,8 @@
             android:windowSoftInputMode="adjustPan" />
         <activity android:name="com.example.parus.FirstRunActivity" />
         <activity android:name="com.example.parus.LoginActivity" />
-        <activity android:name="com.example.parus.ResetPasswordActivity" />
+        <activity android:name="com.example.parus.ResetPasswordActivity"
+            android:theme="@style/AppTheme"/>
         <activity android:name="com.example.parus.StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

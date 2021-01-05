@@ -3,12 +3,8 @@ package com.example.parus.viewmodels.repositories;
 import androidx.core.util.Pair;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Transformations;
 
 import com.example.parus.services.MyFirebaseMessagingService;
-import com.example.parus.viewmodels.data.OftenWordsData;
-import com.example.parus.viewmodels.data.SayCollectionData;
-import com.example.parus.viewmodels.data.SaySettingsData;
 import com.example.parus.viewmodels.data.SingleLiveEvent;
 import com.example.parus.viewmodels.data.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,20 +12,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class LoginRepository {
 
-    private FirebaseFirestore db;
-    private FirebaseAuth auth;
-    private FirebaseMessagingService firebaseMessagingService;
+    private final FirebaseFirestore db;
+    private final FirebaseAuth auth;
+    private final FirebaseMessagingService firebaseMessagingService;
 
     public LoginRepository() {
         db = FirebaseFirestore.getInstance();
@@ -39,10 +30,6 @@ public class LoginRepository {
 
     public LiveData<Boolean> register(String email, String password) {
         SingleLiveEvent<Boolean> liveEvent = new SingleLiveEvent<>();
-        if (auth.getCurrentUser() == null) {
-            liveEvent.setValue(false);
-            return liveEvent;
-        }
         //create user
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(success -> {
@@ -96,12 +83,12 @@ public class LoginRepository {
     }
 
     public boolean isLogin() {
-        if (auth != null)
+        if (auth.getCurrentUser() != null)
             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
                 String deviceToken = instanceIdResult.getToken();
                 firebaseMessagingService.onNewToken(deviceToken);
             });
-        return auth != null;
+        return auth.getCurrentUser() != null;
     }
 
     public LiveData<Boolean> resetPassword(String email) {

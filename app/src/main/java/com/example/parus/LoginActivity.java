@@ -3,13 +3,10 @@ package com.example.parus;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,26 +16,12 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.parus.databinding.ActivityLoginBinding;
-import com.example.parus.services.HeartRateService;
-import com.example.parus.services.GeoLocationService;
 import com.example.parus.viewmodels.HealthViewModel;
 import com.example.parus.viewmodels.LoginViewModel;
 import com.example.parus.viewmodels.ServiceViewModel;
-import com.example.parus.viewmodels.UserViewModel;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.fitness.FitnessOptions;
-import com.google.android.gms.fitness.data.DataType;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
-import com.samsung.android.sdk.healthdata.HealthConstants;
 import com.samsung.android.sdk.healthdata.HealthDataStore;
-import com.samsung.android.sdk.healthdata.HealthPermissionManager;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -61,23 +44,59 @@ public class LoginActivity extends AppCompatActivity {
             binding.loginProgressBar.setVisibility(View.VISIBLE);
             startMainActivity();
         }
+        if (binding.loginEmail.getEditText() != null)
+            binding.loginEmail.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    binding.loginEmail.setError(null);
+                }
+            });
+        if (binding.loginPassword.getEditText() != null)
+            binding.loginPassword.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    binding.loginPassword.setError(null);
+                }
+            });
         binding.loginRegisterBtn.setOnClickListener(v -> {
             if (binding.loginProgressBar.getVisibility() == View.GONE) {
-                final String email = binding.loginEmail.getText().toString().trim();
-                final String password = binding.loginPassword.getText().toString().trim();
+                if (binding.loginEmail.getEditText() == null || binding.loginPassword.getEditText() == null)
+                    return;
+                final String email = binding.loginEmail.getEditText().getText().toString().trim();
+                final String password = binding.loginPassword.getEditText().getText().toString().trim();
                 if (email.isEmpty()) {
                     failRegistration();
-                    Toast.makeText(this, R.string.enter_email, Toast.LENGTH_SHORT).show();
+                    binding.loginEmail.setError(getString(R.string.enter_email));
                     return;
                 }
                 if (password.isEmpty()) {
                     failRegistration();
-                    Toast.makeText(this, R.string.enter_password, Toast.LENGTH_SHORT).show();
+                    binding.loginPassword.setError(getString(R.string.enter_password));
                     return;
                 }
                 if (password.length() < 6) {
                     failRegistration();
-                    Toast.makeText(this, R.string.short_password_error, Toast.LENGTH_SHORT).show();
+                    binding.loginPassword.setError(getString(R.string.short_password_error));
                     return;
                 }
                 binding.loginProgressBar.setVisibility(View.VISIBLE);
@@ -100,16 +119,18 @@ public class LoginActivity extends AppCompatActivity {
 
         binding.loginBtn.setOnClickListener(v -> {
             if (binding.loginProgressBar.getVisibility() == View.GONE) {
-                final String email = binding.loginEmail.getText().toString();
-                final String password = binding.loginPassword.getText().toString();
+                if (binding.loginEmail.getEditText() == null || binding.loginPassword.getEditText() == null)
+                    return;
+                final String email = binding.loginEmail.getEditText().getText().toString().trim();
+                final String password = binding.loginPassword.getEditText().getText().toString();
                 if (email.isEmpty()) {
                     failLogin();
-                    Toast.makeText(this, R.string.enter_email, Toast.LENGTH_SHORT).show();
+                    binding.loginEmail.setError(getString(R.string.enter_email));
                     return;
                 }
                 if (password.isEmpty()) {
                     failLogin();
-                    Toast.makeText(this, R.string.enter_password, Toast.LENGTH_SHORT).show();
+                    binding.loginPassword.setError(getString(R.string.enter_password));
                     return;
                 }
                 if (password.length() < 6) {
@@ -133,8 +154,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initViewModels() {
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
-        healthViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
-                .get(HealthViewModel.class);
+        healthViewModel = new ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())).get(HealthViewModel.class);
         serviceViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
                 .get(ServiceViewModel.class);
     }

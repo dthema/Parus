@@ -50,7 +50,6 @@ public class DialogDeleteAccount extends AppCompatDialogFragment {
             Button positiveButton = ((AlertDialog) dialog1).getButton(DialogInterface.BUTTON_POSITIVE);
             positiveButton.setOnClickListener(v -> {
                 if (!use) {
-                    Log.d("TAGAA", "S:");
                     progressBar.setVisibility(View.VISIBLE);
                     use = true;
                     userViewModel.delete(email.getText().toString(), password.getText().toString())

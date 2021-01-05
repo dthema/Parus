@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -11,65 +12,86 @@
 
         <TextView
             android:id="@+id/seeTextTop"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/type_of_detecting"
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="25sp"
-            tools:ignore="NestedWeights" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Spinner
             android:id="@+id/seeTypeSpinner"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/seeTextTop"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="10dp"
-            android:contentDescription="@string/type_of_detecting" />
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/type_of_detecting"
+            app:layout_constraintEnd_toEndOf="@+id/seeTextTop"
+            app:layout_constraintStart_toStartOf="@+id/seeTextTop"
+            app:layout_constraintTop_toBottomOf="@+id/seeTextTop" />
 
         <TextView
             android:id="@+id/seeWarning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/seeTypeSpinner"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:text="@string/detecting_warning"
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="15sp"
-            tools:ignore="NestedWeights" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/seeTypeSpinner"/>
 
         <Button
             android:id="@+id/openSeeCamera"
             style="@style/RoundedCommunicationButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/seeWarning"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="50dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintWidth_percent="0.6"
             android:text="@string/detect"
-            android:textAllCaps="false"
-            android:textSize="30sp"
-            />
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/seeWarning" />
+
+        <Button
+            android:id="@+id/seeSay"
+            style="@style/RoundedCommunicationButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/say"
+            android:visibility="gone"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.4" />
 
         <ScrollView
+            android:id="@+id/scrollView4"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/openSeeCamera"
+            android:layout_height="0dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginTop="20dp">
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/seeSay"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/openSeeCamera">
 
             <TextView
                 android:id="@+id/seeText"
@@ -79,5 +101,5 @@
                 android:textAlignment="center"
                 android:textColor="#000" />
         </ScrollView>
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
