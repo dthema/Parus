@@ -95,13 +95,14 @@ public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewH
             this.checkBox.setClickable(false);
             this.name.setText(reminder.getName());
             if (reminder.getType() == 1) {
+                StringBuilder stringBuilder = new StringBuilder();
                 for (Date d : reminder.getTimers()) {
                     Calendar c = Calendar.getInstance();
                     c.setTime(d);
                     String t = convertDate(c.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(c.get(Calendar.MINUTE));
-                    this.time.setText(this.time.getText() + t + ", ");
+                    stringBuilder.append(t).append(", ");
                 }
-                this.time.setText(this.time.getText().toString().substring(0, this.time.getText().toString().length() - 2));
+                this.time.setText(stringBuilder.toString().substring(0, stringBuilder.length()-2));
             } else if (reminder.getType() == 0) {
                 Calendar s = Calendar.getInstance();
                 s.setTime(reminder.getTimeStart());
@@ -122,14 +123,10 @@ public class ReminderAdapter extends ListAdapter<Reminder, ReminderAdapter.ViewH
             this.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
                     deletingReminders.add(reminder);
-                    for (Reminder rem : deletingReminders)
-                        Log.d("TAGAA", "added DEL - " + rem.getName());
                     this.checkBox.setVisibility(View.VISIBLE);
                     this.background.setBackground(ContextCompat.getDrawable(context, R.drawable.reminder_background));
                 } else {
                     deletingReminders.remove(reminder);
-                    for (Reminder rem : deletingReminders)
-                        Log.d("TAGAA", "removed DEL - " + rem.getName());
                     this.checkBox.setVisibility(View.GONE);
                     this.background.setBackground(ContextCompat.getDrawable(context, R.drawable.btn_link_location));
                 }

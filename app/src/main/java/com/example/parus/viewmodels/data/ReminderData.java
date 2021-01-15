@@ -87,12 +87,9 @@ public class ReminderData extends LiveData<List<Reminder>> {
                                 if (rem.getId().equals(reminder.getId()))
                                     return;
                             }
-                            Log.d(TAG, "add snapshot");
-                            if (reminder.getTimers() != null || reminder.getTimeInterval() != null) {
+                            Log.d(TAG, "add reminder");
+                            if (reminder.getTimers() != null || reminder.getTimeInterval() != null)
                                 reminders.add(reminder);
-                                Log.d(TAG, reminder.getId());
-                                Collections.sort(reminders, (c1, c2) -> c1.getTimeCreate().compareTo(c2.getTimeCreate()));
-                            }
                             break;
                         case MODIFIED:
                             reminder.setId(dc.getDocument().getId());
@@ -106,7 +103,6 @@ public class ReminderData extends LiveData<List<Reminder>> {
                         case REMOVED:
                             if (reminders.size() > 0) {
                                 for (Reminder rem : reminders) {
-                                    Log.d(TAG, rem.getName());
                                     if (rem.getId().equals(dc.getDocument().getId())) {
                                         reminders.remove(rem);
                                         break;
@@ -115,6 +111,7 @@ public class ReminderData extends LiveData<List<Reminder>> {
                             }
                             break;
                     }
+                    Collections.sort(reminders, (c1, c2) -> c1.getTimeCreate().compareTo(c2.getTimeCreate()));
                     setValue(reminders);
                 }
         };

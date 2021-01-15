@@ -131,7 +131,8 @@ public class RemindersActivity extends AppCompatActivity implements OnItemClickI
         ReminderViewModel reminderViewModel = new ViewModelProvider(this).get(ReminderViewModel.class);
         reminderAdapter = new ReminderAdapter(new ReminderDiffCallback(), this, reminderViewModel);
         binding.reminderView.setAdapter(reminderAdapter);
-        reminderViewModel.getReminderData(false).observe(this, reminders -> reminderAdapter.submitList(new ArrayList<>(reminders)));
+        reminderViewModel.getReminderData(false)
+                .observe(this, reminders -> reminderAdapter.submitList(new ArrayList<>(reminders)));
         binding.addReminder.setOnClickListener(c -> {
             new DialogAddReminder();
             DialogAddReminder dialogAddReminder = new DialogAddReminder();

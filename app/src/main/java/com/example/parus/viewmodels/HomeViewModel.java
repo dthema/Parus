@@ -1,6 +1,7 @@
 package com.example.parus.viewmodels;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import androidx.lifecycle.ViewModel;
 
@@ -29,7 +30,7 @@ public class HomeViewModel extends ViewModel {
         sortReminders(reminder);
     }
 
-    // вывод ближайшего следущего напоминаний
+    // вывод следущего напоминания
     @SuppressLint("SetTextI18n")
     private void sortReminders(List<Reminder> reminders) {
         if (reminders != null) {
@@ -143,7 +144,7 @@ public class HomeViewModel extends ViewModel {
                         homeData.setLinkUserOnline(name + " онлайн");
                     else
                         homeData.setLinkUserOnline(name + " был(-a) в сети " +
-                                convertDate(d.get(Calendar.DAY_OF_MONTH)) + "." + convertDate(d.get(Calendar.MONTH)) +
+                                convertDate(d.get(Calendar.DAY_OF_MONTH)) + "." + convertDate(d.get(Calendar.MONTH)+1) +
                                 " в " + convertDate(d.get(Calendar.HOUR_OF_DAY)) + ":" + convertDate(d.get(Calendar.MINUTE)));
                 } else
                     homeData.setLinkUserOnline("Неизвестно о последней активности " + name);

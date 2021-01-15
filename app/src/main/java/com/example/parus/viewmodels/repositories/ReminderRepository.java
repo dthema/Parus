@@ -22,6 +22,7 @@ public class ReminderRepository {
 
     private static ReminderRepository repository;
     private final String userId;
+    private int count = 0;
 
     private ReminderRepository() {
         this.userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -51,8 +52,7 @@ public class ReminderRepository {
     }
 
     public void destroy() {
-        if (reminderData == null && checkReminders == null)
-            repository = null;
+        repository = null;
     }
 
     public LiveData<Integer> deleteReminders(List<Reminder> deletingReminders) {
@@ -161,16 +161,17 @@ public class ReminderRepository {
                                 if (reminder == null)
                                     continue;
                                 Calendar end = Calendar.getInstance();
-                                if (reminder.getType() == 0) {
+                                if (reminder.getType() == 0) { // напоминание с интервалом
                                     end.setTime(reminder.getTimeEnd());
                                     end.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
                                             currentTime.get(Calendar.DATE), end.get(Calendar.HOUR_OF_DAY), end.get(Calendar.MINUTE), 0);
                                     Calendar start = Calendar.getInstance();
                                     start.setTime(reminder.getTimeStart());
                                     start.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
-                                            currentTime.get(Calendar.DATE) + 1, start.get(Calendar.HOUR_OF_DAY), start.get(Calendar.MINUTE), 0);
+                                            currentTime.get(Calendar.DATE), start.get(Calendar.HOUR_OF_DAY), start.get(Calendar.MINUTE), 0);
                                     if (currentTime.getTimeInMillis() > end.getTimeInMillis()) {
-                                        if (nextReminderTime.getTimeInMillis() - 15 > start.getTimeInMillis() &&
+                                        start.set(Calendar.DATE, start.get(Calendar.DATE)+1);
+                                        if (nextReminderTime.getTimeInMillis() > start.getTimeInMillis() &&
                                                 currentTime.getTimeInMillis() < start.getTimeInMillis()) {
                                             nextReminder = reminder;
                                             nextReminderTime = start;
@@ -184,7 +185,7 @@ public class ReminderRepository {
                                         interval.setTime(reminder.getTimeInterval());
                                         int hour = interval.get(Calendar.HOUR_OF_DAY);
                                         int minute = interval.get(Calendar.MINUTE);
-                                        while (previousReminder.getTimeInMillis() - 15 <= currentTime.getTimeInMillis()) {
+                                        while (previousReminder.getTimeInMillis() <= currentTime.getTimeInMillis()) {
                                             previousReminder.set(Calendar.HOUR_OF_DAY, previousReminder.get(Calendar.HOUR_OF_DAY) + hour);
                                             previousReminder.set(Calendar.MINUTE, previousReminder.get(Calendar.MINUTE) + minute);
                                         }
@@ -194,22 +195,23 @@ public class ReminderRepository {
                                             nextReminderTime.set(Calendar.SECOND, 0);
                                         }
                                     }
-                                } else {
+                                } else { // напоминание с выбранным временем
                                     for (int i = 0; i < reminder.getTimers().size(); i++) {
                                         Date date = reminder.getTimers().get(i);
                                         Calendar dateTime = Calendar.getInstance();
                                         dateTime.setTime(date);
                                         dateTime.setTimeZone(currentTime.getTimeZone());
                                         dateTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
-                                                currentTime.get(Calendar.DATE), dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE));
+                                                currentTime.get(Calendar.DATE), dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE), 0);
                                         if (nextReminderTime.getTimeInMillis() > dateTime.getTimeInMillis() &&
-                                                currentTime.getTimeInMillis() < dateTime.getTimeInMillis()-15) {
+                                                currentTime.getTimeInMillis() <= dateTime.getTimeInMillis()) {
                                             nextReminder = reminder;
                                             nextReminderTime = dateTime;
                                         }
-                                        if (i == reminder.getTimers().size()-1) {
+                                        if (i == reminder.getTimers().size()-1 &&
+                                                currentTime.getTimeInMillis() > dateTime.getTimeInMillis()) {
                                             dateTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
-                                                    currentTime.get(Calendar.DATE) + 1, dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE));
+                                                    currentTime.get(Calendar.DATE) + 1, dateTime.get(Calendar.HOUR_OF_DAY), dateTime.get(Calendar.MINUTE), 0);
                                             if (nextReminderTime.getTimeInMillis() > dateTime.getTimeInMillis()) {
                                                 nextReminder = reminder;
                                                 nextReminderTime = dateTime;
@@ -223,7 +225,11 @@ public class ReminderRepository {
                                     " в " + convertDate(nextReminderTime.get(Calendar.HOUR_OF_DAY)) + ":" +
                                     convertDate(nextReminderTime.get(Calendar.MINUTE)));
                         }
-                        Thread.sleep(20000);
+                        if (count < 5) {
+                            Thread.sleep(500);
+                            count++;
+                        } else
+                            Thread.sleep(20000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();

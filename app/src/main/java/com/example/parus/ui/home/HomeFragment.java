@@ -135,9 +135,8 @@ public class HomeFragment extends Fragment {
             HashMap<String, Object> SaySettings = user.getSaySettings();
             if (linkUserId == null || userId == null)
                 return;
-            if ((!isSupport || !userId.equals(linkUserId)) && reminderViewModel.getReminderData(false) == null) {
+            if ((!isSupport || !userId.equals(linkUserId)) && reminderViewModel.getReminderData(false) == null)
                 observeReminders(userId, linkUserId, isSupport);
-            }
             if (SaySettings.get("TTS_Speed") != null)
                 TTS.setSpeed((Double) SaySettings.get("TTS_Speed"));
             if (SaySettings.get("TTS_Pitch") != null)
