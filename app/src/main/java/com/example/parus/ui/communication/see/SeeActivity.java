@@ -16,7 +16,10 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,7 +56,7 @@ public class SeeActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setTitle("Смотреть");
+            getSupportActionBar().setTitle(getString(R.string.see));
         }
         binding.openSeeCamera.setOnClickListener(v -> startCameraActivity());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item2, types);
@@ -73,9 +76,7 @@ public class SeeActivity extends AppCompatActivity {
 
             }
         });
-        binding.seeSay.setOnClickListener(click -> {
-            TTS.speak(binding.seeText.getText().toString());
-        });
+        binding.seeSay.setOnClickListener(click -> TTS.speak(binding.seeText.getText().toString()));
         // запуск с главной страницы
         if (getIntent().getIntExtra("fastAction", 0) == 1) {
             binding.seeTypeSpinner.setSelection(0);
@@ -85,7 +86,7 @@ public class SeeActivity extends AppCompatActivity {
             binding.seeTypeSpinner.setSelection(1);
             binding.openSeeCamera.callOnClick();
         }
-
+        binding.seeText.setMovementMethod(new ScrollingMovementMethod());
     }
 
     private void startCameraActivity() {
@@ -156,7 +157,7 @@ public class SeeActivity extends AppCompatActivity {
             } else {
                 binding.seeSay.setVisibility(View.VISIBLE);
                 binding.seeText.setText(text);
-                binding.seeText.setTextSize(textSize);
+                binding.seeText.setTextSize(pair.second);
             }
         });
     }
@@ -174,7 +175,7 @@ public class SeeActivity extends AppCompatActivity {
             } else {
                 binding.seeSay.setVisibility(View.VISIBLE);
                 binding.seeText.setText(text);
-                binding.seeText.setTextSize(textSize);
+                binding.seeText.setTextSize(pair.second);
             }
         });
     }
@@ -184,6 +185,7 @@ public class SeeActivity extends AppCompatActivity {
         TTS.stopSpeech();
         super.onPause();
     }
+
 }
 
 

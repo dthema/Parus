@@ -69,7 +69,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/say"
-            android:visibility="gone"
             android:textAllCaps="true"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -77,29 +76,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintWidth_percent="0.4" />
 
-        <ScrollView
-            android:id="@+id/scrollView4"
+        <TextView
+            android:id="@+id/seeText"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
+            android:textAlignment="center"
+            android:textColor="#000"
+            android:textSize="30sp"
+            android:scrollbars="vertical"
             app:layout_constraintBottom_toTopOf="@+id/seeSay"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/openSeeCamera">
-
-            <TextView
-                android:id="@+id/seeText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="50dp"
-                android:textAlignment="center"
-                android:textColor="#000" />
-        </ScrollView>
+            app:layout_constraintTop_toBottomOf="@+id/openSeeCamera"
+            app:layout_constraintVertical_bias="0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

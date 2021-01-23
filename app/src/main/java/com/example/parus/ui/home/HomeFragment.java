@@ -226,9 +226,7 @@ public class HomeFragment extends Fragment {
         if (liveData != null) {
             userViewModel.getSingleLinkUserData().observe(getViewLifecycleOwner(), user -> {
                 if (!user.isSupport() || !user.getLinkUserId().equals(user.getUserId())) {
-                    liveData.observe(getViewLifecycleOwner(), s -> {
-                        homeData.setCurrentReminder(s);
-                    });
+                    liveData.observe(getViewLifecycleOwner(), s -> homeData.setCurrentReminder(s));
                 }
             });
         }

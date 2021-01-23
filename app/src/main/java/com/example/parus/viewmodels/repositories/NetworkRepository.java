@@ -34,7 +34,7 @@ public class NetworkRepository {
             while (isThreadActive) {
                 ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo netInfo = cm.getActiveNetworkInfo();
-                if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+                if (netInfo != null && netInfo.isConnected()) {
                     if (internetConnect.get() != null) {
                         if (!internetConnect.get()) {
                             internetConnect.set(true);

@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class ReminderRepository {
 
@@ -25,7 +26,7 @@ public class ReminderRepository {
     private int count = 0;
 
     private ReminderRepository() {
-        this.userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        this.userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     }
 
     public synchronized static ReminderRepository getInstance() {

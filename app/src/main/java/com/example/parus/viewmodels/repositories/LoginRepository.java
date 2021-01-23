@@ -37,7 +37,7 @@ public class LoginRepository {
                     FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
                         String deviceToken = instanceIdResult.getToken();
                         firebaseMessagingService.onNewToken(deviceToken);
-                        userData.put("userId", auth.getCurrentUser().getUid());
+                        userData.put("userId", Objects.requireNonNull(auth.getCurrentUser()).getUid());
                         userData.put("linkUserId", auth.getCurrentUser().getUid());
                         userData.put("support", false);
                         userData.put("checkHeartBPM", false);

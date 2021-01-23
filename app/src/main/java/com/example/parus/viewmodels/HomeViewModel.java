@@ -1,7 +1,6 @@
 package com.example.parus.viewmodels;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 
 import androidx.lifecycle.ViewModel;
 

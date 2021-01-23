@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -74,6 +75,7 @@ public class MapActivity extends AppCompatActivity implements
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         binding.myLocation.setOnClickListener(l -> {
             if (PermissionsManager.areLocationPermissionsGranted(this) && userLocation != null) {
+                Log.d("TAGAA", "YEP");
                 LatLng latLng = new LatLng(userLocation);
                 mapboxMap.setCameraPosition(new CameraPosition.Builder()
                         .target(latLng)
@@ -344,8 +346,8 @@ public class MapActivity extends AppCompatActivity implements
                 if (location == null) {
                     return;
                 }
-                if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                if (activity.mapboxMap != null) {
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(location);
                     activity.userLocation = location;
                 }
             }

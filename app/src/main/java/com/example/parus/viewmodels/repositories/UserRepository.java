@@ -1,7 +1,5 @@
 package com.example.parus.viewmodels.repositories;
 
-import android.util.Log;
-
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 

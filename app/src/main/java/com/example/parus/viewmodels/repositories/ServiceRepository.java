@@ -12,8 +12,6 @@ import com.example.parus.services.WorkService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Objects;
-
 public class ServiceRepository {
 
     private static ServiceRepository repository;

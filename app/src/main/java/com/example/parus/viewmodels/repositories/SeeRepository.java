@@ -1,7 +1,6 @@
 package com.example.parus.viewmodels.repositories;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import androidx.core.util.Pair;
 
