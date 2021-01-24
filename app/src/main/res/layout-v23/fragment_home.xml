@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="fragment"
+            type="com.example.parus.ui.home.HomeFragment" />
+
+        <variable
+            name="data"
+            type="com.example.parus.viewmodels.data.binding.HomeData" />
+
+        <variable
+            name="viewmodel"
+            type="com.example.parus.viewmodels.HomeViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp">
+
+        <TextView
+            android:id="@+id/homeLastOnline"
+            style="@style/RoundedCommunicationButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="20dp"
+            android:text="@={data.linkUserOnline}"
+            android:textAllCaps="false"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_weight="0.55"
+            app:layout_constraintStart_toEndOf="@+id/homeMap"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+        <Button
+            android:id="@+id/homeMap"
+            style="@style/RoundedCommunicationButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="8dp"
+            android:padding="20dp"
+            android:text="@string/map"
+            android:textAllCaps="false"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/homeLastOnline"
+            app:layout_constraintEnd_toStartOf="@+id/homeLastOnline"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_weight="0.45"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/homeLastOnline" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/reminderButton"
+                style="@style/RoundedCommunicationButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="0.55"
+                android:padding="20dp"
+                android:text="@={data.currentReminder}"
+                android:textAllCaps="false"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/homePulse"
+                style="@style/RoundedCommunicationButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.45"
+                android:gravity="center"
+                android:onClick="@{() -> fragment.onHealthClick()}"
+                android:padding="20dp"
+                android:text="@{data.heartRate}"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:breakStrategy="balanced"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+        <Button
+            android:id="@+id/homeFast"
+            style="@style/RoundedCommunicationButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:onClick="@{() -> fragment.onFastActionClick()}"
+            android:padding="20dp"
+            android:text="@={data.fastAction}"
+            android:textAllCaps="false"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/homeLastOnline" />
+
+        <ImageButton
+            android:id="@+id/homeCallSupport"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/btn_call"
+            android:contentDescription="@string/call_support"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/homeFast"
+            app:srcCompat="@drawable/ic_record_voice_over_black_24dp" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

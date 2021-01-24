@@ -28,21 +28,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
-import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
-import com.samsung.android.sdk.healthdata.HealthConstants;
-import com.samsung.android.sdk.healthdata.HealthDataStore;
-import com.samsung.android.sdk.healthdata.HealthPermissionManager;
 
 import java.util.Collections;
-import java.util.Map;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "ActivitySettings";
     private static final int NO_PERMISSION = 0;
     private static final int NO_GOOGLE_ACCOUNT = 1;
-    private static final int SAMSUNG_NO_CONNECT = 3;
-    private HealthDataStore mStore;
     private UserViewModel userViewModel;
     private HealthViewModel healthViewModel;
     private ServiceViewModel serviceViewModel;
@@ -57,8 +50,6 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle("Настройки аккаунта");
         }
-        if (Build.VERSION.SDK_INT >= 23)
-            mStore = new HealthDataStore(this, mConnectionListener);
         initViewModels();
         initObserver();
         initDialogs();
@@ -84,17 +75,13 @@ public class SettingsActivity extends AppCompatActivity {
                                     account,
                                     fitnessOptions);
                             break;
-                        case SAMSUNG_NO_CONNECT:
-                            binding.checkHeart.setChecked(false);
-                            mStore.connectService();
-                            break;
                         default:
                             serviceViewModel.startHeartRateService();
                             break;
                     }
                 });
             } else
-                serviceViewModel.stopWorkService();
+                serviceViewModel.stopHeartRateService();
         });
         binding.checkGeo.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // включение / отключение отслеживания геоданных
@@ -152,84 +139,6 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    private final HealthDataStore.ConnectionListener mConnectionListener = new HealthDataStore.ConnectionListener() {
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void onConnected() {
-            Log.d(TAG, "Health data service is connected.");
-            if (!healthViewModel.isPermissionAcquired(mStore))
-                requestPermission();
-        }
-
-        @Override
-        public void onConnectionFailed(HealthConnectionErrorResult error) {
-            Log.d(TAG, "Health data service is not available.");
-            AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this);
-            String message = getString(R.string.cannot_connect_to_shealth);
-            if (error.hasResolution()) {
-                switch (error.getErrorCode()) {
-                    case HealthConnectionErrorResult.PLATFORM_NOT_INSTALLED:
-                        message = getString(R.string.download_shealth);
-                        break;
-                    case HealthConnectionErrorResult.OLD_VERSION_PLATFORM:
-                        message = getString(R.string.update_shealth);
-                        break;
-                    case HealthConnectionErrorResult.PLATFORM_DISABLED:
-                        message = getString(R.string.enable_shealth);
-                        break;
-                    case HealthConnectionErrorResult.USER_AGREEMENT_NEEDED:
-                        message = getString(R.string.agree_with_shealth_policy);
-                        break;
-                }
-            }
-            alert.setMessage(message);
-            alert.setPositiveButton("OK", (dialog, id) -> {
-                if (error.hasResolution()) {
-                    error.resolve(SettingsActivity.this);
-                }
-            });
-            if (error.hasResolution()) {
-                alert.setNegativeButton("Cancel", null);
-            }
-            alert.show();
-            mStore.disconnectService();
-        }
-
-        @Override
-        public void onDisconnected() {
-            Log.d(TAG, "Health data service is disconnected.");
-        }
-    };
-
-    private void showPermissionAlarmDialog() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle(R.string.cannot_connect_to_shealth)
-                .setMessage(R.string.shealth_dialog_message)
-                .setPositiveButton("Ok", null)
-                .show();
-    }
-
-    private void requestPermission() {
-        HealthPermissionManager.PermissionKey permKey = new HealthPermissionManager.PermissionKey(HealthConstants.HeartRate.HEALTH_DATA_TYPE, HealthPermissionManager.PermissionType.READ);
-        HealthPermissionManager pmsManager = new HealthPermissionManager(mStore);
-        try {
-            pmsManager.requestPermissions(Collections.singleton(permKey), this)
-                    .setResultListener(result -> {
-                        Log.d(TAG, "Permission callback is received.");
-                        Map<HealthPermissionManager.PermissionKey, Boolean> resultMap = result.getResultMap();
-                        if (resultMap.containsValue(Boolean.FALSE)) {
-                            showPermissionAlarmDialog();
-                        } else
-                            serviceViewModel.startHeartRateService();
-                        mStore.disconnectService();
-                    });
-        } catch (Exception e) {
-            Log.e(TAG, "Permission setting fails.", e);
-            mStore.disconnectService();
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -237,7 +146,6 @@ public class SettingsActivity extends AppCompatActivity {
             switch (result) {
                 case NO_PERMISSION:
                 case NO_GOOGLE_ACCOUNT:
-                case SAMSUNG_NO_CONNECT:
                     break;
                 default:
                     serviceViewModel.startHeartRateService();

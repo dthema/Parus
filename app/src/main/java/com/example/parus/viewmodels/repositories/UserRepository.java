@@ -67,8 +67,7 @@ public class UserRepository {
     }
 
     public void destroy() {
-        if (shortLiveData == null && userLiveData == null && otherUserLiveData == null)
-            repository = null;
+        repository = null;
     }
 
     public LiveData<Boolean> callSupport() {
@@ -135,10 +134,10 @@ public class UserRepository {
     }
 
     public void removeLinkUser() {
-        if (otherUserLiveData != null)
-            if (otherUserLiveData.getValue() != null) {
-                FirebaseFirestore.getInstance().collection("users").document(otherUserLiveData.getValue().getUserId())
-                        .update("linkUserId", otherUserLiveData.getValue().getUserId());
+        if (userLiveData.getValue() != null)
+            if (!userLiveData.getValue().getUserId().equals(userLiveData.getValue().getLinkUserId())) {
+                FirebaseFirestore.getInstance().collection("users").document(userLiveData.getValue().getLinkUserId())
+                        .update("linkUserId", userLiveData.getValue().getLinkUserId());
                 FirebaseFirestore.getInstance().collection("users").document(userId).update("linkUserId", userId);
             }
     }

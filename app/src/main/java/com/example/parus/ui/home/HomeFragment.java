@@ -38,15 +38,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
-import com.samsung.android.sdk.healthdata.HealthConstants;
-import com.samsung.android.sdk.healthdata.HealthDataStore;
-import com.samsung.android.sdk.healthdata.HealthPermissionManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
@@ -60,7 +55,6 @@ public class HomeFragment extends Fragment {
     private HealthViewModel healthViewModel;
     private HomeViewModel homeViewModel;
     private ServiceViewModel serviceViewModel;
-    private HealthDataStore mStore;
     private HomeData homeData;
     private FragmentHomeBinding binding;
     private TTSViewModel TTS;
@@ -71,8 +65,6 @@ public class HomeFragment extends Fragment {
         super.onHiddenChanged(hidden);
         if (hidden) {
             TTS.stopSpeech();
-            if (mStore != null)
-                mStore.disconnectService();
             stopCheckInternetConnection();
             stopCheckReminders();
         } else {
@@ -172,8 +164,9 @@ public class HomeFragment extends Fragment {
                             if (user.isCheckHeartBPM()) {
                                 homeData.setHeartRate(getString(R.string.no_pulse_data));
                                 Long BPM = user.getPulse();
-                                if (BPM != 0)
-                                    homeData.setHeartRate("Пульс: " + BPM + " у/м");
+                                if (BPM != null)
+                                    if (BPM != 0)
+                                        homeData.setHeartRate("Пульс: " + BPM + " у/м");
                             } else
                                 homeData.setHeartRate(getString(R.string.no_pulse_checked));
                             break;
@@ -264,9 +257,6 @@ public class HomeFragment extends Fragment {
         binding.setViewmodel(homeViewModel);
         homeViewModel.setData(homeData);
         initObservers();
-        if (Build.VERSION.SDK_INT >= 23) {
-            mStore = new HealthDataStore(requireActivity(), mConnectionListener);
-        }
         return binding.getRoot();
     }
 
@@ -337,102 +327,8 @@ public class HomeFragment extends Fragment {
         TTS.stopSpeech();
         stopCheckInternetConnection();
         stopCheckReminders();
-        if (mStore != null)
-            mStore.disconnectService();
         super.onPause();
     }
-
-    private final HealthDataStore.ConnectionListener mConnectionListener = new HealthDataStore.ConnectionListener() {
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void onConnected() {
-            Log.d(TAG, "Health data service is connected.");
-            if (healthViewModel.isPermissionAcquired(mStore)) {
-                healthAreChecking();
-                homeData.setHeartRate(getString(R.string.no_pulse_data));
-                mStore.disconnectService();
-                binding.homePulse.setClickable(false);
-            } else {
-                homeData.setHeartRate(getString(R.string.samsung_not_connected));
-                requestPermission();
-            }
-        }
-
-        @Override
-        public void onConnectionFailed(HealthConnectionErrorResult error) {
-            Log.d(TAG, "Health data service is not available.");
-            AlertDialog.Builder alert = new AlertDialog.Builder(requireContext());
-            String message = getString(R.string.cannot_connect_to_shealth);
-            if (error.hasResolution()) {
-                switch (error.getErrorCode()) {
-                    case HealthConnectionErrorResult.PLATFORM_NOT_INSTALLED:
-                        message = getString(R.string.download_shealth);
-                        break;
-                    case HealthConnectionErrorResult.OLD_VERSION_PLATFORM:
-                        message = getString(R.string.update_shealth);
-                        break;
-                    case HealthConnectionErrorResult.PLATFORM_DISABLED:
-                        message = getString(R.string.enable_shealth);
-                        break;
-                    case HealthConnectionErrorResult.USER_AGREEMENT_NEEDED:
-                        message = getString(R.string.agree_with_shealth_policy);
-                        break;
-                }
-            }
-            alert.setMessage(message);
-            alert.setPositiveButton("OK", (dialog, id) -> {
-                if (error.hasResolution()) {
-                    error.resolve(requireActivity());
-                }
-            });
-            if (error.hasResolution()) {
-                alert.setNegativeButton("Cancel", null);
-            }
-            alert.show();
-            mStore.disconnectService();
-        }
-
-        @Override
-        public void onDisconnected() {
-            Log.d(TAG, "Health data service is disconnected.");
-        }
-    };
-
-    private void showPermissionAlarmDialog() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(requireActivity());
-        alert.setTitle(R.string.cannot_connect_to_shealth)
-                .setMessage(R.string.shealth_dialog_message)
-                .setPositiveButton("Ok", null)
-                .show();
-    }
-
-    private void requestPermission() {
-        HealthPermissionManager.PermissionKey permKey = new HealthPermissionManager.PermissionKey(HealthConstants.HeartRate.HEALTH_DATA_TYPE, HealthPermissionManager.PermissionType.READ);
-        HealthPermissionManager pmsManager = new HealthPermissionManager(mStore);
-        try {
-            pmsManager.requestPermissions(Collections.singleton(permKey), getActivity())
-                    .setResultListener(result -> {
-                        Log.d(TAG, "Permission callback is received.");
-                        Map<HealthPermissionManager.PermissionKey, Boolean> resultMap = result.getResultMap();
-                        if (resultMap.containsValue(Boolean.FALSE)) {
-                            failSamsungHealthPermissions();
-                            showPermissionAlarmDialog();
-                        } else {
-                            healthAreChecking();
-                            homeData.setHeartRate(getString(R.string.no_pulse_data));
-                            binding.homePulse.setClickable(false);
-                            serviceViewModel.startHeartRateService();
-                        }
-                        mStore.disconnectService();
-                    });
-        } catch (Exception e) {
-            failSamsungHealthPermissions();
-            Log.e(TAG, "Permission setting fails.", e);
-            mStore.disconnectService();
-        }
-    }
-
 
     public void onHealthClick() {
         healthViewModel.get().observe(getViewLifecycleOwner(), result -> {
@@ -453,10 +349,7 @@ public class HomeFragment extends Fragment {
                             account,
                             fitnessOptions);
                     break;
-                case 3:
-                    getSamsungHealthPermissions();
-                    mStore.connectService();
-                    break;
+
             }
         });
     }
@@ -499,11 +392,6 @@ public class HomeFragment extends Fragment {
                 case NO_GOOGLE_ACCOUNT:
                     failGoogleHealthPermissions();
                     homeData.setHeartRate(getString(R.string.google_account_not_connected));
-                    binding.homePulse.setClickable(true);
-                    break;
-                case SAMSUNG_NO_CONNECT:
-                    failSamsungHealthPermissions();
-                    homeData.setHeartRate(getString(R.string.samsung_not_connected));
                     binding.homePulse.setClickable(true);
                     break;
                 default:
@@ -557,22 +445,6 @@ public class HomeFragment extends Fragment {
     private void failGoogleHealthPermissions() {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "google-health-permission");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, "Not granted");
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-    }
-
-    private void getSamsungHealthPermissions() {
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "samsung-health-permission");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, "Granted");
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-    }
-
-    private void failSamsungHealthPermissions() {
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "samsung-health-permission");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Not granted");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);

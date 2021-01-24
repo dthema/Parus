@@ -70,28 +70,33 @@
             android:layout_marginBottom="16dp"
             android:text="@string/say"
             android:textAllCaps="true"
+            android:visibility="gone"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintWidth_percent="0.4" />
 
-        <TextView
-            android:id="@+id/seeText"
-            android:layout_width="match_parent"
+        <ScrollView
+            android:id="@+id/seeScroll"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
-            android:textAlignment="center"
-            android:textColor="#000"
-            android:textSize="30sp"
-            android:scrollbars="vertical"
             app:layout_constraintBottom_toTopOf="@+id/seeSay"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.52"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/openSeeCamera"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/openSeeCamera">
+
+            <TextView
+                android:id="@+id/seeText"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

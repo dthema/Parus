@@ -42,6 +42,7 @@ public class GeoLocationService extends Service {
     private double wayLatitude = 0.0, wayLongitude = 0.0;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
+    private String uid;
 
     @Nullable
     @Override
@@ -56,6 +57,8 @@ public class GeoLocationService extends Service {
         if (isServiceRunning) return;
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+            uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -93,7 +96,7 @@ public class GeoLocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             isServiceRunning = true;
-            final String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+            uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
             // считывание геоданных при их изменении и отправка в Firestore
             new Thread(()->{
                 fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
@@ -121,7 +124,7 @@ public class GeoLocationService extends Service {
                                 HashMap<String, Object> hashMap = new HashMap<>();
                                 hashMap.put("Latitude", wayLatitude);
                                 hashMap.put("Longitude", wayLongitude);
-                                db.collection("users").document(userId).collection("GeoPosition").document("Location").set(hashMap)
+                                db.collection("users").document(uid).collection("GeoPosition").document("Location").set(hashMap)
                                         .addOnSuccessListener(l-> Log.d(TAG, "upload"))
                                         .addOnFailureListener(l-> Log.d(TAG, l.getMessage()));
 

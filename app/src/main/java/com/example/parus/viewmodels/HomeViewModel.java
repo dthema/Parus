@@ -139,7 +139,7 @@ public class HomeViewModel extends ViewModel {
                     Calendar c = Calendar.getInstance();
                     Calendar d = Calendar.getInstance();
                     d.setTime(date);
-                    if (c.getTimeInMillis() - d.getTimeInMillis() < 120000)
+                    if (c.getTimeInMillis() - d.getTimeInMillis() < 60000)
                         homeData.setLinkUserOnline(name + " онлайн");
                     else
                         homeData.setLinkUserOnline(name + " был(-a) в сети " +

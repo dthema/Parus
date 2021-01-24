@@ -27,7 +27,6 @@ import com.example.parus.viewmodels.TTSViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("ALL")
 public class SayActivity extends AppCompatActivity {
 
     private boolean oftenWordsFlag = false;
@@ -83,23 +82,28 @@ public class SayActivity extends AppCompatActivity {
             if (list == null)
                 return;
             updateCollections(list);
-            boolean flag = true;
-            if (lastCollection != null) {
-                for (Button button : collectionsButtons)
-                    if (button.getText().toString().equals(lastCollection.getText().toString())) {
-                        button.setBackgroundColor(Color.rgb(105, 161, 255));
-                        button.setPaintFlags(1);
-                        updateCollectionWords(button.getText().toString());
-                        flag = false;
-                    }
-                if (flag)
-                    updateCollectionWords(null);
-            }
+            updateCurrentCollectionWords();
         });
         sayViewModel.getSettingsLiveData().observe(this, arr -> {
             TTS.setSpeed((Double) arr[0]);
             TTS.setPitch((Double) arr[1]);
+            updateCurrentCollectionWords();
         });
+    }
+
+    private void updateCurrentCollectionWords() {
+        boolean flag = true;
+        if (lastCollection != null) {
+            for (Button button : collectionsButtons)
+                if (button.getText().toString().equals(lastCollection.getText().toString())) {
+                    button.setBackgroundColor(Color.rgb(105, 161, 255));
+                    button.setPaintFlags(1);
+                    updateCollectionWords(button.getText().toString());
+                    flag = false;
+                }
+            if (flag)
+                updateCollectionWords(null);
+        }
     }
 
     private void initDialogs() {
@@ -220,9 +224,8 @@ public class SayActivity extends AppCompatActivity {
             buttons.add(b);
         }
         Object[] arr = buttons.toArray();
-        if (arr != null)
-            for (int j = list.size() - 1; j >= 0; j--)
-                binding.oftenWordLayout.addView((View) arr[j]);
+        for (int j = list.size() - 1; j >= 0; j--)
+            binding.oftenWordLayout.addView((View) arr[j]);
     }
 
     private void updateCollections(List<String> list) {
@@ -263,9 +266,8 @@ public class SayActivity extends AppCompatActivity {
             i++;
         }
         Object[] arr = buttons.toArray();
-        if (arr != null)
-            for (int j = 0; j < list.size(); j++)
-                binding.linearCollections.addView((View) arr[j]);
+        for (int j = 0; j < list.size(); j++)
+            binding.linearCollections.addView((View) arr[j]);
     }
 
     private void updateCollectionWords(String collectionName) {
@@ -320,9 +322,8 @@ public class SayActivity extends AppCompatActivity {
                 i++;
             }
             Object[] arr = buttons.toArray();
-            if (arr != null)
-                for (int j = 0; j < list.size(); j++)
-                    binding.gridWords.addView((View) arr[j]);
+            for (int j = 0; j < list.size(); j++)
+                binding.gridWords.addView((View) arr[j]);
         }
     }
 }

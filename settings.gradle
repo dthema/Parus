@@ -1,2 +1,2 @@
 rootProject.name='Parus'
-include ':app', ':samsung-health-data-v1.4.0'
+include ':app'

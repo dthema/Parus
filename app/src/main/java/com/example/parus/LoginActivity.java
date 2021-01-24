@@ -20,15 +20,11 @@ import com.example.parus.viewmodels.HealthViewModel;
 import com.example.parus.viewmodels.LoginViewModel;
 import com.example.parus.viewmodels.ServiceViewModel;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.samsung.android.sdk.healthdata.HealthConnectionErrorResult;
-import com.samsung.android.sdk.healthdata.HealthDataStore;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final int GOOGLE_CONNECT = 2;
-    private static final int SAMSUNG_CONNECT = 4;
     private ActivityLoginBinding binding;
-    private HealthDataStore mStore;
     private FirebaseAnalytics mFirebaseAnalytics;
     private LoginViewModel loginViewModel;
     private HealthViewModel healthViewModel;
@@ -188,25 +184,6 @@ public class LoginActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
     }
 
-    private final HealthDataStore.ConnectionListener mConnectionListener = new HealthDataStore.ConnectionListener() {
-
-        @Override
-        public void onConnected() {
-            if (healthViewModel.isPermissionAcquired(mStore)) {
-                serviceViewModel.startHeartRateService();
-            }
-            mStore.disconnectService();
-        }
-
-        @Override
-        public void onConnectionFailed(HealthConnectionErrorResult error) {
-        }
-
-        @Override
-        public void onDisconnected() {
-        }
-    };
-
     private void startMainActivity() {
         loginViewModel.checkActiveServices().observe(this, pair -> {
             Boolean checkHeartBPM = pair.first;
@@ -217,10 +194,6 @@ public class LoginActivity extends AppCompatActivity {
                     healthViewModel.get().observe(this, result -> {
                         if (result == GOOGLE_CONNECT)
                             serviceViewModel.startHeartRateService();
-                        else if (result == SAMSUNG_CONNECT) {
-                            mStore = new HealthDataStore(getApplicationContext(), mConnectionListener);
-                            mStore.connectService();
-                        }
                     });
                 }
             if (checkGeoPosition != null)
