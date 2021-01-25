@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.parus">
+    package="com.begletsov.parus">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -30,23 +30,23 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:appComponentFactory"
         tools:targetApi="p">
-        <activity android:name="com.example.parus.ui.home.map.MapActivity"
+        <activity android:name=".ui.home.map.MapActivity"
             android:launchMode="singleTask"/>
         <activity
-            android:name="com.example.parus.ui.account.SettingsActivity"
+            android:name=".ui.account.SettingsActivity"
             android:theme="@style/AppTheme"
             android:launchMode="singleTask"/>
         <activity
-            android:name="com.example.parus.ui.home.reminder.RemindersActivity"
+            android:name=".ui.home.reminder.RemindersActivity"
             android:theme="@style/AppTheme"
             android:launchMode="singleTask"/>
-        <activity android:name="com.example.parus.ui.communication.listen.ListenActivity"
+        <activity android:name=".ui.communication.listen.ListenActivity"
             android:theme="@style/AppTheme"
             android:launchMode="singleTask"/>
-        <activity android:name="com.example.parus.ui.communication.say.SayShowActivity"
+        <activity android:name=".ui.communication.say.SayShowActivity"
             android:launchMode="singleTask"/>
         <activity
-            android:name="com.example.parus.ui.communication.see.SeeActivity"
+            android:name=".ui.communication.see.SeeActivity"
             android:theme="@style/AppTheme"
             android:launchMode="singleTask"/>
 
@@ -58,18 +58,18 @@
             android:name="com.samsung.android.health.permission.read"
             android:value="com.samsung.health.heart_rate" />
         <activity
-            android:name="com.example.parus.ui.communication.say.SayActivity"
+            android:name=".ui.communication.say.SayActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTask"/>
         <activity
-            android:name="com.example.parus.MainActivity"
+            android:name=".MainActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name="com.example.parus.FirstRunActivity" />
-        <activity android:name="com.example.parus.LoginActivity" />
-        <activity android:name="com.example.parus.ResetPasswordActivity"
+        <activity android:name=".FirstRunActivity" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".ResetPasswordActivity"
             android:theme="@style/AppTheme"/>
-        <activity android:name="com.example.parus.StartActivity">
+        <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -77,11 +77,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.example.parus.services.OnlineService" />
-        <service android:name="com.example.parus.services.WorkService" />
-        <service android:name="com.example.parus.services.GeoLocationService" />
+        <service android:name=".services.OnlineService" />
+        <service android:name=".services.WorkService" />
+        <service android:name=".services.GeoLocationService" />
         <service
-            android:name="com.example.parus.services.HeartRateService"
+            android:name=".services.HeartRateService"
             android:process=":HeartBPMcheckService" />
 
         <meta-data
@@ -89,7 +89,7 @@
             android:resource="@drawable/ic_notifications_black_24dp" />
 
         <service
-            android:name="com.example.parus.services.MyFirebaseMessagingService"
+            android:name=".services.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

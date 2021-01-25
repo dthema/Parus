@@ -7,11 +7,11 @@
 
         <variable
             name="user"
-            type="com.example.parus.viewmodels.data.models.User" />
+            type="com.begletsov.parus.viewmodels.data.models.User" />
 
         <variable
             name="linkUser"
-            type="com.example.parus.viewmodels.data.models.User" />
+            type="com.begletsov.parus.viewmodels.data.models.User" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

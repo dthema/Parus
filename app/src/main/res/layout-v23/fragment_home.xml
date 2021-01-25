@@ -5,15 +5,15 @@
     <data>
         <variable
             name="fragment"
-            type="com.example.parus.ui.home.HomeFragment" />
+            type="com.begletsov.parus.ui.home.HomeFragment" />
 
         <variable
             name="data"
-            type="com.example.parus.viewmodels.data.binding.HomeData" />
+            type="com.begletsov.parus.viewmodels.data.binding.HomeData" />
 
         <variable
             name="viewmodel"
-            type="com.example.parus.viewmodels.HomeViewModel" />
+            type="com.begletsov.parus.viewmodels.HomeViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
