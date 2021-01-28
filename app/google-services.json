@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "60384121571",
+    "firebase_url": "https://project-paru.firebaseio.com",
+    "project_id": "project-paru",
+    "storage_bucket": "project-paru.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60384121571:android:004bc15a03ab9ca8bcebd6",
+        "android_client_info": {
+          "package_name": "com.begletsov.parus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "60384121571-dv183dm4scc7gj1f1f5vlrutv87b1f0i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAes2ooQOQHNqNz78IW74qy9g0Lfj49zzY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "60384121571-dv183dm4scc7gj1f1f5vlrutv87b1f0i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
