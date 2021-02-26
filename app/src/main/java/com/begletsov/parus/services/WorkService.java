@@ -3,7 +3,6 @@ package com.begletsov.parus.services;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,7 +57,6 @@ public class WorkService extends LifecycleService {
         super.onStartCommand(intent, flags, startId);
         if (intent != null) {
             isServiceRunning = true;
-            Log.d(TAG, "start");
             userViewModel.getShortUserData().observe(this, pair -> {
                 if (pair == null)
                     return;
@@ -91,17 +89,14 @@ public class WorkService extends LifecycleService {
 
     private final EventListener<QuerySnapshot> eventListener = (queryDocumentSnapshots, e) -> {
             if (e != null) {
-                Log.i(TAG, "Listen failed.", e);
                 return;
             }
-            Log.i(TAG, "+");
             if (queryDocumentSnapshots != null)
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     Reminder reminder = dc.getDocument().toObject(Reminder.class);
                     switch (dc.getType()) {
                         case ADDED:
                             reminder.setId(dc.getDocument().getId());
-                            Log.d(TAG, "add snapshot");
                             if (reminder.getType() == 0) {
                                 Calendar s = Calendar.getInstance();
                                 s.setTime(reminder.getTimeStart());
@@ -132,7 +127,6 @@ public class WorkService extends LifecycleService {
                                 c.setTime(currentTime);
                                 Date waitDate = currentTime;
                                 for (Date date : list) {
-                                    Log.d(TAG, date.toString());
                                     Calendar d = Calendar.getInstance();
                                     d.setTime(date);
                                     stringBuilder.append(d.get(Calendar.HOUR_OF_DAY)).append(":").append(d.get(Calendar.MINUTE)).append(" ");
@@ -147,8 +141,6 @@ public class WorkService extends LifecycleService {
                                         break;
                                     }
                                 }
-                                Log.d(TAG, waitDate.toString());
-                                Log.d(TAG, stringBuilder.toString());
                                 @SuppressLint("RestrictedApi") Data data = new Data.Builder()
                                         .putString("timers", stringBuilder.toString())
                                         .putString("name", reminder.getName())
@@ -158,7 +150,6 @@ public class WorkService extends LifecycleService {
                                     int delay = 1440 - (c.get(Calendar.MINUTE) + (c.get(Calendar.HOUR_OF_DAY) * 60));
                                     String start = stringBuilder.toString().split(" ")[0];
                                     delay += Integer.parseInt(start.split(":")[1]) + (Integer.parseInt(start.split(":")[0]) * 60);
-                                    Log.d(TAG, String.valueOf(delay));
                                     OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                                             .setInitialDelay((delay * 60) - c.get(Calendar.SECOND), TimeUnit.SECONDS)
                                             .setInputData(data)
@@ -172,7 +163,6 @@ public class WorkService extends LifecycleService {
                                         delay -= 1440;
                                         delay = -delay;
                                     }
-                                    Log.d(TAG, String.valueOf(delay));
                                     OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                                             .setInitialDelay((delay * 60) - c.get(Calendar.SECOND), TimeUnit.SECONDS)
                                             .setInputData(data)
@@ -213,7 +203,6 @@ public class WorkService extends LifecycleService {
                                 c.setTime(currentTime);
                                 Date waitDate = currentTime;
                                 for (Date date : list) {
-                                    Log.d(TAG, date.toString());
                                     Calendar d = Calendar.getInstance();
                                     d.setTime(date);
                                     stringBuilder.append(d.get(Calendar.HOUR_OF_DAY)).append(":").append(d.get(Calendar.MINUTE)).append(" ");
@@ -228,8 +217,6 @@ public class WorkService extends LifecycleService {
                                         break;
                                     }
                                 }
-                                Log.d(TAG, waitDate.toString());
-                                Log.d(TAG, stringBuilder.toString());
                                 @SuppressLint("RestrictedApi") Data data = new Data.Builder()
                                         .putString("timers", stringBuilder.toString())
                                         .putString("name", reminder.getName())
@@ -239,7 +226,6 @@ public class WorkService extends LifecycleService {
                                     int delay = 1440 - (c.get(Calendar.MINUTE) + (c.get(Calendar.HOUR_OF_DAY) * 60));
                                     String start = stringBuilder.toString().split(" ")[0];
                                     delay += Integer.parseInt(start.split(":")[1]) + (Integer.parseInt(start.split(":")[0]) * 60);
-                                    Log.d(TAG, String.valueOf(delay));
                                     OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                                             .setInitialDelay((delay * 60) - c.get(Calendar.SECOND), TimeUnit.SECONDS)
                                             .setInputData(data)
@@ -253,7 +239,6 @@ public class WorkService extends LifecycleService {
                                         delay -= 1440;
                                         delay = -delay;
                                     }
-                                    Log.d(TAG, String.valueOf(delay));
                                     OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                                             .setInitialDelay((delay * 60) - c.get(Calendar.SECOND), TimeUnit.SECONDS)
                                             .setInputData(data)
@@ -270,15 +255,8 @@ public class WorkService extends LifecycleService {
         };
 
     @Override
-    public boolean stopService(Intent name) {
-        Log.d(TAG, "stop");
-        return super.stopService(name);
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "destroy");
         isServiceRunning = false;
         if (registration != null) {
             registration.remove();

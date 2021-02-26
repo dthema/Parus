@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.repositories;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -145,7 +143,6 @@ public class ReminderRepository {
         checkRemindersThread = new Thread(() -> {
             while (isThreadActive) {
                 try {
-                    Log.d("ReminderCheck", "Checked");
                     if (reminders != null) {
                         Reminder nextReminder = null;
                         Calendar currentTime = Calendar.getInstance();

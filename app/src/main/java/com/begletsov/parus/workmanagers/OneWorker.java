@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -41,7 +40,6 @@ public class OneWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.d(TAG, getId() + " - notification start");
         String timersO = getInputData().getString("timers");
         assert timersO != null;
         String[] timers = timersO.split(" ");
@@ -93,7 +91,6 @@ public class OneWorker extends Worker {
                 break;
             }
         }
-        Log.d(TAG+"-wait", waitDate);
         @SuppressLint("RestrictedApi") Data data = new  Data.Builder()
                 .putString("timers", timersO)
                 .putString("name", getInputData().getString("name"))
@@ -105,17 +102,13 @@ public class OneWorker extends Worker {
             int delay = 1440 - (c.get(Calendar.MINUTE)+(c.get(Calendar.HOUR_OF_DAY)*60));
             String start = timers[0];
             delay += Integer.parseInt(start.split(":")[1])+(Integer.parseInt(start.split(":")[0])*60);
-            Log.d(TAG+"-delayA", String.valueOf(delay));
-            Log.d(TAG+"-delaySec", String.valueOf(c.get(Calendar.SECOND)));
             OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                     .setInitialDelay((delay*60)-c.get(Calendar.SECOND), TimeUnit.SECONDS)
                     .setInputData(data)
                     .build();
             WorkManager.getInstance(getApplicationContext()).enqueueUniqueWork(Objects.requireNonNull(getInputData().getString("document_name")), ExistingWorkPolicy.REPLACE, work);
         } else {
-            Integer delay = Integer.parseInt(waitDate.split(":")[1])+(Integer.parseInt(waitDate.split(":")[0])*60)-(c.get(Calendar.MINUTE)+(c.get(Calendar.HOUR_OF_DAY)*60));
-            Log.d(TAG+"-delayB", String.valueOf(delay));
-            Log.d(TAG+"-delaySec", String.valueOf(c.get(Calendar.SECOND)));
+            int delay = Integer.parseInt(waitDate.split(":")[1])+(Integer.parseInt(waitDate.split(":")[0])*60)-(c.get(Calendar.MINUTE)+(c.get(Calendar.HOUR_OF_DAY)*60));
             OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                     .setInitialDelay((delay*60)-c.get(Calendar.SECOND), TimeUnit.SECONDS)
                     .setInputData(data)
@@ -127,7 +120,6 @@ public class OneWorker extends Worker {
 
     @Override
     public void onStopped() {
-        Log.d(TAG, getTags().toString() + "stop");
         super.onStopped();
     }
 }

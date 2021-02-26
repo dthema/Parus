@@ -28,7 +28,6 @@ public class PereodicWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.d(TAG, getTags().toString() + "one_time: start");
         Date currentTime = new Date(System.currentTimeMillis());
         int startTime_hour = getInputData().getInt("startTime_hour", 25);
         int startTime_minute = getInputData().getInt("startTime_minute", 61);
@@ -80,7 +79,6 @@ public class PereodicWorker extends Worker {
                 int delay = 1440 - (c.get(Calendar.MINUTE)+(c.get(Calendar.HOUR_OF_DAY)*60));
                 String start = times[0];
                 delay += Integer.parseInt(start.split(":")[1])+(Integer.parseInt(start.split(":")[0])*60);
-                Log.d(TAG+"-delay", String.valueOf(delay));
                 OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                         .setInitialDelay((delay*60)-c.get(Calendar.SECOND), TimeUnit.SECONDS)
                         .setInputData(data)
@@ -88,7 +86,6 @@ public class PereodicWorker extends Worker {
                 WorkManager.getInstance(getApplicationContext()).enqueueUniqueWork(Objects.requireNonNull(getInputData().getString("document_name")), ExistingWorkPolicy.REPLACE, work);
             } else {
                 int delay = Integer.parseInt(waitDate.split(":")[1])+(Integer.parseInt(waitDate.split(":")[0])*60)-(c.get(Calendar.MINUTE)+(c.get(Calendar.HOUR_OF_DAY)*60));
-                Log.d(TAG+"-delay", String.valueOf(delay));
                 OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(OneWorker.class)
                         .setInitialDelay((delay*60)-c.get(Calendar.SECOND), TimeUnit.SECONDS)
                         .setInputData(data)
@@ -109,7 +106,6 @@ public class PereodicWorker extends Worker {
 
     @Override
     public void onStopped() {
-        Log.d(TAG, getTags().toString() + "stop");
         super.onStopped();
     }
 }

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -18,9 +17,9 @@ import androidx.databinding.DataBindingUtil;
 
 import com.begletsov.parus.R;
 import com.begletsov.parus.databinding.ActivityListenBinding;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ListenActivity extends AppCompatActivity implements RecognitionListener {
 
@@ -29,10 +28,12 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
     private Intent recognizerIntent;
     private final String LOG_TAG = "ListenActivity";
     private ActivityListenBinding binding;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_listen);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -40,7 +41,6 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
             getSupportActionBar().setTitle("Слушать");
         }
         speech = SpeechRecognizer.createSpeechRecognizer(this);
-        Log.i(LOG_TAG, "isRecognitionAvailable: " + SpeechRecognizer.isRecognitionAvailable(this));
         speech.setRecognitionListener(this);
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
@@ -86,6 +86,7 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
         if (requestCode == REQUEST_RECORD_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 speech.startListening(recognizerIntent);
+                listenAction();
             } else {
                 binding.listenStart.toggle();
                 Toast.makeText(ListenActivity.this, "Нет прав на запись речи", Toast
@@ -103,48 +104,47 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
         super.onStop();
         if (speech != null) {
             speech.destroy();
-            Log.i(LOG_TAG, "destroy");
         }
     }
     @Override
     public void onBeginningOfSpeech() {
-        Log.i(LOG_TAG, "onBeginningOfSpeech");
         binding.listenProgressBar.setIndeterminate(false);
         binding.listenProgressBar.setMax(10);
     }
     @Override
     public void onBufferReceived(byte[] buffer) {
-        Log.i(LOG_TAG, "onBufferReceived: " + Arrays.toString(buffer));
     }
+
     @Override
     public void onEndOfSpeech() {
-        Log.i(LOG_TAG, "onEndOfSpeech");
         binding.listenProgressBar.setIndeterminate(true);
         binding.listenStart.setChecked(false);
     }
+
     @Override
     public void onError(int errorCode) {
-        String errorMessage = getErrorText(errorCode);
-        Log.d(LOG_TAG, "FAILED " + errorMessage);
         binding.listenText.setText("Речь не распознана");
         binding.listenText.setTextSize(30);
         binding.listenStart.setChecked(false);
     }
+
     @Override
     public void onEvent(int arg0, Bundle arg1) {
-        Log.i(LOG_TAG, "onEvent");
+
     }
+
     @Override
     public void onPartialResults(Bundle arg0) {
-        Log.i(LOG_TAG, "onPartialResults");
+
     }
+
     @Override
     public void onReadyForSpeech(Bundle arg0) {
-        Log.i(LOG_TAG, "onReadyForSpeech");
+
     }
+
     @Override
     public void onResults(Bundle results) {
-        Log.i(LOG_TAG, "onResults");
         ArrayList<String> matches = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         if (matches != null) {
@@ -208,11 +208,12 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
             }
         }
     }
+
     @Override
     public void onRmsChanged(float rmsdB) {
-        Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
         binding.listenProgressBar.setProgress((int) rmsdB);
     }
+
     private static String getErrorText(int errorCode) {
         String message;
         switch (errorCode) {
@@ -248,5 +249,12 @@ public class ListenActivity extends AppCompatActivity implements RecognitionList
                 break;
         }
         return message;
+    }
+
+    private void listenAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "listen");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 }

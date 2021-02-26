@@ -3,10 +3,8 @@ package com.begletsov.parus;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 
-import com.begletsov.parus.services.MyFirebaseMessagingService;
 import com.begletsov.parus.ui.account.AccountFragment;
 import com.begletsov.parus.ui.chat.ChatFragment;
 import com.begletsov.parus.ui.communication.CommunicationFragment;
@@ -24,7 +22,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MyFirebaseMessagingService firebaseMessagingService;
     private ServiceViewModel serviceViewModel;
     private TTSViewModel TTS;
     private BottomNavigationView navView;
@@ -76,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (fm.getBackStackEntryCount() > 0) {
             fm.beginTransaction().hide(active).commit();
-            Log.d("TAGAA", String.valueOf(fm.getBackStackEntryCount()));
             active = fm.findFragmentByTag(fm.getBackStackEntryAt(fm.getBackStackEntryCount() - 1).getName());
             fm.beginTransaction().show(active).commit();
             Class<? extends Fragment> aClass = active.getClass();

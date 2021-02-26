@@ -1,24 +1,4 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-renamesourcefileattribute SourceFile
 
 -assumenosideeffects class android.util.Log {
   public static *** v(...);
@@ -27,3 +7,18 @@
   public static *** w(...);
   public static *** e(...);
 }
+
+#-dontwarn androidx.databinding.**
+#-keep class androidx.databinding.** { *; }
+#-keep class com.example.parus.DataBindingInfo { *; }
+#-keep class com.begletsov.parus.databinding.** { *; }
+#-keep class com.begletsov.parus.DataBinderMapperImpl { *; }
+#-keep class com.begletsov.parus.DataBinderMapper { *; }
+#-keep class * extends com.begletsov.parus.DataBinderMapper { *; }
+#-keep class * extends com.begletsov.parus.DataBinderMapperImpl { *; }
+#-keep class * extends com.begletsov.parus.DataBinderMapperImpl$Inner { *; }
+#-keep class com.begletsov.parus.DataBindingInfo { *; }
+#-keep class com.begletsov.parus.DataBinderMapperImpl$InnerLayoutIdLookup { *; }
+#-keep class com.begletsov.parus.DataBinderMapperImpl$InnerBrLookup { *; }
+#-keep class com.begletsov.parus.viewmodels { *; }
+#-keep class * extends androidx.fragment.Fragment { *; }

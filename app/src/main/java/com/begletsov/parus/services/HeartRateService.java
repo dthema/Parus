@@ -12,7 +12,6 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -56,7 +55,6 @@ public class HeartRateService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "start");
         if (isServiceRunning) return;
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
@@ -69,8 +67,6 @@ public class HeartRateService extends Service {
         handler = new Handler();
         // Обнуление данных о пульсе, если их нет минуту
         checkPulse = () -> new Thread(() -> db.collection("users").document(uid).update("pulse", 0).addOnCompleteListener(t -> {
-            if (t.isSuccessful())
-                Log.d(TAG, "pulse = 0");
         })).start();
         // запуск Google Fit
         account = GoogleSignIn
@@ -116,8 +112,6 @@ public class HeartRateService extends Service {
                         dataPoint -> {
                             for (Field field : dataPoint.getDataType().getFields()) {
                                 Value val = dataPoint.getValue(field);
-                                Log.d(TAG, "Detected DataPoint field: " + field.getName());
-                                Log.d(TAG, "Detected DataPoint value: " + val.asInt());
                                 // отправка последних полученных данных о пульсе в Firestore
                                 sendPulse(val.asInt());
                             }
@@ -127,16 +121,7 @@ public class HeartRateService extends Service {
                                         .setDataType(DataType.TYPE_HEART_RATE_BPM)
                                         .setSamplingRate(1, TimeUnit.SECONDS)
                                         .build(),
-                                mListener)
-                        .addOnCompleteListener(
-                                task -> {
-                                    if (task.isSuccessful()) {
-                                        Log.d(TAG, "Listener registered!");
-                                    } else {
-                                        Log.d(TAG, "Listener not registered.", task.getException());
-                                    }
-                                });
-
+                                mListener);
             }).start();
         } else stopMyService();
         return START_STICKY;
@@ -146,7 +131,6 @@ public class HeartRateService extends Service {
         db.collection("users").document(uid).update("pulse", pulse)
                 .addOnCompleteListener(Executors.newSingleThreadExecutor(), task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "Upload successful.");
                         handler.removeCallbacks(checkPulse);
                         handler.postDelayed(checkPulse, 300000);
                         if (pulse > 90 || pulse < 55) {
@@ -157,7 +141,9 @@ public class HeartRateService extends Service {
                                             hashMap.put("type", "heart");
                                             hashMap.put("userId", s.getString("linkUserId"));
                                             if (s.getString("linkUserId") != null)
-                                                db.collection("users").document(Objects.requireNonNull(s.getString("linkUserId"))).collection("Notifications").add(hashMap);
+                                                db.collection("users")
+                                                        .document(Objects.requireNonNull(s.getString("linkUserId")))
+                                                        .collection("Notifications").add(hashMap);
                                         }
                                     });
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -190,33 +176,16 @@ public class HeartRateService extends Service {
                             assert mNotificationManager != null;
                             mNotificationManager.notify(10, notification);
                         }
-                    } else {
-                        Log.d(TAG, Objects.requireNonNull(task.getException()).getMessage());
                     }
                 });
     }
 
     @Override
-    public boolean stopService(Intent name) {
-        Log.d(TAG, "stop");
-        return super.stopService(name);
-    }
-
-    @Override
     public void onDestroy() {
-        Log.d(TAG, "destroy");
         isServiceRunning = false;
         new Thread(() -> {
             Fitness.getSensorsClient(getApplicationContext(), account)
-                    .remove(mListener)
-                    .addOnCompleteListener(
-                            task -> {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "Listener was removed!");
-                                } else {
-                                    Log.d(TAG, "Listener was not removed.");
-                                }
-                            });
+                    .remove(mListener);
             final String collection = "users";
             db.collection(collection).document(uid).update("pulse", 0);
         }).start();

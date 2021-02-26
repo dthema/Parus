@@ -9,6 +9,8 @@ import android.os.Bundle;
 import com.begletsov.parus.R;
 import com.begletsov.parus.databinding.ActivitySayShowBinding;
 
+import java.util.Objects;
+
 public class SayShowActivity extends AppCompatActivity {
 
     @Override
@@ -19,7 +21,7 @@ public class SayShowActivity extends AppCompatActivity {
         String word = intent.getStringExtra("word");
         float min = 500;
         // выбор оптимального размера шрифта
-        for (String s : word.split(" "))
+        for (String s : Objects.requireNonNull(word).split(" "))
             switch (s.length()) {
                 case 1:
                     binding.showText.setTextSize(300);

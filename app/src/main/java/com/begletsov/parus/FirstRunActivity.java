@@ -96,7 +96,7 @@ public class FirstRunActivity extends AppCompatActivity {
 
     private void successLinkUser(){
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link-success");
         bundle.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
@@ -104,7 +104,7 @@ public class FirstRunActivity extends AppCompatActivity {
 
     private void failLinkUser(){
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link-fail");
         bundle.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
@@ -112,7 +112,7 @@ public class FirstRunActivity extends AppCompatActivity {
 
     private void withoutLinkUser(){
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "first-link-no");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Didn't");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
@@ -120,20 +120,18 @@ public class FirstRunActivity extends AppCompatActivity {
 
     private void setDisabled(){
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "user-role");
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Роль пользователя");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, getString(R.string.disabled));
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "user-role-disabled");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, getString(R.string.disabled));
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, bundle);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
     }
 
     private void setSupport(){
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "user-role");
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Роль пользователя");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, getString(R.string.support));
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "user-role-support");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, getString(R.string.support));
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_BEGIN, bundle);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.TUTORIAL_COMPLETE, bundle);
     }
 
     @Override

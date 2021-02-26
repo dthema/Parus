@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.repositories;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 
 import com.begletsov.parus.RequestTime;
@@ -48,9 +46,6 @@ public class ChatRepository {
     }
 
     public void sendMessage(String message, boolean fromSupport) {
-        Log.d("TAGAA", reference.getPath());
-        Log.d("TAGAA", userId + " " + linkUserId);
-        Log.d("TAGAA", String.valueOf(fromSupport));
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("sender", userId);
         hashMap.put("receiver", linkUserId);

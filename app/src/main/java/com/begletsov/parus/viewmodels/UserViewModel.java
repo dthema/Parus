@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels;
 
-import android.util.Log;
-
 import androidx.core.util.Pair;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -91,7 +89,6 @@ public class UserViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
         if (!repository.userListening().hasObservers()) {
-            Log.d("TAGAA", "user clear");
             repository.stopListeningShortUser();
             repository.stopListeningOtherUser();
             repository.stopListeningUser();

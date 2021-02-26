@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.data;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 
 import com.google.firebase.firestore.DocumentReference;
@@ -23,7 +21,6 @@ public class OftenWordsData extends LiveData<HashMap<String, Object>> {
 
     private final EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
         if (e != null) {
-            Log.i(TAG, "Listen failed.", e);
             return;
         }
         if (documentSnapshot != null) {

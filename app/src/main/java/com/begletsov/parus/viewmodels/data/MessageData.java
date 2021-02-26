@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.data;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 
 import com.begletsov.parus.viewmodels.data.models.Chat;
@@ -30,7 +28,6 @@ public class MessageData extends LiveData<List<Chat>> {
 
     private final EventListener<QuerySnapshot> eventListener = (queryDocumentSnapshots, e) -> {
         if (e != null) {
-            Log.i(TAG, "Listen failed.", e);
             return;
         }
         if (queryDocumentSnapshots != null) {

@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.data;
 
-import android.util.Log;
-
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 
@@ -24,7 +22,6 @@ public class LocationData extends LiveData<Pair<Double, Double>> {
 
     private final EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
         if (e != null) {
-            Log.i(TAG, "Listen failed.", e);
             return;
         }
         if (documentSnapshot != null) {

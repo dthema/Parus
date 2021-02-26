@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
-import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.begletsov.parus.RequestTime;
@@ -14,6 +14,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class OnlineService extends Service {
@@ -31,7 +32,8 @@ public class OnlineService extends Service {
 
     private boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        NetworkInfo netInfo = Objects.requireNonNull(cm).getActiveNetworkInfo();
+        assert netInfo != null;
         return netInfo.isConnected();
     }
 
@@ -47,17 +49,10 @@ public class OnlineService extends Service {
         checkOnline = new Thread(()->{
             while (isServiceRunning) {
                 if (isNetworkAvailable()) {
-                    Log.d(TAG, String.valueOf(isNetworkAvailable()));
                     if (uid != null) {
                         try {
                             if (new RequestTime().execute("").get() != null)
-                            db.collection("users").document(uid).update("lastOnline", new RequestTime().execute("").get())
-                                    .addOnCompleteListener(t -> {
-                                        if (t.isSuccessful())
-                                            Log.d(TAG, "updated");
-                                        else
-                                            Log.d(TAG, "ERROR");
-                                    });
+                            db.collection("users").document(uid).update("lastOnline", new RequestTime().execute("").get());
                         } catch (ExecutionException e) {
                             e.printStackTrace();
                         } catch (InterruptedException e) {
@@ -82,7 +77,6 @@ public class OnlineService extends Service {
                 uid = intent.getStringExtra("uid");
             if (!checkOnline.isAlive())
                 checkOnline.start();
-            Log.d(TAG, "start");
         }
         else stopMyService();
         return START_STICKY;
@@ -95,15 +89,8 @@ public class OnlineService extends Service {
     }
 
     @Override
-    public boolean stopService(Intent name) {
-        Log.d(TAG, "stop");
-        return super.stopService(name);
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "destroy");
         isServiceRunning = false;
         if (!checkOnline.isInterrupted())
             checkOnline.interrupt();

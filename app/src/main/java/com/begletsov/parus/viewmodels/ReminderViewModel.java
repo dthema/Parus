@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels;
 
-import android.util.Log;
-
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
@@ -69,7 +67,6 @@ public class ReminderViewModel extends ViewModel {
         super.onCleared();
         if (repository.reminderListening(false) != null)
             if (!repository.reminderListening(false).hasObservers()) {
-                Log.d("TAGAA", "reminder clear");
                 repository.stopListening();
                 repository.stopCheckReminders();
                 repository.destroy();

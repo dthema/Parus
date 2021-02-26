@@ -26,6 +26,8 @@ import com.begletsov.parus.services.OnlineService;
 import com.begletsov.parus.viewmodels.ServiceViewModel;
 import com.begletsov.parus.viewmodels.UserViewModel;
 
+import java.util.Objects;
+
 public class AccountFragment extends Fragment {
 
     private UserViewModel userViewModel;
@@ -65,7 +67,7 @@ public class AccountFragment extends Fragment {
             binding.infoId.setOnLongClickListener(l -> {
                 ClipboardManager clipboard = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("ID пользователя", user.getUserId());
-                clipboard.setPrimaryClip(clip);
+                Objects.requireNonNull(clipboard).setPrimaryClip(clip);
                 Toast.makeText(getActivity(), "ID скопирован в буфер обмена", Toast.LENGTH_LONG).show();
                 return true;
             });

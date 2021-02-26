@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +26,6 @@ import com.begletsov.parus.viewmodels.HealthViewModel;
 import com.begletsov.parus.viewmodels.HomeViewModel;
 import com.begletsov.parus.viewmodels.NetworkViewModel;
 import com.begletsov.parus.viewmodels.ReminderViewModel;
-import com.begletsov.parus.viewmodels.ServiceViewModel;
 import com.begletsov.parus.viewmodels.TTSViewModel;
 import com.begletsov.parus.viewmodels.UserViewModel;
 import com.begletsov.parus.viewmodels.data.binding.HomeData;
@@ -327,11 +325,10 @@ public class HomeFragment extends Fragment {
         healthViewModel.get().observe(getViewLifecycleOwner(), result -> {
             switch (result) {
                 case 0:
-                    getHealthPermissions();
                     requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 100);
                     break;
                 case 1:
-                    getGoogleHealthPermissions();
+                    googleHealthPermissionsAction();
                     FitnessOptions fitnessOptions = FitnessOptions.builder()
                             .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
                             .build();
@@ -377,23 +374,20 @@ public class HomeFragment extends Fragment {
         healthViewModel.onRequestPermissionsResult(requestCode, permissions, grantResults).observe(getViewLifecycleOwner(), result -> {
             switch (result) {
                 case NO_PERMISSION:
-                    failHealthPermissions();
                     homeData.setHeartRate(getString(R.string.no_pulse_rights));
                     binding.homePulse.setClickable(true);
                     break;
                 case NO_GOOGLE_ACCOUNT:
-                    failGoogleHealthPermissions();
+                    googleHealthPermissionsActionFail();
                     homeData.setHeartRate(getString(R.string.google_account_not_connected));
                     binding.homePulse.setClickable(true);
                     break;
                 default:
-                    healthAreChecking();
                     homeData.setHeartRate(getString(R.string.no_pulse_data));
                     binding.homePulse.setClickable(false);
                     break;
             }
         });
-        Log.d(TAG + "_request", String.valueOf(requestCode));
     }
 
     @Override
@@ -402,31 +396,7 @@ public class HomeFragment extends Fragment {
         healthViewModel.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void healthAreChecking() {
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "health-check");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, "Heart Rate is checking");
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-    }
-
-    private void getHealthPermissions() {
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "health-permission");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, "Granted");
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-    }
-
-    private void failHealthPermissions() {
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "health-permission");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, "Not granted");
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
-    }
-
-    private void getGoogleHealthPermissions() {
+    private void googleHealthPermissionsAction() {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "google-health-permission");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Granted");
@@ -434,9 +404,9 @@ public class HomeFragment extends Fragment {
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
-    private void failGoogleHealthPermissions() {
+    private void googleHealthPermissionsActionFail() {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "google-health-permission");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "google-health-permission-fail");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Not granted");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
@@ -444,7 +414,7 @@ public class HomeFragment extends Fragment {
 
     private void recognizeTextFastAction() {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action-text");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Recognize Text");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
@@ -452,7 +422,7 @@ public class HomeFragment extends Fragment {
 
     private void recognizeObjectFastAction() {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action-object");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Recognize Object");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
@@ -460,7 +430,7 @@ public class HomeFragment extends Fragment {
 
     private void listenFastAction() {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action-listen");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Listen");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
@@ -468,7 +438,7 @@ public class HomeFragment extends Fragment {
 
     private void sayFastAction() {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "fast-action-say");
         bundle.putString(FirebaseAnalytics.Param.VALUE, "Say");
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);

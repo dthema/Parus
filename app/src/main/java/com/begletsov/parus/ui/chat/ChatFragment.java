@@ -9,7 +9,6 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,6 @@ import com.begletsov.parus.viewmodels.UserViewModel;
 import com.begletsov.parus.viewmodels.data.models.Chat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ChatFragment extends Fragment implements RecognitionListener {
@@ -53,6 +51,7 @@ public class ChatFragment extends Fragment implements RecognitionListener {
         super.onPause();
         MyFirebaseMessagingService.inChat = false;
         stopCheckNetwork();
+        speech.stopListening();
     }
 
     @Override
@@ -60,6 +59,7 @@ public class ChatFragment extends Fragment implements RecognitionListener {
         super.onResume();
         MyFirebaseMessagingService.inChat = true;
         startCheckNetwork();
+        speech.setRecognitionListener(this);
     }
 
     @Override
@@ -215,21 +215,19 @@ public class ChatFragment extends Fragment implements RecognitionListener {
                             binding.chatProgressBar.setVisibility(View.INVISIBLE);
                             isRecording = false;
                         } else { // начать ввод голосом
-                            binding.chatProgressBar.setVisibility(View.VISIBLE);
-                            binding.chatProgressBar.setIndeterminate(true);
                             if (ActivityCompat.checkSelfPermission(requireContext(),
                                     Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED &&
                                     ActivityCompat.checkSelfPermission(requireContext(),
                                             Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                                binding.chatProgressBar.setVisibility(View.GONE);
                                 ActivityCompat.requestPermissions(requireActivity(),
                                         new String[]{Manifest.permission.RECORD_AUDIO,
                                                 Manifest.permission.RECORD_AUDIO},
                                         REQUEST_RECORD_PERMISSION);
                             } else {
+                                binding.chatProgressBar.setVisibility(View.VISIBLE);
+                                binding.chatProgressBar.setIndeterminate(true);
                                 speech.startListening(recognizerIntent);
                                 isRecording = true;
-                                Log.e(LOG_TAG, "PERMISSION GRANTED");
                             }
                         }
                     }
@@ -258,7 +256,6 @@ public class ChatFragment extends Fragment implements RecognitionListener {
         super.onStop();
         if (speech != null) {
             speech.destroy();
-            Log.i(LOG_TAG, "destroy");
         }
     }
 
@@ -268,49 +265,29 @@ public class ChatFragment extends Fragment implements RecognitionListener {
     }
 
     @Override
+    public void onReadyForSpeech(Bundle params) {
+
+    }
+
+    @Override
     public void onBeginningOfSpeech() {
-        Log.i(LOG_TAG, "onBeginningOfSpeech");
         binding.chatProgressBar.setIndeterminate(false);
         binding.chatProgressBar.setMax(10);
     }
 
     @Override
-    public void onBufferReceived(byte[] buffer) {
-        Log.i(LOG_TAG, "onBufferReceived: " + Arrays.toString(buffer));
-    }
-
-    @Override
     public void onEndOfSpeech() {
-        Log.i(LOG_TAG, "onEndOfSpeech");
         binding.chatProgressBar.setIndeterminate(true);
     }
 
     @Override
     public void onError(int errorCode) {
-        String errorMessage = getErrorText(errorCode);
-        Log.d(LOG_TAG, "FAILED " + errorMessage);
         binding.chatProgressBar.setVisibility(View.INVISIBLE);
         isRecording = false;
     }
 
     @Override
-    public void onEvent(int arg0, Bundle arg1) {
-        Log.i(LOG_TAG, "onEvent");
-    }
-
-    @Override
-    public void onPartialResults(Bundle arg0) {
-        Log.i(LOG_TAG, "onPartialResults");
-    }
-
-    @Override
-    public void onReadyForSpeech(Bundle arg0) {
-        Log.i(LOG_TAG, "onReadyForSpeech");
-    }
-
-    @Override
     public void onResults(Bundle results) {
-        Log.i(LOG_TAG, "onResults");
         ArrayList<String> matches = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         assert matches != null;
@@ -321,10 +298,25 @@ public class ChatFragment extends Fragment implements RecognitionListener {
     }
 
     @Override
+    public void onPartialResults(Bundle partialResults) {
+
+    }
+
+    @Override
+    public void onEvent(int eventType, Bundle params) {
+
+    }
+
+    @Override
     public void onRmsChanged(float rmsdB) {
         binding.chatProgressBar.setProgress((int) rmsdB);
         if (binding.chatProgressBar.getVisibility() == View.INVISIBLE)
             speech.stopListening();
+    }
+
+    @Override
+    public void onBufferReceived(byte[] buffer) {
+
     }
 
     private static String getErrorText(int errorCode) {

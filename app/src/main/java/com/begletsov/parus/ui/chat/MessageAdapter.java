@@ -69,6 +69,7 @@ public class MessageAdapter extends ListAdapter<Chat, MessageAdapter.ViewHolder>
             message.setOnLongClickListener(l -> {
                 ClipboardManager clipboard = (ClipboardManager) binding.getRoot().getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("Сообщение", message.getText().toString());
+                assert clipboard != null;
                 clipboard.setPrimaryClip(clip);
                 Toast.makeText(binding.getRoot().getContext(), "Сообщение скопировано", Toast.LENGTH_LONG).show();
                 return true;
@@ -82,6 +83,7 @@ public class MessageAdapter extends ListAdapter<Chat, MessageAdapter.ViewHolder>
             message.setOnLongClickListener(l -> {
                 ClipboardManager clipboard = (ClipboardManager) binding.getRoot().getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("Сообщение", message.getText().toString());
+                assert clipboard != null;
                 clipboard.setPrimaryClip(clip);
                 Toast.makeText(binding.getRoot().getContext(), "Сообщение скопировано", Toast.LENGTH_LONG).show();
                 return true;
@@ -156,7 +158,7 @@ public class MessageAdapter extends ListAdapter<Chat, MessageAdapter.ViewHolder>
 
         private String getMonth(Calendar time) {
             String month;
-            switch (time.get(Calendar.MONTH)) {
+            switch (time.get(Calendar.MONTH)+1) {
                 case 1:
                     month = "Января";
                     break;

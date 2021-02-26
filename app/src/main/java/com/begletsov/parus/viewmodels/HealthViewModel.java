@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -69,7 +68,6 @@ public class HealthViewModel extends AndroidViewModel {
             }
         } else
             healthLiveData.setValue(NO_PERMISSION);
-        Log.d(TAG + "_request", String.valueOf(requestCode));
         return healthLiveData;
     }
 
@@ -78,9 +76,6 @@ public class HealthViewModel extends AndroidViewModel {
             if (resultCode == Activity.RESULT_OK) {
                 serviceRepository.startHeartRateService(getApplication());
             }
-            Log.d(TAG + "_acResult", String.valueOf(resultCode));
         }
-        Log.d(TAG + "_acRequest", String.valueOf(requestCode));
-
     }
 }

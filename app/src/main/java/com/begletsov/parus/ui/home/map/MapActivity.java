@@ -8,7 +8,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -69,13 +68,12 @@ public class MapActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(this, "pk.eyJ1IjoiZHRoZW1hIiwiYSI6ImNrYW1kcGphMjEzMDQydHA2aDdxbGg1MTcifQ.zZZ1fAHOUWJ9OCuz6fVBZg");
+        Mapbox.getInstance(this, getString(R.string.map_key));
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         binding.myLocation.setOnClickListener(l -> {
             if (PermissionsManager.areLocationPermissionsGranted(this) && userLocation != null) {
-                Log.d("TAGAA", "YEP");
                 LatLng latLng = new LatLng(userLocation);
                 mapboxMap.setCameraPosition(new CameraPosition.Builder()
                         .target(latLng)
@@ -119,7 +117,7 @@ public class MapActivity extends AppCompatActivity implements
         this.mapboxMap = mapboxMap;
         mapboxMap.setStyle(new Style.Builder()
                         // привязывание своего стиля для карты
-                        .fromUri("mapbox://styles/dthema/ckan01is85ape1iqt89ohvcek")
+                        .fromUri(getString(R.string.map_url))
                         // установка картинки для метки на местоположение связанного пользователя
                         .withImage(ID_ICON_1, generateBitmap(), true)
                 , style -> {

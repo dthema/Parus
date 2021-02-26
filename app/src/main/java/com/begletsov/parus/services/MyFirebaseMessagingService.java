@@ -6,12 +6,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -31,7 +29,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
-        Log.d(TAG, "Refreshed token: " + token);
         sendRegistrationToServer(token);
     }
 
@@ -43,37 +40,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     @Override
-    public void onSendError(@NonNull String s, @NonNull Exception e) {
-        super.onSendError(s, e);
-        Log.d(TAG, "Message error");
-    }
-
-    @Override
-    public void onMessageSent(@NonNull String s) {
-        super.onMessageSent(s);
-        Log.d(TAG, "Message sent");
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        Log.d(TAG, "unbind");
-        return super.onUnbind(intent);
-    }
-
-    @Override
-    public boolean bindService(Intent service, ServiceConnection conn, int flags) {
-        Log.d(TAG, "Bind");
-        return super.bindService(service, conn, flags);
-    }
-
-    @Override
-    public void unbindService(ServiceConnection conn) {
-        super.unbindService(conn);
-    }
-
-    @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        Log.d(TAG, "Message received");
         // уведомление о новом сообщении в чате, если он закрыт
         if (remoteMessage.getData().size() > 0) {
             String title = "";

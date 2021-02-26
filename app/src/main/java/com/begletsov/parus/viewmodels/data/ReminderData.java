@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.data;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 
 import com.begletsov.parus.viewmodels.data.models.Reminder;
@@ -74,7 +72,6 @@ public class ReminderData extends LiveData<List<Reminder>> {
     private void setEventListener() {
         eventListener = (queryDocumentSnapshots, e) -> {
             if (e != null) {
-                Log.i(TAG, "Listen failed.", e);
                 return;
             }
             if (queryDocumentSnapshots != null)
@@ -87,7 +84,6 @@ public class ReminderData extends LiveData<List<Reminder>> {
                                 if (rem.getId().equals(reminder.getId()))
                                     return;
                             }
-                            Log.d(TAG, "add reminder");
                             if (reminder.getTimers() != null || reminder.getTimeInterval() != null)
                                 reminders.add(reminder);
                             break;

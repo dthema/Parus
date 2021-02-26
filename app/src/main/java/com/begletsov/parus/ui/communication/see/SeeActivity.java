@@ -17,7 +17,6 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,6 +26,7 @@ import com.begletsov.parus.R;
 import com.begletsov.parus.databinding.ActivitySeeBinding;
 import com.begletsov.parus.viewmodels.SeeViewModel;
 import com.begletsov.parus.viewmodels.TTSViewModel;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class SeeActivity extends AppCompatActivity {
 
@@ -37,6 +37,7 @@ public class SeeActivity extends AppCompatActivity {
     private SeeViewModel seeViewModel;
     private TTSViewModel TTS;
     private ActivitySeeBinding binding;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -47,6 +48,7 @@ public class SeeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_see);
         seeViewModel = new ViewModelProvider(this).get(SeeViewModel.class);
         TTS = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
@@ -99,7 +101,7 @@ public class SeeActivity extends AppCompatActivity {
                 }
             }
         } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -152,10 +154,12 @@ public class SeeActivity extends AppCompatActivity {
                 Toast.makeText(this, text, Toast.LENGTH_LONG).show();
                 binding.seeSay.setVisibility(View.GONE);
                 binding.seeText.setText("");
+                seeTextActionFail();
             } else {
                 binding.seeSay.setVisibility(View.VISIBLE);
                 binding.seeText.setText(text);
                 binding.seeText.setTextSize(pair.second);
+                seeTextAction();
             }
         });
     }
@@ -170,10 +174,12 @@ public class SeeActivity extends AppCompatActivity {
                 Toast.makeText(this, text, Toast.LENGTH_LONG).show();
                 binding.seeSay.setVisibility(View.GONE);
                 binding.seeText.setText("");
+                seeObjectActionFail();
             } else {
                 binding.seeSay.setVisibility(View.VISIBLE);
                 binding.seeText.setText(text);
                 binding.seeText.setTextSize(pair.second);
+                seeObjectAction();
             }
         });
     }
@@ -184,6 +190,33 @@ public class SeeActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    private void seeObjectAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "see-object");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void seeTextAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "see-text");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void seeObjectActionFail() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "see-object-fail");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void seeTextActionFail() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "see-text-fail");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
 }
 
 

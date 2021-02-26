@@ -15,7 +15,6 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -53,7 +52,6 @@ public class GeoLocationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "start");
         if (isServiceRunning) return;
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
@@ -103,7 +101,6 @@ public class GeoLocationService extends Service {
                     if (location != null) {
                         wayLatitude = location.getLatitude();
                         wayLongitude = location.getLongitude();
-                        Log.d(TAG, "last - " + wayLatitude + " " + wayLongitude);
                     }
                 });
                 locationRequest = LocationRequest.create();
@@ -120,13 +117,11 @@ public class GeoLocationService extends Service {
                             if (location != null) {
                                 wayLatitude = location.getLatitude();
                                 wayLongitude = location.getLongitude();
-                                Log.d(TAG, "new - " + wayLatitude + " " + wayLongitude);
                                 HashMap<String, Object> hashMap = new HashMap<>();
                                 hashMap.put("Latitude", wayLatitude);
                                 hashMap.put("Longitude", wayLongitude);
-                                db.collection("users").document(uid).collection("GeoPosition").document("Location").set(hashMap)
-                                        .addOnSuccessListener(l-> Log.d(TAG, "upload"))
-                                        .addOnFailureListener(l-> Log.d(TAG, l.getMessage()));
+                                db.collection("users").document(uid).collection("GeoPosition")
+                                        .document("Location").set(hashMap);
 
                             }
                         }
@@ -142,15 +137,8 @@ public class GeoLocationService extends Service {
     }
 
     @Override
-    public boolean stopService(Intent name) {
-        Log.d(TAG, "stop");
-        return super.stopService(name);
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "destroy");
         isServiceRunning = false;
         new Thread(()->{
             if (fusedLocationClient != null) {

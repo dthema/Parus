@@ -23,6 +23,7 @@ import com.begletsov.parus.R;
 import com.begletsov.parus.databinding.ActivitySayBinding;
 import com.begletsov.parus.viewmodels.SayViewModel;
 import com.begletsov.parus.viewmodels.TTSViewModel;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +38,12 @@ public class SayActivity extends AppCompatActivity {
     private SayViewModel sayViewModel;
     private TTSViewModel TTS;
     private ActivitySayBinding binding;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_say);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -165,6 +168,7 @@ public class SayActivity extends AppCompatActivity {
             Intent intent = new Intent(SayActivity.this, SayShowActivity.class);
             intent.putExtra("word", text);
             startActivity(intent);
+            showAction();
         } else
             Toast.makeText(this, "Введите текст для показа", Toast.LENGTH_LONG).show();
     }
@@ -175,6 +179,7 @@ public class SayActivity extends AppCompatActivity {
         if (!text.equals("")) {
             TTS.speak(text);
             sayViewModel.addOftenWord(text);
+            sayAction();
         }
     }
 
@@ -326,4 +331,19 @@ public class SayActivity extends AppCompatActivity {
                 binding.gridWords.addView((View) arr[j]);
         }
     }
+
+    private void sayAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "say");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
+    private void showAction() {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "show");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "button");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
 }

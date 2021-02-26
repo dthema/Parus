@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.data;
 
-import android.util.Log;
-
 import androidx.core.util.Pair;
 
 import androidx.annotation.Nullable;
@@ -31,7 +29,6 @@ public class UserShortData extends LiveData<Pair<Pair<String, String>, Boolean>>
         @Override
         public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
             if (e != null) {
-                Log.i(TAG, "Listen failed.", e);
                 return;
             }
             if (documentSnapshot != null) {

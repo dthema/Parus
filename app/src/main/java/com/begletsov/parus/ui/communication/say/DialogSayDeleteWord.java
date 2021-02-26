@@ -3,7 +3,6 @@ package com.begletsov.parus.ui.communication.say;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -73,7 +72,6 @@ public class DialogSayDeleteWord extends AppCompatDialogFragment {
                         checkBox.setAllCaps(false);
                         checkBox.setId(111001010 + i);
                         checkBoxes[0][i] = checkBox;
-                        Log.d("TAGAA", "+");
                         dialogLayout.addView(checkBoxes[0][i], i);
                     }
                 }
@@ -104,7 +102,6 @@ public class DialogSayDeleteWord extends AppCompatDialogFragment {
                     String[] words = new String[list.size()];
                     for (int i = 0; i < list.size(); i++) {
                         words[i] = list.get(i);
-                        Log.d("ABCD", words[i]);
                     }
                     sayViewModel.deleteCollectionWord(spinner.getSelectedItem().toString(), words);
                 } else {

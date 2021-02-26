@@ -1,7 +1,5 @@
 package com.begletsov.parus.viewmodels.data;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 
 import com.begletsov.parus.viewmodels.data.models.User;
@@ -24,7 +22,6 @@ public class UserData extends LiveData<User> {
 
     private final EventListener<DocumentSnapshot> eventListener = (documentSnapshot, e) -> {
         if (e != null) {
-            Log.i(TAG, "Listen failed.", e);
             return;
         }
         if (documentSnapshot != null) {

@@ -20,12 +20,6 @@
     <string name="detect_object">Распознать объект</string>
     <string name="start_listen">Начать слушать</string>
     <string name="say_and_show">Сказать/Показать:</string>
-    <string name="cannot_connect_to_shealth">Не удалось подключиться к Samsung Health</string>
-    <string name="download_shealth">Установите Samsung Health</string>
-    <string name="update_shealth">Обновите Samsung Health</string>
-    <string name="enable_shealth">Включите Samsung Health</string>
-    <string name="agree_with_shealth_policy">Пожалуйста, согласитесь с политикой Samsung Health</string>
-    <string name="shealth_dialog_message">Для отслеживания пульса из Samsung Health необходимо выдать нужные разрешения\n На данный момент приложение не является партнёром Samsung Health, поэтому включите режим разработчика в Samsung Health, чтобы приложение могло считывать данные о пульсе\n Чтобы его включить перейдите во вкладку \'О Samsung Health\' в настройках приложения и несколько раз нажите на версию приложения</string>
     <string name="no_name">Имя не введено</string>
     <string name="error">Произошла ошибка</string>
     <string name="choose_role">Выберите роль</string>
@@ -134,4 +128,6 @@
     <string name="your_account">Ваш аккаунт</string>
     <string name="start_record_voice">Начать запись голоса</string>
     <string name="send_chat">Отправить сообщение</string>
+    <string name="map_key">pk.eyJ1IjoiZHRoZW1hIiwiYSI6ImNrYW1kcGphMjEzMDQydHA2aDdxbGg1MTcifQ.zZZ1fAHOUWJ9OCuz6fVBZg</string>
+    <string name="map_url">mapbox://styles/dthema/ckan01is85ape1iqt89ohvcek</string>
 </resources>
